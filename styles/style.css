@@ -2,24 +2,37 @@
 	--headerColorDark: #0D1117;
 	--bodyColorDark: #06080a;
 	--mainSectionColorDark: #11161b;
+	--textFieldBackgroundColor: #0b0e11;
+	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--defaultBorderRadius: 8px;
+}
+
+html, body{
+	width: 100%;
 }
 
 body{
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-family: var(--defaultFont);
 	background-color: var(--bodyColorDark);
 }
 
 #navigationBar{
-	background-color: var(--headerColorDark);
-	display: inline-flex;
-	width: 100%;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	padding: 0.75em;
+	position: fixed;
+	top: 0; /* Pushes navbar to the top of the screen - always */
+	z-index: 1; /* layering priority - higher value -> on top */
+
+	display: flex;
+	left: 0; right: 0; /* This makes the navbar span across the whole page */
+	align-items: center; /* Center vertically */
+	justify-content: center; /* Hugs the elements together in the center */
+	
+	padding: 12px;
 	margin-left: auto;
 	margin-right: auto;
+
+	color: whitesmoke;
+	background-color: var(--headerColorDark);
 }
 
 #navigationBar a{
@@ -38,31 +51,112 @@ body{
 
 #navigationBar li{
 	display: inline;
-	margin-right: 1em;
+	margin-right: 16px;
 }
 
 #logo{
-	width: 2em;
+	width: 32px;
 	filter: invert(95%);
 }
 
 #mainSection{
-
 	width: 60%;
-	margin: auto; /* this means the margins are the same, so it gets pushed to the middle */
-	margin-top: 1.5em;
-	margin-bottom: 1.5em;
-	padding-left: 3em;
-	padding-right: 3em;
-	padding-top: 1em;
-	padding-bottom: 1em;
+	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
+	margin-right: auto; 
+	margin-top: 70px;
+	margin-bottom: 20px;
+	padding-left: 48px;
+	padding-right: 48px;
+	padding-top: 16px;
+	padding-bottom: 16px;
+
 	background-color: var(--mainSectionColorDark);
 	color: whitesmoke;
-	border-radius: 0.5em;
+	border-radius: var(--defaultBorderRadius);
 }
 
 #mainSection h1{
 	display: inline-flex;
 	width: 100%;
 	justify-content: center;
+	
+}
+
+#title{
+	font-size: 32px;
+	align-items: center; /* Center vertically */
+	justify-content: center; /* Hugs the elements together in the center */
+	text-align:center;
+	margin-top: 16px;
+	min-width: 385px;
+}
+
+.horizontalAngledText, .verticalAngledText{
+	margin: 0;
+}
+
+.horizontalAngledText{
+	transform: skew(60deg, -30deg) scaleY(.66667);
+}
+
+.verticalAngledText{
+	transform: skew(0deg, -30deg) scaleY(1.33333);
+}
+
+#mateiPic{
+
+	border-bottom: 16px solid gray;
+	padding: 0;
+	display:block;
+	border-radius: 16px;
+	margin-left: auto;
+	margin-right: auto;
+	
+}
+
+
+/* .formField textarea {
+	border-radius: 100px;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	back
+} */
+
+#complaintForm{
+	width: 50%;
+	min-width: 288px;
+	border: 2px solid lightgray;
+	border-radius: var(--defaultBorderRadius);
+	margin: auto; /* Puts form to the middle */
+	
+}
+
+#complaintForm input, textarea{
+	background-color: var(--textFieldBackgroundColor);
+	color: whitesmoke;
+	font-family: var(--defaultFont);
+	resize: none;
+	width: 100%;
+	padding: 16px;
+	border-radius: var(--defaultBorderRadius);
+	overflow: hidden;
+	display: inline-block;
+	overflow: hidden; /* Prevents fields from leaving fieldset outline */
+	box-sizing: border-box; /* Makes the width of the fields relative to the fieldset outline */
+	margin-top: 16px;
+	margin-bottom: 16px;
+}
+
+#complaintForm textarea{
+
+}
+
+#complaintForm fieldset{
+	border: 0;
+	overflow: hidden;
+	
+}
+
+
+#complaintForm input, textarea::placeholder{
+	font-weight: bolder;
 }
