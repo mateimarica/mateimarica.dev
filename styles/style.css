@@ -1,4 +1,4 @@
-:root{
+:root {
 	--navbarColor: #0D1117;
 	--backgroundColor: #06080a;
 	--mainSectionColorDark: #11161b;
@@ -7,18 +7,18 @@
 	--defaultBorderRadius: 8px;
 }
 
-html, body{
+html, body {
 	width: 100%;
 }
 
-body{
+body {
 	margin: 0;
 	margin-top: 65px;
 	font-family: var(--defaultFont);
 	background-color: var(--backgroundColor);
 }
 
-#navigationBar{
+#navigationBar {
 	position: fixed;
 	top: 0; /* Pushes navbar to the top of the screen - always */
 	z-index: 1; /* layering priority - higher value -> on top */
@@ -36,43 +36,43 @@ body{
 	background-color: var(--navbarColor);
 }
 
-#navigationBar a{
+#navigationBar a {
 	color: rgb(187, 187, 187); /* light grey */
 	text-decoration: none;
 }
 
 
-#navigationBar a:hover{
+#navigationBar a:hover {
 	color:whitesmoke;
 	transition: 0.2s ease;
 }
 
-#navigationBar ul{
+#navigationBar ul {
 	margin: 0;
 }
 
-#navigationBar li{
+#navigationBar li {
 	display: inline;
 	margin-right: 16px;
 }
 
-#logo{
+#logo {
 	width: 32px;
 	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
 }
 
-#logo:hover{
+#logo:hover {
 	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
 }
 
-.sectionContainer{
+.sectionContainer {
 	width: 60%;
 	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
 	margin-right: auto;
 	margin-bottom: 20px;
 	padding-left: 48px;
 	padding-right: 48px;
-	padding-top: 16px;
+	padding-top: 32px;
 	padding-bottom: 16px;
 
 	background-color: var(--mainSectionColorDark);
@@ -80,22 +80,23 @@ body{
 	border-radius: var(--defaultBorderRadius);
 }
 
-.titleContainer{
+.titleContainer {
 	width: 480px;
 	padding-left: 0;
 	padding-right: 0;
+	padding-top: 16px;
+	padding-bottom: 1px;
 }
 
-
-@media (max-width: 650px){
-	.titleContainer{
+@media (max-width: 650px) {
+	.titleContainer {
 		width: 60%;
 		padding-left: 48px;
 		padding-right: 48px;
 	}
 }
 
-#title{
+#title {
 	font-size: 32px;
 	margin-top: 16px;
 	margin-bottom: 48px;
@@ -104,71 +105,73 @@ body{
 }
 
 /* Make the font smaller when the screen width gets too small */
-@media (max-width: 675px) {
-	#title {
+@media screen and (max-width: 675px)  {
+	#title  {
 	  /* font-size: 20px; */
 	  font-size: 4.7vw;
 	}
   }
 
-.horizontalAngledText, .verticalAngledText{
+.horizontalAngledText, .verticalAngledText {
 	margin: 0;
 	display: inline-flex;
 	width: 100%;
 	justify-content: center;
 }
 
-.horizontalAngledText{
+.horizontalAngledText {
 	transform: skew(60deg, -30deg) scaleY(.66667);
 }
 
-.verticalAngledText{
+.verticalAngledText {
 	transform: skew(0deg, -30deg) scaleY(1.33333);
 }
 
-#infoSection{
-	margin-top: 25px;
-	display: flex;
-	justify-content: center; /* Hugs the elements together in the center */
-}
-
-.infoBlock{
-	width: 30%;
-	margin-left: auto; /* centers the info blocks */
-	margin-right: auto; /* centers the info blocks */
-	min-width: 300px;
-	font-size: 18px;
-}
-
-
-.infoBlock h1{
-	font-size: 32px;
+.centeredHeader {
 	text-align: center;
 }
 
-/* stack elements upon small screen width */
-@media screen and (max-width: 1200px){
-	#infoSection{
+#aboutMeSection {
+	align-items: center; /* Center vertically */
+	display: flex;
+}
+
+#aboutMeSection ul {
+	list-style: none;
+	margin-left: 5%;
+	margin-bottom: 3%;
+	padding: 0;
+}
+
+#aboutMeSection li {
+	font-size: 24px;
+	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+	text-align: center;
+}
+
+#heyHeader {
+	font-size: 48px;
+	text-align: center;
+}
+
+#mateiPic {
+	margin-left: 0;
+	margin-right: 0;
+	width: 40%;
+	min-width: 225px;
+	border-radius: 50%; /* makes pic circular */
+	background-color: var(--backgroundColor);
+	height: 100%; /* this is to ensure that the pic's 1:1 ratio isn't changed */
+}
+
+@media screen and (max-width: 900px) {
+	#aboutMeSection {
 		display: block;
+		text-align: center;
 	}
 }
 
-#mateiPic{
-	margin-top: 50px;
-	margin-left: auto;
-	margin-right: auto;
-	width: 35%;
-	border-radius: 50%; /* makes pic circular */
-	background-color: var(--backgroundColor);
-}
-
-#cross{
-	writing-mode: vertical-lr;
-	/*text-orientation: sideways;*/
-	transform:scale(-1);
-}
-
-#complaintForm{
+#complaintForm {
 	width: 50%;
 	min-width: 288px;
 	border: 2px solid lightgray;
@@ -176,7 +179,7 @@ body{
 	margin: auto; /* Puts form to the middle */
 }
 
-#complaintForm input, textarea{
+#complaintForm input, textarea {
 	background-color: var(--textFieldBackgroundColor);
 	color: whitesmoke;
 	font-family: var(--defaultFont);
@@ -192,12 +195,12 @@ body{
 	margin-bottom: 16px;
 }
 
-#complaintForm fieldset{
+#complaintForm fieldset {
 	border: 0;
 	overflow: hidden;
 }
 
 
-#complaintForm input, textarea::placeholder{
+#complaintForm input, textarea::placeholder {
 	font-weight: bolder;
 }
