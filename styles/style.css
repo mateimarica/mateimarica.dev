@@ -1,6 +1,6 @@
 :root{
-	--headerColorDark: #0D1117;
-	--bodyColorDark: #06080a;
+	--navbarColor: #0D1117;
+	--backgroundColor: #06080a;
 	--mainSectionColorDark: #11161b;
 	--textFieldBackgroundColor: #0b0e11;
 	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -13,8 +13,9 @@ html, body{
 
 body{
 	margin: 0;
+	margin-top: 65px;
 	font-family: var(--defaultFont);
-	background-color: var(--bodyColorDark);
+	background-color: var(--backgroundColor);
 }
 
 #navigationBar{
@@ -32,7 +33,7 @@ body{
 	margin-right: auto;
 
 	color: whitesmoke;
-	background-color: var(--headerColorDark);
+	background-color: var(--navbarColor);
 }
 
 #navigationBar a{
@@ -57,18 +58,17 @@ body{
 
 #logo{
 	width: 32px;
-	filter: invert(80%); /* change this.. bad design. Just have a white logo instead */
+	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
 }
 
 #logo:hover{
-	filter: invert(95%) drop-shadow(0px 0px 2px lightgray);
+	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
 }
 
-#mainSection{
+.sectionContainer{
 	width: 60%;
 	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
-	margin-right: auto; 
-	margin-top: 70px;
+	margin-right: auto;
 	margin-bottom: 20px;
 	padding-left: 48px;
 	padding-right: 48px;
@@ -80,28 +80,42 @@ body{
 	border-radius: var(--defaultBorderRadius);
 }
 
-#mainSection h1{
-	display: inline-flex;
-	width: 100%;
-	justify-content: center;
-	
+.titleContainer{
+	width: 480px;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+
+@media (max-width: 650px){
+	.titleContainer{
+		width: 60%;
+		padding-left: 48px;
+		padding-right: 48px;
+	}
 }
 
 #title{
 	font-size: 32px;
 	margin-top: 16px;
+	margin-bottom: 48px;
 	min-width: 300px; /* If the width gets smaller than this, the title gets messed up */
+	filter: drop-shadow(16px 16px 16px var(--backgroundColor));
 }
 
 /* Make the font smaller when the screen width gets too small */
 @media (max-width: 675px) {
 	#title {
-	  font-size: 20px;
+	  /* font-size: 20px; */
+	  font-size: 4.7vw;
 	}
   }
 
 .horizontalAngledText, .verticalAngledText{
 	margin: 0;
+	display: inline-flex;
+	width: 100%;
+	justify-content: center;
 }
 
 .horizontalAngledText{
@@ -112,19 +126,40 @@ body{
 	transform: skew(0deg, -30deg) scaleY(1.33333);
 }
 
-#waitWhoHeader{
-	margin-top: 100px;
+#infoSection{
+	margin-top: 25px;
+	display: flex;
+	justify-content: center; /* Hugs the elements together in the center */
+}
+
+.infoBlock{
+	width: 30%;
+	margin-left: auto; /* centers the info blocks */
+	margin-right: auto; /* centers the info blocks */
+	min-width: 300px;
+	font-size: 18px;
+}
+
+
+.infoBlock h1{
+	font-size: 32px;
+	text-align: center;
+}
+
+/* stack elements upon small screen width */
+@media screen and (max-width: 1200px){
+	#infoSection{
+		display: block;
+	}
 }
 
 #mateiPic{
-	padding: 0;
-	display:block;
 	margin-top: 50px;
 	margin-left: auto;
 	margin-right: auto;
 	width: 35%;
-	min-width: 250px;
-	
+	border-radius: 50%; /* makes pic circular */
+	background-color: var(--backgroundColor);
 }
 
 #cross{
@@ -139,7 +174,6 @@ body{
 	border: 2px solid lightgray;
 	border-radius: var(--defaultBorderRadius);
 	margin: auto; /* Puts form to the middle */
-	
 }
 
 #complaintForm input, textarea{
