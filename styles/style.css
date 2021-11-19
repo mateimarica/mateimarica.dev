@@ -1,8 +1,8 @@
 :root {
 	--navbarColor: #0D1117;
-	--backgroundColor: #06080a;
-	--mainSectionColorDark: #11161b;
-	--textFieldBackgroundColor: #0b0e11;
+	--mainBackgroundColor: #06080a;
+	--sectionContainerColor: #11161b;
+	--textFieldmainBackgroundColor: #0b0e11;
 	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	--defaultBorderRadius: 8px;
 }
@@ -15,7 +15,8 @@ body {
 	margin: 0;
 	margin-top: 65px;
 	font-family: var(--defaultFont);
-	background-color: var(--backgroundColor);
+	background-color: var(--mainBackgroundColor);
+	color:whitesmoke;
 }
 
 #navigationBar {
@@ -32,7 +33,6 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 
-	color: whitesmoke;
 	background-color: var(--navbarColor);
 }
 
@@ -75,8 +75,7 @@ body {
 	padding-top: 32px;
 	padding-bottom: 16px;
 
-	background-color: var(--mainSectionColorDark);
-	color: whitesmoke;
+	background-color: var(--sectionContainerColor);
 	border-radius: var(--defaultBorderRadius);
 }
 
@@ -101,7 +100,7 @@ body {
 	margin-top: 16px;
 	margin-bottom: 48px;
 	min-width: 300px; /* If the width gets smaller than this, the title gets messed up */
-	filter: drop-shadow(16px 16px 16px var(--backgroundColor));
+	filter: drop-shadow(16px 16px 16px var(--mainBackgroundColor));
 }
 
 /* Make the font smaller when the screen width gets too small */
@@ -158,9 +157,10 @@ body {
 	margin-left: 0;
 	margin-right: 0;
 	width: 40%;
+	max-width: 400px;
 	min-width: 225px;
 	border-radius: 50%; /* makes pic circular */
-	background-color: var(--backgroundColor);
+	background-color: var(--mainBackgroundColor);
 	height: 100%; /* this is to ensure that the pic's 1:1 ratio isn't changed */
 }
 
@@ -171,6 +171,35 @@ body {
 	}
 }
 
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dashed whitesmoke;
+	/* cursor: help; */
+}
+  
+.tooltip span {
+	visibility: hidden;
+	background-color: var(--mainBackgroundColor);
+	color: #fff;
+	display: inline-block;
+	text-align: left;
+	border-radius: var(--defaultBorderRadius);
+	padding: 5px;
+	font-size: 18px;
+	white-space: nowrap; /* Want tooltip on one line */
+
+	/* Position the tooltip */
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 130%;
+}
+
+.tooltip:hover span {
+	visibility: visible;
+}
+
 #complaintForm {
 	width: 50%;
 	min-width: 288px;
@@ -179,8 +208,13 @@ body {
 	margin: auto; /* Puts form to the middle */
 }
 
-#complaintForm input, textarea {
-	background-color: var(--textFieldBackgroundColor);
+#complaintForm fieldset {
+	border: 0;
+	overflow: hidden;
+}
+
+.formField, #formSubmit {
+	background-color: var(--textFieldmainBackgroundColor);
 	color: whitesmoke;
 	font-family: var(--defaultFont);
 	resize: none;
@@ -188,19 +222,60 @@ body {
 	padding: 16px;
 	border-radius: var(--defaultBorderRadius);
 	overflow: hidden;
-	display: inline-block;
+	display: flex;
 	overflow: hidden; /* Prevents fields from leaving fieldset outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the fieldset outline */
 	margin-top: 16px;
 	margin-bottom: 16px;
 }
 
-#complaintForm fieldset {
-	border: 0;
-	overflow: hidden;
+.formField::placeholder {
+	font-weight: bolder;
 }
 
 
-#complaintForm input, textarea::placeholder {
-	font-weight: bolder;
+#errorMessage {
+	border: 10px groove  darkred;
+	background-color: rgb(43, 0, 0);
+	border-radius: var(--defaultBorderRadius);
+	
+	font-size: 16px;
+	text-align: center;
+	color: whitesmoke;
+	
+	padding: 3px;
+	margin-bottom: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	display: none; /* Invisible by default */
+	width: 80%;
+
+}
+
+#formSubmit {
+	font-weight: bold;
+	color: lightgrey;
+	transition: 0.2s ease;
+	width: 40%;
+	max-width: 200px;
+	min-width: 150px;
+	margin: auto;
+	text-align: center;
+	justify-content: center;
+}
+
+#formSubmit:hover {
+	color: whitesmoke;
+	transition: 0.2s ease;
+	background-color: #1f2831;
+}
+
+#formSubmit:mouse {
+	color: whitesmoke;
+	transition: 0.2s ease;
+	background-color: #1f2831;
+}
+
+#formSubmit:active {
+	background-color: #12171d;
 }

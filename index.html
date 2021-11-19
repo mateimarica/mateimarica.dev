@@ -5,6 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="styles/style.css">
 		<link rel="icon" href="images/icon.ico">
 	</head>
+
 	<body>
 		<nav id="navigationBar">
 			<img id="logo" src="images/logo-small.png" alt="Site logo">
@@ -21,7 +22,7 @@
 			</ul>
 		</nav>
 
-		<div class="sectionContainer titleContainer">
+		<div class="sectionContainer titleContainer" id="titleContainer">
 			<div id="title">
 				<h1 class="horizontalAngledText">MATEI&emsp;&nbsp;</h1>
 				<h1 class="verticalAngledText">&emsp;&ensp;MARICA&ensp;</h1>
@@ -29,30 +30,33 @@
 			</div>
 		</div>
 
-		<div class="sectionContainer">
+		<div class="sectionContainer" id="bodyContainer">
 
 			<div id="aboutMeSection">
 				<img id="mateiPic" src="images/matei.png" alt="My mug">
 				<ul>
 					<h1 id="heyHeader">Hey!</h1>
-					<li>I'm Matei, a 3rd-year Computer Science undergrad at UNB.</li>
+					<li>I'm Matei, a 3rd-year Computer Science undergrad at 
+						<div class="tooltip" id="UNBtooltip">UNB
+							<span>University of New Brunswick</span>
+						</div>.
+					</li>
 					<br>
 					<li>Welcome to my website.</li>
 				</ul>
 			</div>
 
 			<h1 class="centeredHeader">Got a complaint?</h1>
-			<form id="complaintForm" action="placeholder.js" method="POST">
+			<form id="complaintForm"  method="POST" action="javascript:handleComplaintFormSubmission()">
 				<fieldset >
-					<div class="formField">
-						<input type="email" name="emailField" placeholder="Email (Optional)" spellcheck=false>
-					</div>
-					<div class="formField">
-						<textarea name="complaintField" placeholder="Complaint" spellcheck=false></textarea>
-					</div>
+						<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
+						<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false></textarea>
+						<label id="errorMessage"></label>
+						<input id="formSubmit" type="submit" value="Submit">
 				</fieldset>
 			</form>
-			
+
+			<script src="scripts/script.js"></script>
 		</div>
 	</body>
 </html>
