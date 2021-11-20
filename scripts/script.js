@@ -1,27 +1,29 @@
 var style = getComputedStyle(document.body)
-let mainBackgroundColor = style.getPropertyValue('--mainBackgroundColor');
+let secondaryBackgroundColor = style.getPropertyValue('--secondaryBackgroundColor');
 let sectionContainerColor = style.getPropertyValue('--sectionContainerColor');
 
 let UNBTooltip = document.querySelector("#UNBtooltip");
 let tooltipPopup = UNBTooltip.querySelector("span");
 UNBTooltip.addEventListener('mouseover', (e) => {
+
+	// If tooltip is too wide, wrap it
 	if (tooltipPopup.getBoundingClientRect().right > window.innerWidth) {
 		tooltipPopup.style.whiteSpace = "normal";
 		tooltipPopup.style.top = "-1em";
-		tooltipPopup.style.left = "130%";
-		//tooltipPopup.style.left = `${window.innerWidth - tooltipPopup.getBoundingClientRect().right}px`;
+	} else {
+		
 	}
 
 	// Set fake inverted styling
 	let bodyContainer = document.querySelector("#bodyContainer");
 	let distanceFromTooltipToContainerEdge = Math.floor(bodyContainer.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left);
-	tooltipPopup.style.background = `linear-gradient(90deg, ${mainBackgroundColor} ${distanceFromTooltipToContainerEdge}px, ${sectionContainerColor} ${distanceFromTooltipToContainerEdge}px)`;
+	tooltipPopup.style.background = `linear-gradient(90deg, ${secondaryBackgroundColor} ${distanceFromTooltipToContainerEdge}px, ${sectionContainerColor} ${distanceFromTooltipToContainerEdge}px)`;
 });
 
+// Reset tooltip styling in case it was wrapped on mouseover/hover
 UNBTooltip.addEventListener('mouseleave', (e) => {
 	tooltipPopup.style.whiteSpace = "nowrap";
 	tooltipPopup.style.top = "0";
-	tooltipPopup.style.left = "130%";
 });
 
 function handleComplaintFormSubmission() {
