@@ -2,6 +2,7 @@
 <html lang="en">
 	<head>
 		<title>The dark web's front page</title>
+		
 		<link rel="stylesheet" type="text/css" href="styles/style.css">
 		<link rel="icon" href="images/icon.ico">
 	</head>
@@ -45,17 +46,21 @@
 				</ul>
 			</div>
 
+			
+		</div>
+
+		<div class="sectionContainer" id="complaintContainer">
 			<h1 class="centeredHeader">Got a complaint?</h1>
 			<form id="complaintForm"  method="POST" action="javascript:handleComplaintFormSubmission()">
 				<fieldset >
-						<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
-						<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false></textarea>
+						<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false maxlength=20 onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
+						<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false maxlength=400 oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
 						<label id="errorMessage"></label>
 						<input id="formSubmit" type="submit" value="Submit">
 				</fieldset>
 			</form>
-
-			<script src="scripts/script.js"></script>
 		</div>
+
+		<script src="scripts/script.js"></script>
 	</body>
 </html>

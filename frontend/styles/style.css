@@ -225,9 +225,9 @@ body {
 	font-family: var(--defaultFont);
 	resize: none;
 	width: 100%;
+	height: auto;
 	padding: 16px;
 	border-radius: var(--defaultBorderRadius);
-	overflow: hidden;
 	display: flex;
 	overflow: hidden; /* Prevents fields from leaving fieldset outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the fieldset outline */

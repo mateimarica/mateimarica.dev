@@ -1,1 +1,3 @@
-images_unused
+frontend/images_unused
+backend/node_modules
+backend/.env
