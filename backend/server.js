@@ -9,7 +9,7 @@ const express = require('express'),
 const app = express();
 
 let credentials;
-if (process.env.ENV === 'prod') {
+if (process.env.NODE_ENV === 'prod') {
     credentials = {
         key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
         cert: fs.readFileSync(process.env.SSL_CERT)
@@ -25,7 +25,7 @@ app.use('/api/complaints', require('./routes/api/complaints'));
 app.use(express.static(path.join(__dirname, '../', 'frontend')));
 
 let server;
-if (process.env.ENV === 'prod') {
+if (process.env.NODE_ENV === 'prod') {
     server = https.createServer(credentials, app);
 } else {
     server = http.createServer(app);

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prod": "node server",
-    "dev": "nodemon server"
+    "prod": "cross-env NODE_ENV=prod node server",
+    "dev": "cross-env NODE_ENV=dev nodemon server"
   },
   "author": "Matei Marica",
   "license": "ISC",
