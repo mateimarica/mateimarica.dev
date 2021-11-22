@@ -50,15 +50,28 @@
 		</div>
 
 		<div class="sectionContainer" id="complaintContainer">
-			<h1 class="centeredHeader">Got a complaint?</h1>
-			<form id="complaintForm"  method="POST" action="javascript:handleComplaintFormSubmission()">
-				<fieldset >
-						<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false maxlength=20 onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
-						<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false maxlength=400 oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
-						<label id="errorMessage"></label>
-						<input id="formSubmit" type="submit" value="Submit">
-				</fieldset>
-			</form>
+			<div>
+				<h1 class="centeredHeader">Things others have said about me:</h1>
+				<div id="complaintsShowcase">
+					<ul id="complaintsList">
+						<li class="complaintsListItem"><span class="complaintsListItemText">Looks like there's nothing here. Hmm...</span></li>
+					</ul>
+				</div>
+				
+			</div>
+
+			<div>
+				<h1 class="centeredHeader" id="complaintFormHeader">Got a complaint?</h1>
+				<div id="complaintFormDesc">Have I wronged you? Let me know!</div>
+				<form id="complaintForm"  method="POST" action="javascript:handleComplaintFormSubmission()">
+					<fieldset>
+							<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false maxlength=20 onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
+							<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false maxlength=400 oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
+							<label id="errorMessage"></label>
+							<input id="formSubmit" type="submit" value="Submit">
+					</fieldset>
+				</form>
+			</div>
 		</div>
 
 		<script src="scripts/script.js"></script>

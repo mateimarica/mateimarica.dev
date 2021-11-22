@@ -8,7 +8,7 @@ const app = express();
 // Use logger middleware function to print logs during runtime
 app.use(logger);
 
-app.use('/api/complaints', require('./routes/api/complaints'))
+app.use('/api/complaints', require('./routes/api/complaints'));
 
 // Set static folder
 app.use(express.static(path.join(__dirname, '../', 'frontend')));
