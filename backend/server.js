@@ -4,29 +4,39 @@ const express = require('express'),
       logger = require('./middleware/logger');
       http = require('http'),
       https = require('https'),
-      fs = require('fs');
+      fs = require('fs'),
+      rateLimit = require("express-rate-limit");
       
-const app = express();
-
 let credentials;
 if (process.env.NODE_ENV === 'prod') {
-    credentials = {
+    CREDENTIALS = {
         key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
         cert: fs.readFileSync(process.env.SSL_CERT)
     }
 }
 
-// Use logger middleware function to print logs during runtime
+const STATIC_PAGE_RATE_LIMITER = rateLimit({ // this rate limiter applies to all requests
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: process.env.MAX_REQUESTS_FOR_STATIC_SITE * process.env.NUMBER_OF_STATIC_FILES, // Max num of requests per time window times the number of static files, since each file is 1 request
+    message: "Too many requests, please try again later.<br>I hope you're not trying to do anything malicious."
+});
+
+const API_RATE_LIMITER = rateLimit({ // this rate limiter applies to all requests
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: process.env.MAX_REQUESTS_FOR_API,
+    message: "Too many API requests, please try again later."
+});
+
+const app = express();
 app.use(logger);
+app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints')); // Use logger middleware function to print logs during runtime
+app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
+app.use(express.static(path.join(__dirname, '../', 'frontend'))); // Set static folder
 
-app.use('/api/complaints', require('./routes/api/complaints'));
-
-// Set static folder
-app.use(express.static(path.join(__dirname, '../', 'frontend')));
 
 let server;
 if (process.env.NODE_ENV === 'prod') {
-    server = https.createServer(credentials, app);
+    server = https.createServer(CREDENTIALS, app);
 } else {
     server = http.createServer(app);
 }

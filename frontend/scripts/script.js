@@ -28,23 +28,22 @@ UNBTooltip.addEventListener('mouseleave', function() {
 });
 
 function handleComplaintFormSubmission() {
+	recentSubmission = true;
+
 	let complaintForm = document.querySelector('#complaintForm');
-	let complaintField = complaintForm.querySelector('#complaintField');
+	//let complaintField = complaintForm.querySelector('#complaintField'); // We already get the complaintField at top of file ^
 	let complaint = complaintField.value;
 
 	// If there's nothing in the complaintField, alert the user
 	// Or, if there are only spaces in the complaint. trim() would make a space-only string into '', which is falsy
 	if (complaint === '' || !complaint.trim()) {
-		let errorMessage = document.querySelector('#errorMessage');
-		errorMessage.style.display = 'block'; // Make errorBox appear
-		errorMessage.innerHTML = "\u26A0 Can't leave the complaint field blank!";
-		complaintField.style.border = '2px solid darkred'; // Highlight the empty complaintField
-		window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
+		setMessageBox('errorMessageBox', "\u26A0 Can't leave the complaint field blank!");
+		complaintField.classList.add('complaintFieldError');
 		return;
 	}
-
+	
 	let nameField = complaintForm.querySelector('#nameField');
-
+	
 	// Create the new complaint object
 	const newComplaint = JSON.stringify({
 		name: nameField.value,
@@ -54,13 +53,28 @@ function handleComplaintFormSubmission() {
 	// Send the request with the complaint object
 	const http = new XMLHttpRequest();
 	sendHttpRequest(http, 'POST', '/api/complaints', () => {
-		// Callback function isn't getting invoked because the POST request's ready state isn't getting updated.. It stops at 1. Not sure why.
+		switch (http.status) {
+			case 201:
+				setMessageBox('successMessageBox', "\u2714  Your complaint has been submitted.<br>It will be displayed once it's approved.");
+				break;	
+			case 429:
+				setMessageBox('errorMessageBox', "\u2717 " + http.responseText);
+				break;
+			default:
+				setMessageBox('errorMessageBox', "\u2717  Something went wrong. Status code: " + http.responseText);
+		}
 	}, newComplaint);
 
 	// Clear fields
 	nameField.value = '';
 	complaintField.value = '';
+}
 
+function setMessageBox(className, innerHTML) {
+	let messageBox = document.querySelector('#messageBox');
+	messageBox.className = className;
+	messageBox.innerHTML = innerHTML;
+	window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
 }
 
 function sendHttpRequest(http, method, suburl, callback=null, data=null) {
@@ -73,21 +87,21 @@ function sendHttpRequest(http, method, suburl, callback=null, data=null) {
 
 // Runs once the page is fully loaded
 window.addEventListener('load', () => {
-	// Go and get the recent complaintsconsole.log('GET request response: ', http.status);
+	// Go and get the recent complaints
 	const http = new XMLHttpRequest();
 	sendHttpRequest(http, 'GET', '/api/complaints', () => {
-		if (http.readyState === 4 && http.status === 200) {
-			const complaints = JSON.parse(http.responseText);
+		if (http.status === 200) {
+
+			const COMPLAINTS = JSON.parse(http.responseText);
 			
-			if(complaints.length === 0) return;
+			if(COMPLAINTS.length === 0) return;
 
 			let complaintsList = document.querySelector('#complaintsList');
-
 			complaintsList.innerHTML = ''; // Removes the default list item
 
 			let currentDate = new Date();
 
-			complaints.forEach(complaint => {
+			COMPLAINTS.forEach(complaint => {
 				let relativeTime = getRelativeTime(complaint.created_at, currentDate);
 				let complaintsListItem = document.createElement('li');
 				complaintsListItem.className = 'complaintsListItem';
@@ -95,9 +109,28 @@ window.addEventListener('load', () => {
 				complaintsList.appendChild(complaintsListItem);
 			});
 		} else {
-			console.err('Something went wrong with a GET request')
+			let complaintsListDefaultItem = document.querySelector('#complaintsList').querySelector('li');
+			switch (http.status) { // If too many requests
+				case 429:
+					complaintsListDefaultItem.innerHTML = http.responseText;
+					break;
+				default:
+					complaintsListDefaultItem.innerHTML = 'Something went wrong. Status code: ' + http.status;
+			}
 		}
+			
+			
 	});
+});
+
+// Remove red outline on complaint field and remove messageBox on new typing
+let recentSubmission = false; // This variable exists so we don't change the DOM for every key we type. It is set to true when the Submit button is clicked
+complaintField.addEventListener('input', () => {
+	if (recentSubmission) {
+		recentSubmission = false;
+		complaintField.classList.remove('complaintFieldError');
+		document.querySelector('#messageBox').className = 'hideMessageBox';
+	}
 });
 
 const MILLI_PER_MIN = 60000;
@@ -111,34 +144,34 @@ const MINS_PER_YEAR = 525600;
 function getRelativeTime(datetime, currentDate) {
 	let date = new Date(Date.parse(datetime));
 
-	let minutesPassed = (Math.abs(currentDate - date)) / MILLI_PER_MIN; 
+	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - date)) / MILLI_PER_MIN); 
 
 	// If less than an hour has passed, print minutes
-	if(minutesPassed < MINS_PER_HOUR) {
-		return Math.floor(minutesPassed) + ((minutesPassed == 1) ? ' minute ago' : ' minutes ago');
+	if(MINUTES_PASSED < MINS_PER_HOUR) {
+		return MINUTES_PASSED + ((MINUTES_PASSED === 1) ? ' minute ago' : ' minutes ago');
 	}
 
 	// If less than an day has passed, print hours
-	if(minutesPassed < MINS_PER_DAY) {
-		let hoursPassed = minutesPassed / MINS_PER_HOUR;
-		return Math.floor(hoursPassed) + ((hoursPassed == 1) ? ' hour ago' : ' hours ago');
+	if(MINUTES_PASSED < MINS_PER_DAY) {
+		let hoursPassed = Math.floor(MINUTES_PASSED / MINS_PER_HOUR);
+		return hoursPassed + ((hoursPassed === 1) ? ' hour ago' : ' hours ago');
 	}
 
 	// If less than an week has passed, print days
-	if(minutesPassed < MINS_PER_WEEK) {
-		let daysPassed = minutesPassed / MINS_PER_DAY;
-		return Math.floor(daysPassed) + (daysPassed == 1 ? ' day ago' : ' days ago');
+	if(MINUTES_PASSED < MINS_PER_WEEK) {
+		let daysPassed = Math.floor(MINUTES_PASSED / MINS_PER_DAY);
+		return daysPassed + (daysPassed === 1 ? ' day ago' : ' days ago');
 	}
 
 	// If less than an month has passed, print weeks
-	if(minutesPassed < MINS_PER_MONTH) {
-		let weeksPassed = minutesPassed / MINS_PER_WEEK;
-		return Math.floor(weeksPassed) + (weeksPassed == 1 ? ' week ago' : ' weeks ago');
+	if(MINUTES_PASSED < MINS_PER_MONTH) {
+		let weeksPassed = Math.floor(MINUTES_PASSED / MINS_PER_WEEK);
+		return weeksPassed + (weeksPassed === 1 ? ' week ago' : ' weeks ago');
 	}
 
 	// If less than an year has passed, print months
-	if(minutesPassed < MINS_PER_YEAR) {
-		let monthsPassed = minutesPassed / MINS_PER_MONTH;
-		return Math.floor(monthsPassed) + (monthsPassed == 1 ? ' month ago' : ' months ago');
+	if(MINUTES_PASSED < MINS_PER_YEAR) {
+		let monthsPassed = Math.floor(MINUTES_PASSED / MINS_PER_MONTH);
+		return monthsPassed + (monthsPassed === 1 ? ' month ago' : ' months ago');
 	}
 }

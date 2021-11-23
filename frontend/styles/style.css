@@ -160,7 +160,6 @@ body {
 }
 
 #mateiPic {
-
 	margin-left: 0;
 	margin-right: 0;
 	width: 40%;
@@ -228,8 +227,6 @@ body {
 	color:whitesmoke;
 	padding: 20px;
 	text-align: left;
-
-
 }
 
 .complaintsListItem:nth-child(odd) {
@@ -287,6 +284,10 @@ body {
 	overflow: hidden;
 }
 
+.complaintFieldError {
+	border: 2px solid darkred;
+}
+
 .formField, #formSubmit {
 	background-color: var(--textFieldmainBackgroundColor);
 	color: whitesmoke;
@@ -307,7 +308,28 @@ body {
 	font-weight: bolder;
 }
 
-#errorMessage {
+.hideMessageBox {
+	display: none;
+}
+
+.successMessageBox {
+	border: 10px groove  rgb(0, 128, 28);
+	background-color: rgb(0, 53, 0);
+	border-radius: var(--defaultBorderRadius);
+	
+	font-size: 16px;
+	text-align: center;
+	color: whitesmoke;
+	
+	padding: 3px;
+	margin-bottom: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	width: 80%;
+}
+
+.errorMessageBox {
 	border: 10px groove  darkred;
 	background-color: rgb(43, 0, 0);
 	border-radius: var(--defaultBorderRadius);
@@ -320,7 +342,7 @@ body {
 	margin-bottom: 20px;
 	margin-left: auto;
 	margin-right: auto;
-	display: none; /* Invisible by default */
+	display: block;
 	width: 80%;
 }
 
