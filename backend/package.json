@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "prod": "screen cross-env NODE_ENV=prod node server",
+	"debug-prod": "cross-env NODE_ENV=prod node server",
     "dev": "cross-env NODE_ENV=dev nodemon server"
   },
   "author": "Matei Marica",
