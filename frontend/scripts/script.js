@@ -13,6 +13,12 @@ UNBTooltip.addEventListener('mouseover', function() {
 	if (tooltipPopup.getBoundingClientRect().right > window.innerWidth) {
 		tooltipPopup.style.whiteSpace = 'normal';
 		tooltipPopup.style.top = '-1em';
+
+		// If it's still too wide, put it underneath
+		if (tooltipPopup.getBoundingClientRect().right > window.innerWidth) {
+			tooltipPopup.style.top = '1.6em';
+			tooltipPopup.style.left = '0%';
+		}
 	}
 
 	// Set fake inverted styling
@@ -25,6 +31,7 @@ UNBTooltip.addEventListener('mouseover', function() {
 UNBTooltip.addEventListener('mouseleave', function() {
 	tooltipPopup.style.whiteSpace = 'nowrap';
 	tooltipPopup.style.top = '0';
+	tooltipPopup.style.left = '130%';
 });
 
 function handleComplaintFormSubmission() {

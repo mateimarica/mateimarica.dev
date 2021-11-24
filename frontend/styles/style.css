@@ -14,6 +14,7 @@
 
 html, body {
 	width: 100%;
+	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
 }
 
 body {
@@ -21,9 +22,14 @@ body {
 	margin-top: 65px;
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
-	color:whitesmoke;
-	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	color: whitesmoke;
 }
+
+/* Uncomment this to see borders of all elements */
+/* *{
+	border: 2px solid red;
+} */
+
 
 #navigationBar {
 	position: fixed;
@@ -85,37 +91,32 @@ body {
 	border-radius: var(--defaultBorderRadius);
 }
 
+/* Mobile viewing optimization */
+@media screen and (max-width: 400px) {
+	.sectionContainer {
+		width: 65%;
+	}
+}
+
 .titleContainer {
 	width: 480px;
 	padding-left: 0;
 	padding-right: 0;
 	padding-top: 16px;
 	padding-bottom: 1px;
-}
-
-@media screen and (max-width: 650px) {
-	.titleContainer {
-		width: 60%;
-		padding-left: 48px;
-		padding-right: 48px;
-	}
+	width: 80%;
+	max-width: 600px;
 }
 
 #title {
 	font-size: 32px;
 	margin-top: 16px;
 	margin-bottom: 48px;
-	min-width: 300px; /* If the width gets smaller than this, the title gets messed up */
+	font-size: min(3vw, 32px);
+
+	/* min-width: 300px; If the width gets smaller than this, the title gets messed up */
 	filter: drop-shadow(16px 16px 16px var(--mainBackgroundColor));
 }
-
-/* Make the font smaller when the screen width gets too small */
-@media screen and (max-width: 675px)  {
-	#title  {
-	  /* font-size: 20px; */
-	  font-size: 4.7vw;
-	}
-  }
 
 .horizontalAngledText, .verticalAngledText {
 	margin: 0;
@@ -182,6 +183,7 @@ body {
 	display: inline-block;
 	border-bottom: 1px dashed whitesmoke;
 	cursor: help;
+	overflow: none;
 }
   
 .tooltip span {
@@ -195,6 +197,7 @@ body {
 	font-size: 18px;
 	white-space: nowrap; /* Want tooltip on one line */
 	border: 1px solid black;
+	
 
 	/* Position the tooltip */
 	position: absolute;
@@ -213,6 +216,14 @@ body {
 	width: 80%;
 	min-width: 288px;
 	overflow: hidden;
+}
+
+/* Mobile viewing optimization */
+@media screen and (max-width: 400px) {
+	#complaintsShowcase {
+		width: 100%;
+		min-width: 50px;
+	}
 }
 
 #complaintsList {
@@ -260,7 +271,7 @@ body {
 }
 
 #complaintFormHeader {
-	line-height: 0.5em;
+	line-height: 1em;
 	margin-top: 75px;
 }
 
@@ -277,6 +288,14 @@ body {
 	border: 2px solid lightgray;
 	border-radius: var(--defaultBorderRadius);
 	margin: auto; /* Puts form to the middle */
+}
+
+/* Mobile viewing optimization */
+@media screen and (max-width: 400px) {
+	#complaintForm {
+		min-width: 30px;
+		width: 100%;
+	}
 }
 
 #complaintForm fieldset {
