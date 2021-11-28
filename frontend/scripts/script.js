@@ -1,6 +1,6 @@
 var style = getComputedStyle(document.body)
 let secondaryBackgroundColor = style.getPropertyValue('--secondaryBackgroundColor');
-let sectionContainerColor = style.getPropertyValue('--sectionContainerColor');
+let sectionCardColor = style.getPropertyValue('--sectionCardColor');
 
 let complaintField = document.querySelector('#complaintField');
 complaintField.style.height = complaintField.scrollHeight + 'px';
@@ -22,9 +22,9 @@ UNBTooltip.addEventListener('mouseover', function() {
 	}
 
 	// Set fake inverted styling
-	let bodyContainer = document.querySelector('#bodyContainer');
-	let distanceFromTooltipToContainerEdge = Math.floor(bodyContainer.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left) - 1; // Minus 1 because it's a pixel off.. Not sure why
-	tooltipPopup.style.background = `linear-gradient(90deg, ${secondaryBackgroundColor} ${distanceFromTooltipToContainerEdge}px, ${sectionContainerColor} ${distanceFromTooltipToContainerEdge}px)`;
+	let bodyCard = document.querySelector('#bodyCard');
+	let distanceFromTooltipToCardEdge = Math.floor(bodyCard.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left) - 1; // Minus 1 because it's a pixel off.. Not sure why
+	tooltipPopup.style.background = `linear-gradient(90deg, ${secondaryBackgroundColor} ${distanceFromTooltipToCardEdge}px, ${sectionCardColor} ${distanceFromTooltipToCardEdge}px)`;
 });
 
 // Reset tooltip styling in case it was wrapped on mouseover/hover
@@ -63,18 +63,16 @@ function handleComplaintFormSubmission() {
 		switch (http.status) {
 			case 201:
 				setMessageBox('successMessageBox', "\u2714  Your complaint has been submitted.<br>It will be displayed once it's approved.");
+				nameField.value = ''; // Clear fields
+				complaintField.value = '';
 				break;	
 			case 429:
 				setMessageBox('errorMessageBox', "\u2717 " + http.responseText);
 				break;
 			default:
-				setMessageBox('errorMessageBox', "\u2717  Something went wrong. Status code: " + http.responseText);
+				setMessageBox('errorMessageBox', "\u2717  Something went wrong. Status code: " + http.status);
 		}
 	}, newComplaint);
-
-	// Clear fields
-	nameField.value = '';
-	complaintField.value = '';
 }
 
 function setMessageBox(className, innerHTML) {
@@ -136,7 +134,7 @@ complaintField.addEventListener('input', () => {
 	if (recentSubmission) {
 		recentSubmission = false;
 		complaintField.classList.remove('complaintFieldError');
-		document.querySelector('#messageBox').className = 'hideMessageBox';
+		document.querySelector('#messageBox').className = 'hiddenMessageBox';
 	}
 });
 

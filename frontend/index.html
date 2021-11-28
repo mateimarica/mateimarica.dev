@@ -24,7 +24,7 @@
 			</ul>
 		</nav>
 
-		<div class="sectionContainer titleContainer" id="titleContainer">
+		<div class="sectionCard titleCard" id="titleCard">
 			<div id="title">
 				<h1 class="horizontalAngledText">MATEI&emsp;&nbsp;</h1>
 				<h1 class="verticalAngledText">&emsp;&ensp;MARICA&ensp;</h1>
@@ -32,7 +32,7 @@
 			</div>
 		</div>
 
-		<div class="sectionContainer" id="bodyContainer">
+		<div class="sectionCard" id="bodyCard">
 			<div id="aboutMeSection">
 				<img id="mateiPic" src="images/matei.png" alt="My mug">
 				<ul>
@@ -50,7 +50,7 @@
 			
 		</div>
 
-		<div class="sectionContainer" id="complaintContainer">
+		<div class="sectionCard" id="complaintCard">
 			<div>
 				<h1 class="centeredHeader">Things others have said about me:</h1>
 				<div id="complaintsShowcase">
@@ -68,7 +68,7 @@
 					<fieldset>
 							<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false maxlength=20 onkeydown="return event.key != 'Enter';"> <!-- Don't want enter key to submit the form in the name field -->
 							<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false maxlength=400 oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
-							<label id="messageBox"></label>
+							<label id="messageBox" class="hiddenMessageBox"></label>
 							<input id="formSubmit" type="submit" value="Submit">
 					</fieldset>
 				</form>

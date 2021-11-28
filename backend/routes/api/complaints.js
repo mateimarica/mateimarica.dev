@@ -7,9 +7,8 @@ const express = require('express'),
 router.get('/', (request, response) => {
 	let sql = `SELECT name, complaint, created_at FROM complaints WHERE is_approved ORDER BY created_at DESC LIMIT 4;`;
 
-	connectionWrapper((database) => {
+	connectionWrapper(response, (database) => {
 		database.query(sql, (err, result) => {
-			if (err) throw err;
 			response.statusCode = 200;
 			response.json(result);
 		});
@@ -30,16 +29,15 @@ router.post('/', bodyParser.json(), (request, response) => {
 		sql = `INSERT INTO complaints (complaint) VALUES ('${request.body.complaint}');`;
 	}
 
-	connectionWrapper((database) => {
+	connectionWrapper(response, (database) => {
 		database.query(sql, (err, result) => {
-			if (err) throw err;
 			console.log('Successfully inserted complaint into database: ' + JSON.stringify(request.body));
 			response.sendStatus(201); // New resourced created
 		});
 	});
 });
 
-function connectionWrapper(callback) {
+function connectionWrapper( response, callback) {
 	let database = mysql.createConnection({
 		host: process.env.HOST,
 		user: process.env.DB_USERNAME,
@@ -48,8 +46,10 @@ function connectionWrapper(callback) {
 	});
 
 	database.connect((err) => {
-		if (err) throw err;
-		console.log('Connected to database.');
+		if (err) {
+			response.sendStatus(502);
+			return;
+		}
 		callback(database);
 	});
 }
