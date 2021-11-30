@@ -30,11 +30,15 @@ const API_RATE_LIMITER = rateLimit({ // this rate limiter applies to all request
 const app = express();
 
 app.use(logger);
+app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints')); // Use logger middleware function to print logs during runtime
+app.use(['/about', '/contact'], (request, response) => {
+    response.status(200).sendFile(path.join(__dirname, '../frontend/components/WIP.html'));
+});
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 app.use(express.static(path.join(__dirname, '../frontend'))); // Set static folder
-app.get('*', (req, res) => { // Send 404 page for any other page
-    res.status(404).sendFile(path.join(__dirname, '../frontend/components/404.html'));
+app.get('*', (request, response) => { // Send 404 page for any other page
+    response.status(404).sendFile(path.join(__dirname, '../frontend/components/404.html'));
 });
 
 let server;
@@ -43,6 +47,5 @@ if (process.env.NODE_ENV === 'prod') {
 } else {
     server = http.createServer(app);
 }
-
 
 server.listen(process.env.PORT, () => console.log(`Server started on port ${process.env.PORT}`));

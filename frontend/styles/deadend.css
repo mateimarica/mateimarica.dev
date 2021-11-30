@@ -66,3 +66,16 @@ body {
 		font-size: 25vw;
 	}
 }
+
+a, a:visited{
+	color: #bbbbbb;
+}
+
+a:hover {
+    color: white;
+}
+
+a:active {
+    color: #a7a7a7;
+}
+
