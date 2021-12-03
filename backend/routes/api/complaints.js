@@ -117,6 +117,8 @@ function connectionWrapper(response, callback, multipleStatements=false) {
 async function sendComplaintForApproval(complaint, request) {
 	const transporter = nodemailer.createTransport({
 		service: process.env.EMAIL_SERVICE,
+		port: 587,
+		secure: true, // use TLS
 		auth: {
 			user: process.env.EMAIL_USERNAME,
 			pass: process.env.EMAIL_PASSWORD
