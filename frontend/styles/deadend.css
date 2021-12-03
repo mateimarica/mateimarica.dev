@@ -50,6 +50,12 @@ body {
 	font-size: 100px;
 }
 
+
+.sectionCard h2 {
+	margin: 0;
+	text-align: center;
+}
+
 .sectionCard h3 {
 	text-align: center;
 }
@@ -72,10 +78,9 @@ a, a:visited{
 }
 
 a:hover {
-    color: white;
+	color: white;
 }
 
 a:active {
-    color: #a7a7a7;
+	color: #a7a7a7;
 }
-

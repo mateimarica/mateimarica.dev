@@ -32,13 +32,11 @@ const app = express();
 app.use(logger);
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints')); // Use logger middleware function to print logs during runtime
-app.use(['/about', '/contact'], (request, response) => {
-    response.status(200).sendFile(path.join(__dirname, '../frontend/components/WIP.html'));
-});
+app.use(['/about', '/contact'], API_RATE_LIMITER, require('./routes/WIP'));
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 app.use(express.static(path.join(__dirname, '../frontend'))); // Set static folder
 app.get('*', (request, response) => { // Send 404 page for any other page
-    response.status(404).sendFile(path.join(__dirname, '../frontend/components/404.html'));
+    response.status(404).sendFile(path.join(__dirname, 'components/404.html'));
 });
 
 let server;

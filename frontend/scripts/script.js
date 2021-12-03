@@ -123,8 +123,6 @@ window.addEventListener('load', () => {
 					complaintsListDefaultItem.innerHTML = 'Something went wrong. Status code: ' + http.status;
 			}
 		}
-			
-			
 	});
 });
 
