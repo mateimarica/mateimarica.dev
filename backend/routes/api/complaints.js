@@ -3,6 +3,7 @@ const express = require('express'),
       mysql = require('mysql2'),
       path = require('path'),
       nodemailer = require('nodemailer'),
+      rateLimit = require("express-rate-limit"),
       dateFormatter = require('../../helpers/dateFormatter'),
       templateEngine = require('../../helpers/templateEngine');
 
@@ -23,8 +24,15 @@ router.get('/', (request, response) => {
 	});
 });
 
+const COMPLAINT_RATE_LIMITER = rateLimit({
+	windowMs: process.env.COMPLAINT_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.COMPLAINT_LIMITER_MAX_REQUESTS,
+	message: "You already submitted a complaint recently.<br>Surely I'm not that awful.",
+	headers: false
+});
+
 // POST endpoint is called on submission of complaint form
-router.post('/', (request, response) => {
+router.post('/', COMPLAINT_RATE_LIMITER, (request, response) => {
 	if ((request.body.name && request.body.name.length > 20) || !request.body.complaint || (request.body.complaint.length > 400)) {
 		response.sendStatus(400);
 		return;
@@ -55,7 +63,7 @@ router.post('/', (request, response) => {
 			console.log('Inserted complaint into database: ' + JSON.stringify(request.body));
 			response.sendStatus(201); // New resource created
 
-			// Send the 1st complaint (only 1 was queried) of the 2nd result set (two queries was sent)
+			// Send the 1st complaint (only 1 was queried) of the 2nd result (two queries were sent)
 			sendComplaintForApproval(result[1][0], request);
 		});
 	}, true);
@@ -119,6 +127,10 @@ function connectionWrapper(response, callback, multipleStatements=false) {
 }
 
 async function sendComplaintForApproval(complaint, request) {
+	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT) {
+		return;
+	}
+
 	const transporter = nodemailer.createTransport({
 		service: process.env.EMAIL_SERVICE,
 		port: 587,

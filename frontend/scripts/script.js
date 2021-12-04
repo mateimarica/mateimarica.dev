@@ -1,4 +1,4 @@
-var style = getComputedStyle(document.body)
+let style = getComputedStyle(document.body)
 let secondaryBackgroundColor = style.getPropertyValue('--secondaryBackgroundColor');
 let sectionCardColor = style.getPropertyValue('--sectionCardColor');
 
@@ -32,6 +32,12 @@ UNBTooltip.addEventListener('mouseleave', function() {
 	tooltipPopup.style.whiteSpace = 'nowrap';
 	tooltipPopup.style.top = '0';
 	tooltipPopup.style.left = '130%';
+});
+
+// Makes the complaintField expand to accommodate its input text.
+document.querySelector('#complaintField').addEventListener('input', () => {
+	complaintField.style.height = "";
+	complaintField.style.height = complaintField.scrollHeight + "px";
 });
 
 document.querySelector('#formSubmit').addEventListener("click", () => {

@@ -287,11 +287,13 @@ body {
 }
 
 #complaintForm {
-	width: 50%;
-	min-width: 288px;
+	width: 45%;
+	min-width: 260px;
 	border: 2px solid lightgray;
 	border-radius: var(--defaultBorderRadius);
 	margin: auto; /* Puts form to the middle */
+	overflow: hidden;
+	padding: 5px 14px 10px; /* top, left&right, bottom */
 }
 
 /* Mobile viewing optimization */
@@ -300,11 +302,6 @@ body {
 		min-width: 30px;
 		width: 100%;
 	}
-}
-
-#complaintForm fieldset {
-	border: 0;
-	overflow: hidden;
 }
 
 .complaintFieldError {
@@ -321,10 +318,9 @@ body {
 	padding: 16px;
 	border-radius: var(--defaultBorderRadius);
 	display: flex;
-	overflow: hidden; /* Prevents fields from leaving fieldset outline */
-	box-sizing: border-box; /* Makes the width of the fields relative to the fieldset outline */
-	margin-top: 16px;
-	margin-bottom: 16px;
+	overflow: hidden; /* Prevents fields from leaving complaintField outline */
+	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
+	margin: 16px auto 16px; /* top, left&right, bottom */
 }
 
 .formField::placeholder {
