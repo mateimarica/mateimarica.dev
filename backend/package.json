@@ -4,9 +4,9 @@
   "description": "The backend for mateimarica.dev",
   "main": "server.js",
   "scripts": {
-    "prod": "screen cross-env NODE_ENV=prod node server",
-    "debug-prod": "cross-env NODE_ENV=prod node server",
-    "dev": "cross-env NODE_ENV=dev nodemon server"
+    "prod": "screen cross-env NODE_ENV=production node server",
+    "debug-prod": "cross-env NODE_ENV=production node server",
+    "dev": "cross-env NODE_ENV=development nodemon server"
   },
   "author": "Matei Marica",
   "license": "ISC",
@@ -16,7 +16,9 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-rate-limit": "^5.5.1",
+    "helmet": "^4.6.0",
     "moment": "^2.29.1",
+    "morgan": "^1.10.0",
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.2"
   },

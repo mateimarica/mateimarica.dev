@@ -1,11 +1,10 @@
 const express = require('express'),
       router = express.Router(),
       mysql = require('mysql2'),
-	  path = require('path'),
-      bodyParser = require('body-parser'),
+      path = require('path'),
       nodemailer = require('nodemailer'),
-	  dateFormatter = require('../../helpers/dateFormatter'),
-	  templateEngine = require('../../helpers/templateEngine');
+      dateFormatter = require('../../helpers/dateFormatter'),
+      templateEngine = require('../../helpers/templateEngine');
 
 // GET endpoint is called automatically when the webpage loads
 router.get('/', (request, response) => {
@@ -25,7 +24,12 @@ router.get('/', (request, response) => {
 });
 
 // POST endpoint is called on submission of complaint form
-router.post('/', bodyParser.json(), (request, response) => {
+router.post('/', (request, response) => {
+	if ((request.body.name && request.body.name.length > 20) || !request.body.complaint || (request.body.complaint.length > 400)) {
+		response.sendStatus(400);
+		return;
+	}
+
 	connectionWrapper(response, (database) => {
 
 		request.body.complaint = request.body.complaint.replace("'", "''"); // Replace single quotes with double

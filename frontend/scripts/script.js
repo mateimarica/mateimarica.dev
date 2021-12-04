@@ -34,7 +34,7 @@ UNBTooltip.addEventListener('mouseleave', function() {
 	tooltipPopup.style.left = '130%';
 });
 
-function handleComplaintFormSubmission() {
+document.querySelector('#formSubmit').addEventListener("click", () => {
 	recentSubmission = true;
 
 	let complaintForm = document.querySelector('#complaintForm');
@@ -73,7 +73,7 @@ function handleComplaintFormSubmission() {
 				setMessageBox('errorMessageBox', "\u2717  Something went wrong. Status code: " + http.status);
 		}
 	}, newComplaint);
-}
+});
 
 function setMessageBox(className, innerHTML) {
 	let messageBox = document.querySelector('#messageBox');
