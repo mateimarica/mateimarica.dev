@@ -10,7 +10,7 @@ const express = require('express'),
 	  morganLogger = require('morgan');
 
 let credentials;
-if (process.env.NODE_ENV === 'prod') {
+if (process.env.NODE_ENV === 'production') {
 	credentials = {
 		key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
 		cert: fs.readFileSync(process.env.SSL_CERT)
