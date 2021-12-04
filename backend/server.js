@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const STATIC_PAGE_RATE_LIMITER = rateLimit({ // this rate limiter applies to all requests
-	windowMs: 15 * 60 * 1000, // 15 minutes
+	windowMs: process.env.RATE_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.MAX_REQUESTS_FOR_STATIC_SITE * process.env.NUMBER_OF_STATIC_FILES, // Max num of requests per time window times the number of static files, since each file is 1 request
 	message: "Too many requests, please try again later.",
 	headers: false
