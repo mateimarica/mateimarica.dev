@@ -4,8 +4,8 @@
   "description": "The backend for mateimarica.dev",
   "main": "server.js",
   "scripts": {
-    "prod": "screen cross-env NODE_ENV=production node server",
-    "debug-prod": "cross-env NODE_ENV=production node server",
+    "prod": "screen cross-env NODE_ENV=production node --max-http-header-size=1024 server",
+    "debug-prod": "cross-env NODE_ENV=production node --max-http-header-size=1024 server",
     "dev": "cross-env NODE_ENV=development nodemon server"
   },
   "author": "Matei Marica",

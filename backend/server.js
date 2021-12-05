@@ -37,8 +37,8 @@ app.use(morganLogger('common', { stream: accessLogStream }))
 
 app.use(helmet());
 
-app.use(express.json({limit: '1kb'}));
-app.use(express.urlencoded({limit: '1kb', extended: true}));
+app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
+app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
