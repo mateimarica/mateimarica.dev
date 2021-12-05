@@ -27,13 +27,13 @@ body {
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
 	color: whitesmoke;
+	text-align: center;
 }
 
 /* Uncomment this to see borders of all elements */
 /* *{
 	border: 2px solid red;
 } */
-
 
 #navigationBar {
 	position: fixed;
@@ -56,7 +56,6 @@ body {
 	color: rgb(187, 187, 187); /* light grey */
 	text-decoration: none;
 }
-
 
 #navigationBar a:hover {
 	color:whitesmoke;
@@ -82,23 +81,28 @@ body {
 }
 
 .sectionCard {
-	width: 60%;
+	width: 70%;
+	max-width: 900px;
 	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
 	margin-right: auto;
 	margin-bottom: 20px;
-	padding-left: 48px;
-	padding-right: 48px;
-	padding-top: 32px;
-	padding-bottom: 32px;
-
+	padding: 32px 48px 32px; /* top, left&right, bottom */
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+#complaintsCard {
+	max-width: none;
 }
 
 /* Mobile viewing optimization */
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 900px) {
 	.sectionCard {
-		width: 65%;
+		width: 90%;
+		padding: 32px 24px 32px; /* top, left&right, bottom */
 	}
 }
 
@@ -108,15 +112,15 @@ body {
 	padding-right: 0;
 	padding-top: 16px;
 	padding-bottom: 1px;
-	width: 80%;
-	max-width: 600px;
+	width: 60%;
+	max-width: 500px;
 }
 
 #title {
 	font-size: 32px;
 	margin-top: 16px;
 	margin-bottom: 48px;
-	font-size: min(3vw, 32px);
+	font-size: min(2.5vw, 24px);
 
 	/* min-width: 300px; If the width gets smaller than this, the title gets messed up */
 	filter: drop-shadow(16px 16px 16px var(--mainBackgroundColor));
@@ -279,11 +283,13 @@ body {
 	margin-top: 75px;
 }
 
-#complaintFormDesc {
+.complaintFormDesc {
 	text-align: center;
 	font-size: 24px;
 	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 	margin-bottom: 15px;
+	display: inline !important; /* Put the descs on the same line */
+	white-space: nowrap; /* Prevent the sentences from breaking */
 }
 
 #complaintForm {
@@ -291,9 +297,12 @@ body {
 	min-width: 260px;
 	border: 2px solid lightgray;
 	border-radius: var(--defaultBorderRadius);
-	margin: auto; /* Puts form to the middle */
+	margin: 10px auto auto; /* Puts form to the middle */
 	overflow: hidden;
-	padding: 5px 14px 10px; /* top, left&right, bottom */
+	padding: 15px 14px 15px; /* top, left&right, bottom */
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 /* Mobile viewing optimization */
@@ -320,7 +329,7 @@ body {
 	display: flex;
 	overflow: hidden; /* Prevents fields from leaving complaintField outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
-	margin: 16px auto 16px; /* top, left&right, bottom */
+	margin: 0px auto 16px; /* top, left&right, bottom */
 }
 
 .formField::placeholder {
@@ -366,6 +375,7 @@ body {
 	margin: auto;
 	text-align: center;
 	justify-content: center;
+	cursor: pointer;
 }
 
 #formSubmit:hover {
