@@ -7,15 +7,16 @@ complaintField.style.height = complaintField.scrollHeight + 'px';
 
 let UNBTooltip = document.querySelector('#UNBtooltip');
 let tooltipPopup = UNBTooltip.querySelector('span');
+let tooltipMouseOver = false
 UNBTooltip.addEventListener('mouseover', function() {
-
+	tooltipMouseOver = true;
 	// If tooltip is too wide, wrap it
 	if (tooltipPopup.getBoundingClientRect().right > window.innerWidth) {
 		tooltipPopup.style.whiteSpace = 'normal';
 		tooltipPopup.style.top = '-1em';
 
-		// If it's still too wide, put it underneath
-		if (tooltipPopup.getBoundingClientRect().right > window.innerWidth) {
+		// If it's still too wide, put it underneath (Add 25px so it's not too close to the edge of screen)
+		if (tooltipPopup.getBoundingClientRect().right + 25 > window.innerWidth) {
 			tooltipPopup.style.top = '1.6em';
 			tooltipPopup.style.left = '0%';
 		}
@@ -23,21 +24,64 @@ UNBTooltip.addEventListener('mouseover', function() {
 
 	// Set fake inverted styling
 	let bodyCard = document.querySelector('#bodyCard');
-	let distanceFromTooltipToCardEdge = Math.floor(bodyCard.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left) - 1; // Minus 1 because it's a pixel off.. Not sure why
+	let distanceFromTooltipToCardEdge = Math.floor(bodyCard.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left);
 	tooltipPopup.style.background = `linear-gradient(90deg, ${secondaryBackgroundColor} ${distanceFromTooltipToCardEdge}px, ${sectionCardColor} ${distanceFromTooltipToCardEdge}px)`;
 });
 
 // Reset tooltip styling in case it was wrapped on mouseover/hover
-UNBTooltip.addEventListener('mouseleave', function() {
-	tooltipPopup.style.whiteSpace = 'nowrap';
-	tooltipPopup.style.top = '0';
-	tooltipPopup.style.left = '130%';
+UNBTooltip.addEventListener('mouseleave', () => {
+	tooltipMouseOver = false;
 });
 
+UNBTooltip.addEventListener('transitionend', () => {
+	if (!tooltipMouseOver) {
+		tooltipPopup.style.whiteSpace = 'nowrap';
+		tooltipPopup.style.top = '0';
+		tooltipPopup.style.left = '130%';
+	}
+});
+
+let complaintsList = document.querySelector('#complaintsList');
+let lastKnownScrollPosition = 0;
+let ticking = false;
+document.addEventListener('scroll', (e) => {
+	
+	lastKnownScrollPosition = window.scrollY;
+
+	if (!ticking) {
+		ticking = true;
+
+		window.requestAnimationFrame(() => {
+			setNavbarTransparency(lastKnownScrollPosition);
+			displayComplaintsList();
+			
+			ticking = false;
+		});
+	}
+});
+
+let navigationBar = document.querySelector('#navigationBar');
+function setNavbarTransparency(scrollPos) {
+	if(scrollPos > 0) {
+		navigationBar.className = 'navigationBarOnScroll';
+	} else {
+		navigationBar.className = 'navigationBarOriginalPosition';
+	}
+}
+
+function displayComplaintsList() {
+	if(fillComplaintsListCallback != null && isElementInViewport(complaintsList)) {
+		fillComplaintsListCallback();
+		fillComplaintsListCallback = null;
+		return true;
+	}
+	return false;
+}
+
 // Makes the complaintField expand to accommodate its input text.
-document.querySelector('#complaintField').addEventListener('input', () => {
-	complaintField.style.height = "";
-	complaintField.style.height = complaintField.scrollHeight + "px";
+document.querySelector('#complaintField').addEventListener('input', function() {
+	this.style.height = "";
+	this.style.height = this.scrollHeight + "px";
 });
 
 document.querySelector('#formSubmit').addEventListener("click", () => {
@@ -96,33 +140,28 @@ function sendHttpRequest(http, method, suburl, callback=null, data=null) {
 	http.send(data);
 }
 
+let fillComplaintsListCallback = null;
 // Runs once the page is fully loaded
 window.addEventListener('load', () => {
+	
 	// Go and get the recent complaints
 	const http = new XMLHttpRequest();
 	sendHttpRequest(http, 'GET', '/api/complaints', () => {
 		if (http.status === 200) {
-
-			const COMPLAINTS = JSON.parse(http.responseText);
 			
-			if(COMPLAINTS.length === 0) return;
-
-			let complaintsList = document.querySelector('#complaintsList');
-			complaintsList.innerHTML = ''; // Removes the default list item
-
-			let currentDate = new Date();
-
-			COMPLAINTS.forEach(complaint => {
-				let relativeTime = getRelativeTime(complaint.created_at, currentDate);
-				let complaintsListItem = document.createElement('li');
-				complaintsListItem.className = 'complaintsListItem';
-				complaintsListItem.innerHTML = `<span class="complaintsListItemInfo">${relativeTime}, ${complaint.name} wrote:</span><br><span class="complaintsListItemText">${complaint.complaint}</span>`;
-				complaintsList.appendChild(complaintsListItem);
-			});
+			let complaints = JSON.parse(http.responseText);
+			
+			if (complaints.length === 	0) return;
+			
+			if (isElementInViewport(complaintsList)) {
+				fillComplaintsList(complaints)
+			} else {
+				fillComplaintsListCallback = () => { fillComplaintsList(complaints) };	
+			}
 		} else {
 			let complaintsListDefaultItem = document.querySelector('#complaintsList').querySelector('li');
-			switch (http.status) { // If too many requests
-				case 429:
+			switch (http.status) { 
+				case 429: // If too many requests
 					complaintsListDefaultItem.innerHTML = http.responseText;
 					break;
 				default:
@@ -132,12 +171,56 @@ window.addEventListener('load', () => {
 	});
 });
 
+async function fillComplaintsList(complaints) {
+	let complaintsList = document.querySelector('#complaintsList');
+	complaintsList.innerHTML = ''; // Removes the default list item
+	
+	let currentDate = new Date();
+
+	complaints.forEach(async (complaint, i) => {
+		let relativeTime = getRelativeTime(complaint.created_at, currentDate);
+		let complaintsListItem = document.createElement('li');
+		complaintsListItem.classList.add('complaintsListItem', 'complaintsListItemInvisible');
+		complaintsListItem.focus();
+		complaintsListItem.innerHTML = `<span class="complaintsListItemInfo">${relativeTime}, ${complaint.name} wrote:</span><br><span class="complaintsListItemText"></span>`;
+		complaintsList.appendChild(complaintsListItem);
+		simulateTypingComplaints(complaintsListItem, complaint.complaint);
+		complaintsListItem.offsetTop; // Triggers a reflow; needed for transition to trigger
+		complaintsListItem.classList.remove("complaintsListItemInvisible");
+		await sleep(150);
+	});
+}
+
+async function simulateTypingComplaints(complaintsListItem, complaint) {
+	let complaintText = complaintsListItem.querySelector('.complaintsListItemText');
+	for (let i = 0; i < complaint.length; i++) {
+		
+		//setTimeout(() => {
+			complaintText.innerHTML += complaint.charAt(i);
+		//}, 250 * (i + 1));
+		console.log('tes')
+		await sleep(randomInt(50, 75));
+	}
+	
+}
+
+/** A simple sleep function. Obviously, only call this from async functions. */
+function sleep(milli) {    
+    return new Promise(resolve => {
+		setTimeout(() => { resolve() }, milli);
+	});
+}
+
+function randomInt(floorNum, ceilNum) {
+    return floorNum + Math.floor((Math.random() * (ceilNum - floorNum + 1)));
+}
+
 // Remove red outline on complaint field and remove messageBox on new typing
 let recentSubmission = false; // This variable exists so we don't change the DOM for every key we type. It is set to true when the Submit button is clicked
-complaintField.addEventListener('input', () => {
+complaintField.addEventListener('input', function() {
 	if (recentSubmission) {
 		recentSubmission = false;
-		complaintField.classList.remove('complaintFieldError');
+		this.classList.remove('complaintFieldError');
 		document.querySelector('#messageBox').className = 'hiddenMessageBox';
 	}
 });
@@ -183,4 +266,12 @@ function getRelativeTime(datetime, currentDate) {
 		let monthsPassed = Math.floor(MINUTES_PASSED / MINS_PER_MONTH);
 		return monthsPassed + (monthsPassed === 1 ? ' month ago' : ' months ago');
 	}
+}
+
+function isElementInViewport(element) {
+	let rect = element.getBoundingClientRect();
+	return rect.bottom > 0 &&
+	       rect.right > 0 &&
+	       rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
+		   rect.top< (window.innerHeight || document.documentElement.clientHeight);
 }
