@@ -194,12 +194,8 @@ async function fillComplaintsList(complaints) {
 async function simulateTypingComplaints(complaintsListItem, complaint) {
 	let complaintText = complaintsListItem.querySelector('.complaintsListItemText');
 	for (let i = 0; i < complaint.length; i++) {
-		
-		//setTimeout(() => {
-			complaintText.innerHTML += complaint.charAt(i);
-		//}, 250 * (i + 1));
-		console.log('tes')
-		await sleep(randomInt(50, 75));
+		complaintText.innerHTML += complaint.charAt(i);
+		await sleep(randomInt(20, 40));
 	}
 	
 }

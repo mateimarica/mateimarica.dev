@@ -1,15 +1,15 @@
 const express = require('express'),
       router = express.Router(),
-      mysql = require('mysql2'),
       path = require('path'),
       nodemailer = require('nodemailer'),
       rateLimit = require("express-rate-limit"),
       dateFormatter = require('../../helpers/dateFormatter'),
-      templateEngine = require('../../helpers/templateEngine');
+      templateEngine = require('../../helpers/templateEngine'),
+	  connectionWrapper = require('../../helpers/connectionWrapper');
 
 // GET endpoint is called automatically when the webpage loads
 router.get('/', (request, response) => {
-	connectionWrapper(response, (database) => {
+	connectionWrapper((database) => {
 		let sql = `SELECT name, complaint, created_at FROM complaints WHERE is_approved ORDER BY created_at DESC LIMIT 4;`;
 
 		database.query(sql, (err, result) => {
@@ -21,7 +21,7 @@ router.get('/', (request, response) => {
 			response.statusCode = 200;
 			response.json(result);
 		});
-	});
+	}, response);
 });
 
 const COMPLAINT_RATE_LIMITER = rateLimit({
@@ -38,7 +38,7 @@ router.post('/', COMPLAINT_RATE_LIMITER, (request, response) => {
 		return;
 	}
 
-	connectionWrapper(response, (database) => {
+	connectionWrapper((database) => {
 
 		request.body.complaint = request.body.complaint.replace("'", "''"); // Replace single quotes with double
 
@@ -66,7 +66,7 @@ router.post('/', COMPLAINT_RATE_LIMITER, (request, response) => {
 			// Send the 1st complaint (only 1 was queried) of the 2nd result (two queries were sent)
 			sendComplaintForApproval(result[1][0], request);
 		});
-	}, true);
+	}, response, true);
 });
 
 router.get('/approve', (request, response) => {
@@ -75,7 +75,7 @@ router.get('/approve', (request, response) => {
 		return;
 	}
 
-	connectionWrapper(response, (database) => {
+	connectionWrapper((database) => {
 
 		let sql = `UPDATE complaints SET is_approved=${request.query.approved}, temp_approval_id=NULL WHERE temp_approval_id='${request.query.approval_id}';`
 
@@ -105,26 +105,8 @@ router.get('/approve', (request, response) => {
 			response.set('Content-Type', 'text/html');
 			response.status(200).send(approvalConfirmationHTML);
 		});
-	});
+	}, response);
 });
-
-function connectionWrapper(response, callback, multipleStatements=false) {
-	let database = mysql.createConnection({
-		host: process.env.HOST,
-		user: process.env.DB_USERNAME,
-		password: process.env.DB_PASSWORD,
-		database: process.env.DB_NAME,
-		multipleStatements: multipleStatements
-	});
-
-	database.connect((err) => {
-		if (err) {
-			response.sendStatus(502);
-			return;
-		}
-		callback(database);
-	});
-}
 
 async function sendComplaintForApproval(complaint, request) {
 	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT) {

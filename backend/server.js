@@ -6,7 +6,8 @@ const express = require('express'),
       fs = require('fs'),
       rateLimit = require("express-rate-limit"),
       helmet = require("helmet"),
-	  morganLogger = require('morgan');
+	  morganLogger = require('morgan'),
+	  recordSuspiciousIP = require('./helpers/recordSuspiciousIP');
 
 let credentials;
 if (process.env.NODE_ENV === 'production') {
@@ -47,6 +48,7 @@ app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 app.use(express.static(path.join(__dirname, '../frontend'))); // Set static folder
 app.get('*', (request, response) => { // Send 404 page for any other page
 	response.status(404).sendFile(path.join(__dirname, 'components/404.html'));
+	recordSuspiciousIP(request);
 });
 
 let server;

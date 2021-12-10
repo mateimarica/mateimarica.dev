@@ -1,4 +1,4 @@
-:root { /*--mainBackgroundColor: #06080a; */
+:root {
 	--mainBackgroundColor: #06080a;
 	--secondaryBackgroundColor: #15222e;
 	--sectionCardColor: #11161b;
@@ -49,6 +49,7 @@ body {
 	padding: 12px;
 	margin-left: auto;
 	margin-right: auto;
+	height: auto;
 }
 
 #navigationBar a {
@@ -80,6 +81,8 @@ body {
 	-o-transition: .25s linear;
 	transition: .25s linear;
 	background-color: rgba(13, 17, 23, 0.5) !important;
+	backdrop-filter: blur(1.5px);
+
 }
 
 .navigationBarOnScroll:hover {
