@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 
-function connectionWrapper(callback, response=null, multipleStatements=false) {
+function connectionWrapper(callback, res=null, multipleStatements=false) {
 	let database = mysql.createConnection({
 		host: process.env.HOST,
 		user: process.env.DB_USERNAME,
@@ -11,7 +11,8 @@ function connectionWrapper(callback, response=null, multipleStatements=false) {
 
 	database.connect((err) => {
 		if (err) {
-			if (response !== null) response.sendStatus(502);
+			if (res !== null) res.sendStatus(502);
+			console.error('Database connection failed. ' + err);
 			return;
 		}
 		callback(database);
