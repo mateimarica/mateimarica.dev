@@ -1,6 +1,5 @@
 const mysql = require('mysql2');
 
-
 function connectionWrapper(callback, response=null, multipleStatements=false) {
 	let database = mysql.createConnection({
 		host: process.env.HOST,
@@ -12,7 +11,7 @@ function connectionWrapper(callback, response=null, multipleStatements=false) {
 
 	database.connect((err) => {
 		if (err) {
-			response.sendStatus(502);
+			if (response !== null) response.sendStatus(502);
 			return;
 		}
 		callback(database);
