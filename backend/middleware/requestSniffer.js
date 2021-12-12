@@ -40,8 +40,9 @@ async function recordSuspiciousIP(req, statusCode=404, newVisits=1) {
 		req.originalUrl = req.originalUrl.replaceAll("'", "''"); // Replace single quotes with double
 		req.originalUrl = req.originalUrl.replace(/\s/g, ''); // Replace all (g) whitespace (\s)
 
-		let sql = `INSERT INTO suspicious_ips (ip, res_code, first_endpoint) VALUES ('${req.socket.remoteAddress}', ${statusCode}, '${req.method + ' ' + req.originalUrl}') ON DUPLICATE KEY UPDATE visits = visits + ${newVisits};`
-		connection.query(sql);
+		let sql = `INSERT INTO suspicious_ips (ip, res_code, first_endpoint) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE visits = visits + ?;`
+		let params = [req.socket.remoteAddress, statusCode, (req.method + ' ' + req.originalUrl), newVisits];
+		connection.execute(sql, params);
 	});
 }
 
