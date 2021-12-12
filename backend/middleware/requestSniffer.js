@@ -4,10 +4,10 @@ const connectionWrapper = require('../helpers/connectionWrapper'),
 let ipCache = [];
 
 async function initializeIpCache() {
-	connectionWrapper((database) => {
+	connectionWrapper((connection) => {
 		let sql = `SELECT ip FROM suspicious_ips ORDER BY ip ASC;`;
 
-		database.query({sql: sql, rowsAsArray: true}, (err, result) => {
+		connection.execute({sql: sql, rowsAsArray: true}, (err, result) => {
 			if (err) {
 				console.log('Failed to retrieve IP cache. ' + err);
 				return;
@@ -36,12 +36,12 @@ async function checkIpSuspiciousness(req, res) {
 }
 
 async function recordSuspiciousIP(req, statusCode=404, newVisits=1) {
-	connectionWrapper((database) => {
+	connectionWrapper((connection) => {
 		req.originalUrl = req.originalUrl.replaceAll("'", "''"); // Replace single quotes with double
 		req.originalUrl = req.originalUrl.replace(/\s/g, ''); // Replace all (g) whitespace (\s)
 
 		let sql = `INSERT INTO suspicious_ips (ip, res_code, first_endpoint) VALUES ('${req.socket.remoteAddress}', ${statusCode}, '${req.method + ' ' + req.originalUrl}') ON DUPLICATE KEY UPDATE visits = visits + ${newVisits};`
-		database.query(sql);
+		connection.query(sql);
 	});
 }
 

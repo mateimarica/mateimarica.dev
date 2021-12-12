@@ -9,10 +9,10 @@ const express = require('express'),
 
 // GET endpoint is called automatically when the webpage loads
 router.get('/', (req, res) => {
-	connectionWrapper((database) => {
+	connectionWrapper((connection) => {
 		let sql = `SELECT name, complaint, created_at FROM complaints WHERE is_approved ORDER BY created_at DESC LIMIT 4;`;
 
-		database.query(sql, (err, result) => {
+		connection.execute(sql, (err, result) => {
 			if (err) {
 				console.log(err);
 				res.sendStatus(500);
@@ -38,35 +38,39 @@ router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 		return;
 	}
 
-	connectionWrapper((database) => {
-
-		req.body.complaint = req.body.complaint.replaceAll("'", "''"); // Replace single quotes with double
-
+	connectionWrapper((connection) => {
 		// Check if the name is truthy. If it's undefined (no name key in the JSON) or empty string (user submitted with empty name field),
 		// then no name will be put into the database and the database automatically sets the name to "Anonymous"
-		let sql = '';
+		let sql;
+		let params;
 		if (req.body.name) {
-			sql = `INSERT INTO complaints (name, complaint) VALUES ('${req.body.name}', '${req.body.complaint}');`;
+			sql = `INSERT INTO complaints (name, complaint) VALUES (?, ?);`;
+			params = [req.body.name, req.body.complaint];
 		} else {
-			sql = `INSERT INTO complaints (complaint) VALUES ('${req.body.complaint}');`;
+			sql = `INSERT INTO complaints (complaint) VALUES (?);`;
+			params = [req.body.complaint];
 		}
 	
-		sql += `SELECT name, complaint, temp_approval_id, created_at FROM complaints WHERE id=(SELECT MAX(id) FROM complaints WHERE is_approved=0) LIMIT 1;`
-
-		database.query(sql, (err, result) => {
+		connection.execute(sql, params, (err, result) => {
 			if (err) {
 				console.log(err);
 				res.sendStatus(500);
 				return;
 			}
 
-			console.log('Inserted complaint into database: ' + JSON.stringify(req.body));
 			res.sendStatus(201); // New resource created
+			console.log('Inserted complaint into database: ' + JSON.stringify(req.body));
 
-			// Send the 1st complaint (only 1 was queried) of the 2nd result (two queries were sent)
-			sendComplaintForApproval(result[1][0], req);
+			let sql2 = `SELECT name, complaint, temp_approval_id, created_at FROM complaints WHERE id=(SELECT MAX(id) FROM complaints WHERE is_approved=0) LIMIT 1;`
+			connection.execute(sql2, (err2, result2) => {
+				if (err2) {
+					console.log(err2);
+					return;
+				}
+				sendComplaintForApproval(result2[0], req);
+			});
 		});
-	}, res, true);
+	}, res);
 });
 
 router.get('/approve', (req, res) => {
@@ -75,11 +79,12 @@ router.get('/approve', (req, res) => {
 		return;
 	}
 
-	connectionWrapper((database) => {
+	connectionWrapper((connection) => {
 
-		let sql = `UPDATE complaints SET is_approved=${req.query.approved}, temp_approval_id=NULL WHERE temp_approval_id='${req.query.approval_id}';`
+		let sql = `UPDATE complaints SET is_approved=?, temp_approval_id=NULL WHERE temp_approval_id=?;`
+		let params = [req.query.approved, req.query.approval_id]
 
-		database.query(sql, (err, result) => {
+		connection.execute(sql, params, (err, result) => {
 			if (err) {
 				console.log(err);
 				res.sendStatus(500);
@@ -91,7 +96,7 @@ router.get('/approve', (req, res) => {
 				
 			console.log("A complaint's approval was changed");
 
-			let header = '\u2714';
+			let header = '\u2714'; // Check-mark symbol
 			let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
 
 			const approvalConfirmationHTML = templateEngine.fillHTML(
@@ -109,7 +114,8 @@ router.get('/approve', (req, res) => {
 });
 
 async function sendComplaintForApproval(complaint, req) {
-	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT) {
+	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT || !complaint || !req) {
+		console.log("Complaint couldn't be sent for approval.");
 		return;
 	}
 
