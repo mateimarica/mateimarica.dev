@@ -7,7 +7,9 @@ const express = require('express'),
       rateLimit = require("express-rate-limit"),
       helmet = require("helmet"),
       morganLogger = require('morgan'),
-      reqSniffer = require('./middleware/requestSniffer');
+      reqSniffer = require('./middleware/requestSniffer'),
+      qrequest = require('./subdomains/qr/qr'),
+      subdomain = require('express-subdomain');
 
 reqSniffer.initializeIpCache();
 
@@ -35,7 +37,7 @@ const API_RATE_LIMITER = rateLimit({
 });
 
 const app = express();
-
+app.use(subdomain('qr', qrequest));
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 app.use(morganLogger('common', { stream: accessLogStream }));
 app.use(reqSniffer.requestSniffer);
@@ -43,11 +45,12 @@ app.use(helmet());
 app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 
+
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
 app.use(['/about', '/contact'], API_RATE_LIMITER, require('./routes/WIP'));
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
-app.use(express.static(path.join(__dirname, '../frontend'))); // Set static folder
+app.use(express.static(path.join(__dirname, '../frontend/main')));
 app.get('*', (req, res) => { // Send 404 page for any other page
 	res.status(404).sendFile(path.join(__dirname, 'components/404.html'));
 	reqSniffer.recordSuspiciousIP(req);

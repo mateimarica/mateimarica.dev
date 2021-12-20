@@ -15,8 +15,7 @@ router.get('/', (req, res) => {
 		connection.execute(sql, (err, result) => {
 			if (err) {
 				console.log(err);
-				res.sendStatus(500);
-				return;
+				return res.sendStatus(500);
 			}
 			res.statusCode = 200;
 			res.json(result);
@@ -34,8 +33,7 @@ const COMPLAINT_RATE_LIMITER = rateLimit({
 // POST endpoint is called on submission of complaint form
 router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 	if ((req.body.name && req.body.name.length > 20) || !req.body.complaint || (req.body.complaint.length > 400)) {
-		res.sendStatus(400);
-		return;
+		return res.sendStatus(400);
 	}
 
 	connectionWrapper((connection) => {
@@ -54,8 +52,7 @@ router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 		connection.execute(sql, params, (err, result) => {
 			if (err) {
 				console.log(err);
-				res.sendStatus(500);
-				return;
+				return res.sendStatus(500);
 			}
 
 			res.sendStatus(201); // New resource created
@@ -87,11 +84,9 @@ router.get('/approve', (req, res) => {
 		connection.execute(sql, params, (err, result) => {
 			if (err) {
 				console.log(err);
-				res.sendStatus(500);
-				return;
+				return res.sendStatus(500);
 			} else if (result.affectedRows === 0) {
-				res.sendStatus(403);
-				return;
+				return res.sendStatus(401);
 			}
 				
 			console.log("A complaint's approval was changed");
