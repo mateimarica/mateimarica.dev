@@ -8,6 +8,7 @@ const express = require('express'),
       helmet = require("helmet"),
       morganLogger = require('morgan'),
       reqSniffer = require('./middleware/requestSniffer'),
+	  invalidJsonHandler = require('./middleware/invalidJsonHandler'),
       qrequest = require('./subdomains/qr/qr'),
       subdomain = require('express-subdomain');
 
@@ -37,14 +38,14 @@ const API_RATE_LIMITER = rateLimit({
 });
 
 const app = express();
-app.use(subdomain('qr', qrequest));
-let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
-app.use(morganLogger('common', { stream: accessLogStream }));
-app.use(reqSniffer.requestSniffer);
 app.use(helmet());
 app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
-
+let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morganLogger('common', { stream: accessLogStream }));
+app.use(reqSniffer.requestSniffer);
+app.use(invalidJsonHandler);
+app.use(subdomain('qr', qrequest));
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));

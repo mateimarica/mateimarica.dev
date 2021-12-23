@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
-	  crypto = require('crypto'),
-	  connectionWrapper = require('../../../../helpers/connectionWrapper');
+      crypto = require('crypto'),
+      connectionWrapper = require('../../../../helpers/connectionWrapper');
 
 let activeSessions = [];
 
@@ -34,8 +34,8 @@ router.post('/register', (req, res) => {
 function login(username, res) {
 	let newActiveSession = {
 		username: username,
-		sessionID: crypto.randomBytes(16).toString('base64'),
-		lastActive: new Date()
+		lastActive: new Date(),
+		sessionID: crypto.randomBytes(16).toString('base64')
 	}
 
 	activeSessions.push(newActiveSession);
@@ -43,7 +43,7 @@ function login(username, res) {
 	res.json({sessionID: newActiveSession.sessionID});
 }
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res) => {
 	if (!req.body || !req.body.username || !req.body.password 
 	 || req.body.username.length < 3 || req.body.username.length > 10
 	 || req.body.password.length < 3 || req.body.password.length > 40) {
@@ -60,41 +60,33 @@ router.get('/login', (req, res) => {
 				return res.sendStatus(500);
 			}
 
-			if (results[0][0] === 0) {
+			if (results[0][0] === 0)
 				return res.sendStatus(404);
-			}
 			
 			res.statusCode = 200;
 			login(req.body.username, res);
+			removeOldSessions(req.body.username);
 		});
 	}, res, false, process.env.QR_DB_NAME);
 });
 
 router.get('/search', (req, res) => {
-	if (!req.body || !req.body.params || !req.body.params.username) {
+	if (!req.body || !req.body.params || !req.body.params.username)
 		return res.sendStatus(400);
-	}
 
-	if (!isSessionValid(req.body.session)) {
+	if (!isSessionValid(req.body.session)) 
 		return res.sendStatus(401);
-	}
 
 	connectionWrapper((connection) => {
-		let sql = `SELECT * FROM users WHERE username LIKE ?;`;
-		let params = [req.body.usernameSearch + '%'];
-
+		let sql = `SELECT username FROM users WHERE username LIKE ? LIMIT 5;`;
+		let params = [req.body.params.username + '%'];
 		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
 			if (err) {
-				console.log(err.code);
+				console.log(err);
 				return res.sendStatus(500);
 			}
-
-			if (results[0][0] === 0) {
-				return res.sendStatus(404);
-			}
 			
-			res.statusCode = 200;
-			login(req.body.username, res);
+			res.status(200).json(results.flat());
 		});
 	}, res, false, process.env.QR_DB_NAME);
 });
@@ -102,7 +94,7 @@ router.get('/search', (req, res) => {
 const MILLI_PER_HOUR = 3600000;
 function isSessionValid(session) {
 	if (!session || !session.username || !session.sessionID) return false
-
+	return true; // REMOVE THIS REMOVE THIS REMOVE THIS ================================================- /\/\/\/\/\/\\
 	for (let i = 0; i < activeSessions.length; i++) {
 		if (session.sessionID === activeSessions[i].sessionID && session.username === activeSessions[i].username) {
 			let currentDate = new Date();
@@ -111,7 +103,7 @@ function isSessionValid(session) {
 				return true;
 			} else {
 				activeSessions.splice(i, 1); // removes 1 element starting at index i
-				i--; // so it doesn't skip the next index
+				return false;
 			}
 		}
 	}
@@ -119,4 +111,35 @@ function isSessionValid(session) {
 	return false;
 }
 
-module.exports = { router, isSessionValid };
+function removeOldSessions(username) {
+	let currentDate = new Date();
+	for (let i = 0; i < activeSessions.length; i++) {
+		if ((currentDate - activeSessions[i].lastActive) >= MILLI_PER_HOUR) {
+			activeSessions.splice(i, 1); // removes 1 element starting at index i
+			i--;
+		}
+	}
+}
+
+function isAdmin(username, res, callback) {
+	if (!username || !res || !callback)
+		return res.sendStatus(500);
+
+	connectionWrapper((connection) => {
+		let sql = `SELECT is_admin FROM users WHERE username=?;`
+		let params = [username];
+		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
+			if (err) {
+				console.log(err);
+				return;
+			}
+			if (results.flat()[0] === 1)
+				callback();
+			else 
+				res.sendStatus(403);
+		});
+	}, res, false, process.env.QR_DB_NAME);
+}
+
+
+module.exports = { router, isSessionValid, isAdmin };

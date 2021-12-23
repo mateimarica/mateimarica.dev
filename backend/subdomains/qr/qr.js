@@ -25,6 +25,7 @@ router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extende
 //router.use('/', STATIC_PAGE_RATE_LIMITER);
 router.use(express.static(path.join(__dirname, '../../../frontend/qrequest')));
 router.use('/api/users', require('./routes/api/users').router);
+router.use('/api/questions', require('./routes/api/questions'));
 
 router.get('*', (req, res) => {
 	res.sendStatus(404);
