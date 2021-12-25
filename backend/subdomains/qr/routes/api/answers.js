@@ -1,6 +1,6 @@
 const express = require('express'),
       router = express.Router(),
-      connectionWrapper = require('../../../../ helpers/connectionWrapper'),
+      connectionWrapper = require('../../../../helpers/connectionWrapper'),
       users = require('./users');
 
 router.post('/', (req, res) => {
