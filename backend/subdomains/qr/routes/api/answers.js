@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
-      connectionWrapper = require('../../../../helpers/connectionWrapper'),
-	  users = require('./users');
+      connectionWrapper = require('../../../../ helpers/connectionWrapper'),
+      users = require('./users');
 
 router.post('/', (req, res) => {
 	if (!req.body || !req.body.params)
@@ -122,7 +122,10 @@ router.delete('/', (req, res) => {
 					return res.sendStatus(500);
 				}
 
+			if (results && results.affectedRows === 1)
 				res.sendStatus(204);
+			else
+				res.sendStatus(404);
 			});
 		}, res, false, process.env.QR_DB_NAME);
 	});

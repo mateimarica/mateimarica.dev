@@ -27,6 +27,7 @@ router.use(express.static(path.join(__dirname, '../../../frontend/qrequest')));
 router.use('/api/users', require('./routes/api/users').router);
 router.use('/api/questions', require('./routes/api/questions'));
 router.use('/api/answers', require('./routes/api/answers'));
+router.use('/api/votes', require('./routes/api/votes'));
 
 router.get('*', (req, res) => {
 	res.sendStatus(404);

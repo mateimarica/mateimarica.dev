@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       connectionWrapper = require('../../../../helpers/connectionWrapper'),
-	  users = require('./users');
+      users = require('./users');
 
 router.post('/', (req, res) => {
 	if (!req.body || !req.body.params)
