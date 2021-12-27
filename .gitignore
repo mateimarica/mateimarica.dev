@@ -1,5 +1,7 @@
-backend/node_modules
+.vscode
 backend/.env
 backend/sslcert
 backend/documents
 backend/access.log
+backend/node_modules/*
+!backend/node_modules/app

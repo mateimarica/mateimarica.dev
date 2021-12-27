@@ -1,6 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
+	  mysql = require('mysql2'),
 	  rateLimit = require("express-rate-limit");	
 
 const STATIC_PAGE_RATE_LIMITER = rateLimit({
@@ -16,8 +17,6 @@ const API_RATE_LIMITER = rateLimit({
 	message: "Too many requests, try again later.",
 	headers: false
 });
-
-// router.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
 
 router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));

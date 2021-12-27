@@ -3,24 +3,25 @@ const express = require('express'),
       path = require('path'),
       nodemailer = require('nodemailer'),
       rateLimit = require("express-rate-limit"),
-      dateFormatter = require('../../helpers/dateFormatter'),
-      templateEngine = require('../../helpers/templateEngine'),
-	  connectionWrapper = require('../../helpers/connectionWrapper');
+      dateFormatter = require('app/helpers/dateFormatter'),
+      templateEngine = require('app/helpers/templateEngine'),
+	  poolManager = require('app/helpers/poolManager');
+
+const pool = poolManager.getPool(process.env.DB_NAME);
 
 // GET endpoint is called automatically when the webpage loads
 router.get('/', (req, res) => {
-	connectionWrapper((connection) => {
-		let sql = `SELECT name, complaint, created_at FROM complaints WHERE is_approved ORDER BY created_at DESC LIMIT 4;`;
 
-		connection.execute(sql, (err, result) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			}
-			res.statusCode = 200;
-			res.json(result);
-		});
-	}, res);
+	let sql = `SELECT name, complaint, created_at FROM complaints WHERE is_approved ORDER BY created_at DESC LIMIT 4;`;
+
+	pool.execute(sql, (err, result) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		}
+		res.statusCode = 200;
+		res.json(result);
+	});
 });
 
 const COMPLAINT_RATE_LIMITER = rateLimit({
@@ -35,39 +36,36 @@ router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 	if ((req.body.name && req.body.name.length > 20) || !req.body.complaint || (req.body.complaint.length > 400)) {
 		return res.sendStatus(400);
 	}
+	// Check if the name is truthy. If it's undefined (no name key in the JSON) or empty string (user submitted with empty name field),
+	// then no name will be put into the database and the database automatically sets the name to "Anonymous"
+	let sql;
+	let params;
+	if (req.body.name) {
+		sql = `INSERT INTO complaints (name, complaint) VALUES (?, ?);`;
+		params = [req.body.name, req.body.complaint];
+	} else {
+		sql = `INSERT INTO complaints (complaint) VALUES (?);`;
+		params = [req.body.complaint];
+	}
 
-	connectionWrapper((connection) => {
-		// Check if the name is truthy. If it's undefined (no name key in the JSON) or empty string (user submitted with empty name field),
-		// then no name will be put into the database and the database automatically sets the name to "Anonymous"
-		let sql;
-		let params;
-		if (req.body.name) {
-			sql = `INSERT INTO complaints (name, complaint) VALUES (?, ?);`;
-			params = [req.body.name, req.body.complaint];
-		} else {
-			sql = `INSERT INTO complaints (complaint) VALUES (?);`;
-			params = [req.body.complaint];
+	pool.execute(sql, params, (err, result) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
 		}
-	
-		connection.execute(sql, params, (err, result) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
+
+		res.sendStatus(201); // New resource created
+		console.log('Inserted complaint into database: ' + JSON.stringify(req.body));
+
+		let sql2 = `SELECT name, complaint, temp_approval_id, created_at FROM complaints WHERE id=(SELECT MAX(id) FROM complaints WHERE is_approved=0) LIMIT 1;`
+		pool.execute(sql2, (err2, result2) => {
+			if (err2) {
+				console.log(err2);
+				return;
 			}
-
-			res.sendStatus(201); // New resource created
-			console.log('Inserted complaint into database: ' + JSON.stringify(req.body));
-
-			let sql2 = `SELECT name, complaint, temp_approval_id, created_at FROM complaints WHERE id=(SELECT MAX(id) FROM complaints WHERE is_approved=0) LIMIT 1;`
-			connection.execute(sql2, (err2, result2) => {
-				if (err2) {
-					console.log(err2);
-					return;
-				}
-				sendComplaintForApproval(result2[0], req);
-			});
+			sendComplaintForApproval(result2[0], req);
 		});
-	}, res);
+	});
 });
 
 router.get('/approve', (req, res) => {
@@ -76,36 +74,33 @@ router.get('/approve', (req, res) => {
 		return;
 	}
 
-	connectionWrapper((connection) => {
+	let sql = `UPDATE complaints SET is_approved=?, temp_approval_id=NULL WHERE temp_approval_id=?;`
+	let params = [req.query.approved, req.query.approval_id]
 
-		let sql = `UPDATE complaints SET is_approved=?, temp_approval_id=NULL WHERE temp_approval_id=?;`
-		let params = [req.query.approved, req.query.approval_id]
+	pool.execute(sql, params, (err, result) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		} else if (result.affectedRows === 0) {
+			return;
+		}
+			
+		console.log("A complaint's approval was changed");
 
-		connection.execute(sql, params, (err, result) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			} else if (result.affectedRows === 0) {
-				return res.sendStatus(401);
+		let header = '\u2714'; // Check-mark symbol
+		let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
+
+		const approvalConfirmationHTML = templateEngine.fillHTML(
+			path.join(__dirname, '../../components/approvalConfirmation.html'),
+			{
+				header: header,
+				message: message
 			}
-				
-			console.log("A complaint's approval was changed");
-
-			let header = '\u2714'; // Check-mark symbol
-			let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
-
-			const approvalConfirmationHTML = templateEngine.fillHTML(
-				path.join(__dirname, '../../components/approvalConfirmation.html'),
-				{
-					header: header,
-					message: message
-				}
-			);
-		
-			res.set('Content-Type', 'text/html');
-			res.status(200).send(approvalConfirmationHTML);
-		});
-	}, res);
+		);
+	
+		res.set('Content-Type', 'text/html');
+		res.status(200).send(approvalConfirmationHTML);
+	});
 });
 
 async function sendComplaintForApproval(complaint, req) {

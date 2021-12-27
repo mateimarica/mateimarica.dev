@@ -1,37 +1,52 @@
 const express = require('express'),
       router = express.Router(),
       crypto = require('crypto'),
-      connectionWrapper = require('../../../../helpers/connectionWrapper');
+      rateLimit = require("express-rate-limit"),
+      poolManager = require('app/helpers/poolManager');
 
 let activeSessions = [];
+const pool = poolManager.getPool(process.env.QR_DB_NAME);
 
-router.post('/register', (req, res) => {
-	if (!req.body || !req.body.username || !req.body.password 
-	 || req.body.username.length < 3 || req.body.username.length > 10
-	 || req.body.password.length < 3 || req.body.password.length > 40) {
-		return res.sendStatus(400);
-	}
-
-	connectionWrapper((connection) => {
-		let sql = `INSERT INTO users (username, password) VALUES (?, SHA1(?));`;
-		let params = [req.body.username, req.body.password];
-
-		connection.execute(sql, params, (err, results) => {
-			if (err) {
-				if (err.code === 'ER_DUP_ENTRY') {
-					return res.sendStatus(409);
-				}
-				console.log(err);
-				return res.sendStatus(500);
-			}
-
-			res.statusCode = 201;
-			login(req.body.username, res);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+const REGISTER_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_USERS_REGISTER_LIMITER_MAX_REQUESTS,
+	message: "You already made an account recently. Wait a few minutes.",
+	headers: false
 });
 
-function login(username, res) {
+router.post('/register', REGISTER_RATE_LIMITER, (req, res) => {
+	if (!req.body || !req.body.params) 
+		return res.sendStatus(400);
+	
+	let username = req.body.params.username,
+	    password = req.body.params.password;
+
+	if (!username || username.length < 3 || username.length > 10
+	 || !password || password.length < 3 || password.length > 40) {
+		return res.status(400).send("Missing or out-of-bounds arguments");
+	}
+
+	let sql = `INSERT INTO users (username, password) VALUES (?, SHA1(?));`;
+	let params = [username, password];
+
+	pool.execute(sql, params, (err, results) => {
+		if (err) {
+			if (err.code === 'ER_DUP_ENTRY') {
+				return res.sendStatus(409);
+			}
+			console.log(err);
+			return res.sendStatus(500);
+		}
+		sleep(5000);
+		res.statusCode = 201;
+		login(username, false, res);
+		connection.clos
+	});
+});
+
+
+
+function login(username, isAdmin, res) {
 	let newActiveSession = {
 		username: username,
 		lastActive: new Date(),
@@ -40,61 +55,89 @@ function login(username, res) {
 
 	activeSessions.push(newActiveSession);
 
-	res.json({sessionId: newActiveSession.sessionId});
+	res.json({
+		session: {
+			username: username,
+			isAdmin: isAdmin,
+			sessionId: newActiveSession.sessionId
+		}
+	});
 }
 
-router.post('/login', (req, res) => {
-	if (!req.body || !req.body.username || !req.body.password 
-	 || req.body.username.length < 3 || req.body.username.length > 10
-	 || req.body.password.length < 3 || req.body.password.length > 40) {
-		return res.sendStatus(400);
-	}
-
-	connectionWrapper((connection) => {
-		let sql = `SELECT COUNT(1) FROM users WHERE username=? AND password=SHA1(?);`;
-		let params = [req.body.username, req.body.password];
-
-		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			}
-
-			if (results[0][0] === 0)
-				return res.sendStatus(404);
-			
-			res.statusCode = 200;
-			login(req.body.username, res);
-			removeOldSessions(req.body.username);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+const LOGIN_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_USERS_LOGIN_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
 });
 
-router.get('/search', (req, res) => {
-	if (!req.body || !req.body.params || !req.body.params.username)
+router.post('/login', LOGIN_RATE_LIMITER, (req, res) => {
+	if (!req.body || !req.body.params) 
+		return res.sendStatus(400);
+	
+	let username = req.body.params.username,
+	    password = req.body.params.password;
+
+	if (!username || username.length < 3 || username.length > 10
+	 || !password || password.length < 3 || password.length > 40) {
+		return res.status(400).send("Missing or out-of-bounds arguments");
+	}
+
+	let sql = `SELECT isAdmin FROM users WHERE username=? AND password=SHA1(?);`;
+	let params = [username, password];
+
+	pool.execute(sql, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		}
+
+		if (results && results.length === 1) {
+			res.statusCode = 200;
+			login(username, !!results[0].isAdmin, res);
+			removeOldSessions(username);
+		} else {
+			res.sendStatus(404);
+		}
+	});
+});
+
+const SEARCH_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_USERS_SEARCH_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
+});
+
+// search for multiple
+router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
+	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
 
-	if (!isSessionValid(req.body.session)) 
-		return res.sendStatus(401);
+	if (!isSessionValid(req.body.session, res)) return;
 
-	connectionWrapper((connection) => {
-		let sql = `SELECT username FROM users WHERE username LIKE ? LIMIT 5;`;
-		let params = [req.body.params.username + '%'];
-		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			}
-			
-			res.status(200).json(results.flat());
-		});
-	}, res, false, process.env.QR_DB_NAME);
+	let username = req.body.params.username,
+	    maxResultCount = req.body.params.maxResultCount;
+
+	if (!username || !Number.isInteger(maxResultCount) || maxResultCount < 1 || maxResultCount > 15)
+		return res.status(400).send("Missing or out-of-bounds arguments");
+
+	let sql = `SELECT username FROM users WHERE username LIKE ? LIMIT ${maxResultCount};`;
+	let params = [req.body.params.username + '%'];
+	pool.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		}
+		
+		res.status(200).json(results.flat());
+	});
 });
 
 const MILLI_PER_HOUR = 3600000;
-function isSessionValid(session) {
+function isSessionValid(session, res) {
 	if (!session || !session.username || !session.sessionId) return false
-	return true; // REMOVE THIS REMOVE THIS REMOVE THIS ================================================- /\/\/\/\/\/\\
+
 	for (let i = 0; i < activeSessions.length; i++) {
 		if (session.sessionId === activeSessions[i].sessionId && session.username === activeSessions[i].username) {
 			let currentDate = new Date();
@@ -103,11 +146,15 @@ function isSessionValid(session) {
 				return true;
 			} else {
 				activeSessions.splice(i, 1); // removes 1 element starting at index i
+				res.set('WWW-Authenticate', 'Basic realm="qrequest"');
+				res.sendStatus(401);
 				return false;
 			}
 		}
 	}
 
+	res.set('WWW-Authenticate', 'Basic realm="qrequest"');
+	res.sendStatus(401);
 	return false;
 }
 
@@ -125,20 +172,18 @@ function isAdmin(username, res, callback) {
 	if (!username || !res || !callback)
 		return res.sendStatus(500);
 
-	connectionWrapper((connection) => {
-		let sql = `SELECT isAdmin FROM users WHERE username=?;`
-		let params = [username];
-		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return;
-			}
-			if (results.flat()[0] === 1)
-				callback();
-			else 
-				res.sendStatus(403);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+	let sql = `SELECT isAdmin FROM users WHERE username=?;`
+	let params = [username];
+	pool.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+		if (results.flat()[0] === 1)
+			callback();
+		else 
+			res.sendStatus(403);
+	});
 }
 
 // The values correspond with the table names
@@ -151,22 +196,23 @@ function isAuthor(username, id, postType, res, callback) {
 	if (!username || !id || !postType || !res || !callback)
 		return res.sendStatus(500);
 
-	connectionWrapper((connection) => {
-		let sql = `SELECT COUNT(*) FROM ${postType} WHERE id=? AND author=?;`
-		let params = [id, username];
-		connection.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return;
-			}
-			
-			if (results.flat()[0] === 1)
-				callback();
-			else 
-				res.sendStatus(403);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+	let sql = `SELECT COUNT(*) FROM ${postType} WHERE id=? AND author=?;`
+	let params = [id, username];
+	pool.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+		
+		if (results.flat()[0] === 1)
+			callback();
+		else 
+			res.sendStatus(403);
+	});
 }
 
+router.get('*', (req, res) => {
+	res.sendStatus(404);
+});
 
 module.exports = { router, isSessionValid, isAdmin, isAuthor, postType };

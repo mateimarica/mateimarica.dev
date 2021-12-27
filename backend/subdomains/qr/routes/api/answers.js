@@ -1,14 +1,23 @@
 const express = require('express'),
       router = express.Router(),
-      connectionWrapper = require('../../../../helpers/connectionWrapper'),
+      rateLimit = require("express-rate-limit"),
+      poolManager = require('app/helpers/poolManager'),
       users = require('./users');
 
-router.post('/', (req, res) => {
+const pool = poolManager.getPool(process.env.QR_DB_NAME);
+	
+const POST_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_ANS_POST_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
+});
+
+router.post('/', POST_RATE_LIMITER, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
 
-	if (!users.isSessionValid(req.body.session))
-		return res.sendStatus(401);
+	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let answer = req.body.params.answer,
 	    questionId = req.body.params.questionId;
@@ -18,63 +27,71 @@ router.post('/', (req, res) => {
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 	}
 
-	connectionWrapper((connection) => {
-		let sql = `INSERT INTO answers (answer, questionId, author) VALUES (?, ?, ?);`;
+	let sql = `INSERT INTO answers (answer, questionId, author) VALUES (?, ?, ?);`;
 
-		let params = [answer, questionId, req.body.session.username];
-		connection.execute(sql, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			}
+	let params = [answer, questionId, req.body.session.username];
+	pool.execute(sql, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		}
 
-			res.sendStatus(201);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+		res.sendStatus(201);
+	});
+});
+
+const GET_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_ANS_GET_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
 });
 
 // Get all answers for a question
-router.get('/', (req, res) => {
+router.get('/', GET_RATE_LIMITER, (req, res) => {
 	if (!req.body)
 		return res.sendStatus(400);
 
-	if (!users.isSessionValid(req.body.session))
-		return res.sendStatus(401);
+	if (!users.isSessionValid(req.body.session, res)) return;
 	
 	let questionId = req.body.params.questionId;
 
 	if (!questionId)
 		return res.status(400).send('Missing argument(s)');
 
-	connectionWrapper((connection) => {
-		let sql = 
-			`SELECT a.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, v2.vote AS currentUserVote ` +
-			`FROM answers AS a ` +
-			`LEFT OUTER JOIN votes AS v1 ON v1.answerId=a.id ` +
-			`LEFT OUTER JOIN votes AS v2 ON v2.answerId=a.id AND v2.voter=? ` +
-			`WHERE a.questionId=? ` +
-			`GROUP BY a.id ` + 
-			`ORDER BY CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) DESC LIMIT 15;`;
+	let sql = 
+		`SELECT a.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote ` +
+		`FROM answers AS a ` +
+		`LEFT OUTER JOIN votes AS v1 ON v1.answerId=a.id ` +
+		`LEFT OUTER JOIN votes AS v2 ON v2.answerId=a.id AND v2.voter=? ` +
+		`WHERE a.questionId=? ` +
+		`GROUP BY a.id ` + 
+		`ORDER BY CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) DESC LIMIT 15;`;
 
-		let params = [req.body.session.username, questionId];
+	let params = [req.body.session.username, questionId];
 
-		connection.execute(sql, params, (err, results) => {
-			if (err) {
-				console.log(err);
-				return res.sendStatus(500);
-			}
+	pool.execute(sql, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(500);
+		}
 
-			res.status(200).json(results);
-		});
-	}, res, false, process.env.QR_DB_NAME);
+		res.status(200).json(results);
+	});
 });
 
-router.patch('/', (req, res) => {
+const PATCH_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_ANS_PATCH_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
+});
+
+router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
 
-	if (!users.isSessionValid(req.body.session))
-		return res.sendStatus(401);
+	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let answer = req.body.params.answer,
 	    id = req.body.params.id;
@@ -83,28 +100,32 @@ router.patch('/', (req, res) => {
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 	
 	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
-		connectionWrapper((connection) => {
-			let sql = `UPDATE answers SET answer=? WHERE id=?;`;
-			let params = [answer, id];
+		let sql = `UPDATE answers SET answer=? WHERE id=?;`;
+		let params = [answer, id];
 
-			connection.execute(sql, params, (err, results) => {
-				if (err) {
-					console.log(err);
-					return res.sendStatus(500);
-				}
+		pool.execute(sql, params, (err, results) => {
+			if (err) {
+				console.log(err);
+				return res.sendStatus(500);
+			}
 
-				res.sendStatus(204);
-			});
-		}, res, false, process.env.QR_DB_NAME);
+			res.sendStatus(204);
+		});
 	});
 });
 
-router.delete('/', (req, res) => {
+const DELETE_RATE_LIMITER = rateLimit({
+	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.QR_ANS_DELETE_LIMITER_MAX_REQUESTS,
+	message: "You're doing that too much. Try again in a bit.",
+	headers: false
+});
+
+router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
 
-	if (!users.isSessionValid(req.body.session))
-		return res.sendStatus(401);
+	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let id = req.body.params.id;
 
@@ -112,22 +133,20 @@ router.delete('/', (req, res) => {
 		return res.status(400).send('Missing argument');
 	
 	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
-		connectionWrapper((connection) => {
-			let sql = `DELETE FROM answers WHERE id=?;`;
-			let params = [id];
+		let sql = `DELETE FROM answers WHERE id=?;`;
+		let params = [id];
 
-			connection.execute(sql, params, (err, results) => {
-				if (err) {
-					console.log(err);
-					return res.sendStatus(500);
-				}
+		pool.execute(sql, params, (err, results) => {
+			if (err) {
+				console.log(err);
+				return res.sendStatus(500);
+			}
 
-			if (results && results.affectedRows === 1)
-				res.sendStatus(204);
-			else
-				res.sendStatus(404);
-			});
-		}, res, false, process.env.QR_DB_NAME);
+		if (results && results.affectedRows === 1)
+			res.sendStatus(204);
+		else
+			res.sendStatus(404);
+		});
 	});
 });
 
