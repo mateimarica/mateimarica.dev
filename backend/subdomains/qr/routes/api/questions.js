@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       rateLimit = require("express-rate-limit"),
-	  mysql = require('mysql2'),
+      mysql = require('mysql2'),
       poolManager = require('app/helpers/poolManager'),
       users = require('./users');
 
@@ -57,7 +57,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let sql = 
-		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(a.id), 0) AS answerCount ` +
+		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
 		`FROM questions AS q ` +
 		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
 		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +
@@ -94,7 +94,7 @@ router.get('/list', LIST_RATE_LIMITER, (req, res) => {
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let sql = 
-		`SELECT q.*, CONVERT(COALESCE(SUM(DISTINCT v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(a.id), 0) AS answerCount ` +
+		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
 		`FROM questions AS q ` +
 		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
 		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +
@@ -178,7 +178,7 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 
 	let params = [];
 	let sql =
-		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(a.id), 0) AS answerCount ` +
+		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
 		`FROM questions AS q ` +
 		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
 		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +

@@ -202,7 +202,7 @@ async function simulateTypingComplaints(complaintsListItem, complaint) {
 
 /** A simple sleep function. Obviously, only call this from async functions. */
 function sleep(milli) {    
-    return new Promise(resolve => {
+	return new Promise(resolve => {
 		setTimeout(() => { resolve() }, milli);
 	});
 }
@@ -269,5 +269,5 @@ function isElementInViewport(element) {
 	return rect.bottom > 0 &&
 	       rect.right > 0 &&
 	       rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
-		   rect.top< (window.innerHeight || document.documentElement.clientHeight);
+	       rect.top< (window.innerHeight || document.documentElement.clientHeight);
 }

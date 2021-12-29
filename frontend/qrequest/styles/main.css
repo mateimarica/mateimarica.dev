@@ -105,8 +105,8 @@ body {
 }
 
 .sectionCard {
-	width: 70%;
-	max-width: 900px;
+	width: 100%;
+	max-width: 1000px;
 	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
 	margin-right: auto;
 	margin-bottom: 20px;
@@ -128,4 +128,99 @@ body {
 
 .centeredHeader {
 	text-align: center;
+	margin-top: 0;
+}
+
+.slideshowContainer {
+	/* max-width: 1000px; */
+	position: relative;
+	display:flex;
+	/* margin: auto; */
+	/* top: 0;
+	left: 0; */
+	aspect-ratio: 8/5 !important;
+}
+
+.slide {
+	position: absolute;
+	border-radius: 12px;
+	width: 100%;
+	opacity: 0;
+}
+
+#pauseIcon {
+	position: absolute;
+	opacity: 0; /* invisible */
+	max-width: 30px;
+	top: 15px;
+	left: 10px;
+	z-index: 111;
+}
+
+.fadeIn {
+	-webkit-animation-name: fadeIn;
+	-webkit-animation-duration: 1.5s;
+	animation-name: fadeIn;
+	animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fadeIn {
+	from {opacity: 0}
+	to {opacity: 1}
+}
+
+@keyframes fadeIn {
+	from {opacity: 0}
+	to {opacity: 1}
+}
+
+.fadeOut {
+	-webkit-animation-name: fadeOut;
+	-webkit-animation-duration: 1.5s;
+	animation-name: fadeOut;
+	animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fadeOut {
+	from {opacity: 1}
+	to {opacity: 0}
+}
+
+@keyframes fadeOut {
+	from {opacity: 1}
+	to {opacity: 0}
+}
+
+.fadeInQuick {
+	-webkit-animation-name: fadeInQuick;
+	-webkit-animation-duration: 0.5s;
+	animation-name: fadeInQuick;
+	animation-duration: 0.5s;
+}
+
+@-webkit-keyframes fadeInQuick {
+	from {opacity: 0}
+	to {opacity: 1}
+}
+
+@keyframes fadeInQuick {
+	from {opacity: 0}
+	to {opacity: 1}
+}
+
+.fadeOutQuick {
+	-webkit-animation-name: fadeOutQuick;
+	-webkit-animation-duration: 0.5s;
+	animation-name: fadeOutQuick;
+	animation-duration: 0.5s;
+}
+
+@-webkit-keyframes fadeOutQuick {
+	from {opacity: 1}
+	to {opacity: 0}
+}
+
+@keyframes fadeOutQuick {
+	from {opacity: 1}
+	to {opacity: 0}
 }

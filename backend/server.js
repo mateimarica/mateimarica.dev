@@ -8,7 +8,7 @@ const express = require('express'),
       helmet = require("helmet"),
       morganLogger = require('morgan'),
       reqSniffer = require('app/middleware/requestSniffer'),
-	  invalidJsonHandler = require('app/middleware/invalidJsonHandler'),
+      invalidJsonHandler = require('app/middleware/invalidJsonHandler'),
       qrequest = require('./subdomains/qr/qr'),
       subdomain = require('express-subdomain');
 

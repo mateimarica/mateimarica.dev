@@ -1,8 +1,8 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
-	  mysql = require('mysql2'),
-	  rateLimit = require("express-rate-limit");	
+      mysql = require('mysql2'),
+      rateLimit = require("express-rate-limit");	
 
 const STATIC_PAGE_RATE_LIMITER = rateLimit({
 		windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,

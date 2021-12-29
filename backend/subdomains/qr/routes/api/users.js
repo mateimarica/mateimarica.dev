@@ -37,10 +37,9 @@ router.post('/register', REGISTER_RATE_LIMITER, (req, res) => {
 			console.log(err);
 			return res.sendStatus(500);
 		}
-		sleep(5000);
+
 		res.statusCode = 201;
 		login(username, false, res);
-		connection.clos
 	});
 });
 

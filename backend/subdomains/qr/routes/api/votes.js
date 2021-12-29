@@ -63,7 +63,7 @@ const DELETE_RATE_LIMITER = rateLimit({
 router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
+	    
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let questionId = req.body.params.questionId

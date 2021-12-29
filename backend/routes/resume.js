@@ -1,6 +1,6 @@
 const express = require('express'),
       router = express.Router(),
-	  path = require('path');
+      path = require('path');
 
 router.get('/', (req, res) => {
 	res.set({

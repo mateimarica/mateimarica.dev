@@ -5,7 +5,7 @@ const express = require('express'),
       rateLimit = require("express-rate-limit"),
       dateFormatter = require('app/helpers/dateFormatter'),
       templateEngine = require('app/helpers/templateEngine'),
-	  poolManager = require('app/helpers/poolManager');
+      poolManager = require('app/helpers/poolManager');
 
 const pool = poolManager.getPool(process.env.DB_NAME);
 
