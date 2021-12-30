@@ -1,5 +1,5 @@
-const poolManager = require('app/helpers/poolManager'),
-      isValueInArray = require('app/helpers/binarySearch');
+const poolManager = require('pool-manager'),
+      isValueInArray = require('binary-search');
 
 let ipCache = [];
 const pool = poolManager.getPool(process.env.DB_NAME);

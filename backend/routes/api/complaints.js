@@ -3,9 +3,9 @@ const express = require('express'),
       path = require('path'),
       nodemailer = require('nodemailer'),
       rateLimit = require("express-rate-limit"),
-      dateFormatter = require('app/helpers/dateFormatter'),
-      templateEngine = require('app/helpers/templateEngine'),
-      poolManager = require('app/helpers/poolManager');
+      dateFormatter = require('date-formatter'),
+      templateEngine = require('template-engine'),
+      poolManager = require('pool-manager');
 
 const pool = poolManager.getPool(process.env.DB_NAME);
 

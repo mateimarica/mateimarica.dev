@@ -9,8 +9,14 @@
     "dev": "cross-env NODE_ENV=development nodemon server"
   },
   "author": "Matei Marica",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
+    "request-sniffer": "file:./middleware/request-sniffer",
+	"invalid-json-handler": "file:./middleware/invalid-json-handler",
+	"binary-search": "file:./util/binary-search",
+	"date-formatter": "file:./util/date-formatter",
+	"pool-manager": "file:./util/pool-manager",
+	"template-engine": "file:./util/template-engine",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",

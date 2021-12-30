@@ -2,7 +2,7 @@ const express = require('express'),
       router = express.Router(),
       crypto = require('crypto'),
       rateLimit = require("express-rate-limit"),
-      poolManager = require('app/helpers/poolManager');
+      poolManager = require('pool-manager');
 
 let activeSessions = [];
 const pool = poolManager.getPool(process.env.QR_DB_NAME);

@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       rateLimit = require("express-rate-limit"),
-      poolManager = require('app/helpers/poolManager'),
+      poolManager = require('pool-manager'),
       users = require('./users');
 
 const pool = poolManager.getPool(process.env.QR_DB_NAME);

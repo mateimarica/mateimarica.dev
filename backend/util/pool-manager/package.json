@@ -1,0 +1,11 @@
+{
+  "name": "pool-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "poolManager.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matei Marica",
+  "license": "MIT"
+}
