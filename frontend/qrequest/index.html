@@ -1,3 +1,4 @@
+<!-- Hello ;) -->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -12,22 +13,42 @@
 		<nav id="navigationBar">
 			<img id="logo" src="/images/logo-small.png" alt="Site logo">
 		</nav>
-		<div class="sectionCard">
-			<img src="./images/qr.png">
+
+		<div class="sectionCard" style="width: 80%; max-width: 600px">
+			<img src="./images/qr.png" alt="QRequest logo">
 			<h1 class="centeredHeader">Your new home</h1>
 			<p style="text-align: center; margin-top: 0;">QRequest is a cutting-edge forum platform where no question is a stupid question.<br>It doesn't even have to be a question.</p>
 		</div>
 
-		<div class="sectionCard" style="width:45%;">
-			<div class="slideshowContainer">
-				<img id="pauseIcon" src="./images/pause.png">
-				<img class="slide" src="./images/preview-1.png">
-				<img class="slide" src="./images/preview-2.png">
-				<img class="slide" src="./images/preview-3.png">
+		<div class="sideBySideCardContainer">
+			<div class="sectionCard sideBySide" style="max-width: 800px;">
+				<div class="slideshowContainer">
+					<img id="pauseIcon" src="./images/pause.png">
+					<img class="slide" src="./images/preview-1.png" alt="QRequest screenshot">
+					<img class="slide" src="./images/preview-2.png" alt="QRequest screenshot">
+					<img class="slide" src="./images/preview-3.png" alt="QRequest screenshot">
+				</div>
+			</div>
+
+			<div class="sectionCard sideBySide" style="max-width: 600px;">
+				<h1 class="centeredHeader">Downloads</h1>
+				<div id="downloadButtons">
+					<a href="https://google.com" class="button windows">Windows<img src="./images/windows.png"></a>
+					<a href="https://google.com" class="button linux">Linux<img src="./images/linux.png"></a>
+					<a href="https://google.com" class="button macos">macOS<img src="./images/macos.png"></a>
+				</div>
+	
+				<h2 class="centeredHeader claustrophobicHeader">Minimum Requirements</h1>
+				<a href="https://java.com/download/">Oracle Java 8</a>
+				<br>
+				or
+				<br>
+				OpenJDK 11
+		
+				<h2 class="centeredHeader claustrophobicHeader">Running .jar files</h1>
+				<code>java -jar ./QRequest-1.2.jar</code>
 			</div>
 		</div>
-
-		
 		<script src="/scripts/script.js"></script>
 	</body>
 </html>

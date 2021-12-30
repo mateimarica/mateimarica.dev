@@ -81,6 +81,12 @@ async function doSlideshow(startIndex) {
 				}
 				
 				await sleep(SLIDE_DURATION);
+
+				if (pauseSlides) {
+					currentSlide = i;
+					isRunning = false;
+					return;
+				}
 			
 				slides[i].classList.add('fadeOut');
 				slides[next].classList.add('fadeIn');

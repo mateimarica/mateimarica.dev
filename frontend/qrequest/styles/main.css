@@ -118,6 +118,17 @@ body {
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
+.sectionCard.sideBySide {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.sideBySideCardContainer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
 /* Mobile viewing optimization */
 @media screen and (max-width: 900px) {
 	.sectionCard {
@@ -129,6 +140,10 @@ body {
 .centeredHeader {
 	text-align: center;
 	margin-top: 0;
+}
+
+.claustrophobicHeader {
+	margin-top: 50px;
 }
 
 .slideshowContainer {
@@ -223,4 +238,52 @@ body {
 @keyframes fadeOutQuick {
 	from {opacity: 1}
 	to {opacity: 0}
+}
+
+#downloadButtons {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+a.button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+	
+    text-decoration: none;
+	color: whitesmoke;
+	font-weight: 500;
+	border-radius: 5px;
+	padding: 10px 20px;
+	text-align: center;
+	align-items: center; /* Center vertically */
+	/* max-width: 400px;
+	min-width: 100px; */
+	width: 100px;
+	display: flex;
+	justify-content: center;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 20px;
+}
+
+a.button.windows {
+	background-color: #00508d;
+}
+
+a.button.linux {
+	background-color: #6b0000;
+}
+
+a.button.macos {
+	background-color: #666666;
+}
+
+a img {
+	margin-left: 10px;
+}
+
+a {
+	color: #d3d3d3;
 }
