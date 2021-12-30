@@ -3,5 +3,4 @@ backend/.env
 backend/sslcert
 backend/documents
 backend/access.log
-backend/node_modules/*
-!backend/node_modules/app
+backend/node_modules
