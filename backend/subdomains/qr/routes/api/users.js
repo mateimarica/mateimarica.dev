@@ -43,8 +43,6 @@ router.post('/register', REGISTER_RATE_LIMITER, (req, res) => {
 	});
 });
 
-
-
 function login(username, isAdmin, res) {
 	let newActiveSession = {
 		username: username,

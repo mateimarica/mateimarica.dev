@@ -201,7 +201,7 @@ async function simulateTypingComplaints(complaintsListItem, complaint) {
 }
 
 /** A simple sleep function. Obviously, only call this from async functions. */
-function sleep(milli) {    
+function sleep(milli) {
 	return new Promise(resolve => {
 		setTimeout(() => { resolve() }, milli);
 	});

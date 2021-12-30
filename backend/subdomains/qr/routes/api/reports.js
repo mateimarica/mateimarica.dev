@@ -9,7 +9,7 @@ const pool = poolManager.getPool(process.env.QR_DB_NAME);
 const REPORTS_RATE_LIMITER = rateLimit({
 	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.QR_REPORTS_POST_LIMITER_MAX_REQUESTS,
-	message: "You're complaing too much. Try again later.",
+	message: "You're complaining too much. Try again later.",
 	headers: false
 });
 

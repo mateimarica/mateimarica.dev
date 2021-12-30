@@ -1,0 +1,7 @@
+{
+	"exts": {
+		"windows": "exe",
+		"linux": "jar",
+		"macos": "jar"
+	}
+}
