@@ -101,4 +101,8 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 	res.status(200).json(downloadInfo);
 });
 
-module.exports = router;
+function getDownloadInfo() {
+	return downloadInfo;
+}
+
+module.exports = { router, getDownloadInfo };

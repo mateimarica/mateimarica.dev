@@ -47,9 +47,17 @@ app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
 app.use(subdomain('qr', qrequest));
 
+
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
 app.use(['/about', '/contact'], API_RATE_LIMITER, require('./routes/WIP'));
+
+app.get('/index.html', STATIC_PAGE_RATE_LIMITER)
+
+app.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
+	res.redirect('/');
+});
+
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 app.use(express.static(path.join(__dirname, '../frontend/main')));
 app.get('*', (req, res) => { // Send 404 page for any other page
