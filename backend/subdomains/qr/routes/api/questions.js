@@ -57,12 +57,11 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let sql = 
-		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
-		`FROM questions AS q ` +
-		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
-		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +
-		`LEFT OUTER JOIN answers AS a ON a.questionId=q.id ` +
-		`WHERE q.id=? GROUP BY q.id LIMIT 1;`;
+		`SELECT q.*, ` +
+		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount ` +
+		`FROM questions AS q WHERE q.id=? LIMIT 1;`;
 
 	let params = [req.body.session.username, req.body.params.id];
 
@@ -94,12 +93,12 @@ router.get('/list', LIST_RATE_LIMITER, (req, res) => {
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let sql = 
-		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
+		`SELECT q.*, ` +
+		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount ` +
 		`FROM questions AS q ` +
-		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
-		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +
-		`LEFT OUTER JOIN answers AS a ON a.questionId=q.id ` +
-		`GROUP BY q.id ORDER BY q.isPinned DESC, q.dateCreated DESC LIMIT 30;`;
+		`ORDER BY q.isPinned DESC, votes DESC LIMIT 35;`
 
 	let params = [req.body.session.username];
 	pool.execute(sql, params, (err, results) => {
@@ -178,14 +177,13 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 
 	let params = [];
 	let sql =
-		`SELECT q.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote, COALESCE(COUNT(DISTINCT a.id), 0) AS answerCount ` +
-		`FROM questions AS q ` +
-		`LEFT OUTER JOIN votes AS v1 ON v1.questionId=q.id ` +
-		`LEFT OUTER JOIN votes AS v2 ON v2.questionId=q.id AND v2.voter=? ` +
-		`LEFT OUTER JOIN answers AS a ON a.questionId=q.id ` +
-		`WHERE ` + 
+		`SELECT q.*, ` +
+		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount 
+		FROM questions AS q WHERE ` +
 		`${addKeywords(keywords, params)} AND ${addTag(tag, params)} AND ${addHasSolvedAnsConstraint(hasSolvedAnswer)} ` +
-		`GROUP BY q.id ORDER BY q.isPinned DESC LIMIT 40;`;
+		`ORDER BY q.isPinned DESC LIMIT 40;`;
 
 	params.unshift(req.body.session.username); // Add username to the beginning after params edited
 	

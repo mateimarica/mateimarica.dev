@@ -60,13 +60,11 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 		return res.status(400).send('Missing argument(s)');
 
 	let sql = 
-		`SELECT a.*, CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) AS votes, COALESCE(v2.vote, 0) AS currentUserVote ` +
-		`FROM answers AS a ` +
-		`LEFT OUTER JOIN votes AS v1 ON v1.answerId=a.id ` +
-		`LEFT OUTER JOIN votes AS v2 ON v2.answerId=a.id AND v2.voter=? ` +
-		`WHERE a.questionId=? ` +
-		`GROUP BY a.id ` + 
-		`ORDER BY CONVERT(COALESCE(SUM(v1.vote), 0), SIGNED) DESC LIMIT 15;`;
+		`SELECT a.*, ` +
+		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE answerId=a.id), 0) AS votes, ` +
+		`COALESCE((SELECT vote FROM votes WHERE answerId=a.id AND voter=?), 0) as currentUserVote ` +
+		`FROM answers AS a WHERE a.questionId=? ` +
+		`ORDER BY votes DESC LIMIT 35;`;
 
 	let params = [req.body.session.username, questionId];
 

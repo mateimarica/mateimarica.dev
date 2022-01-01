@@ -28,7 +28,8 @@ router.get('/', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 		{
 			windows: downloadInfo.downloads.windows.browser_download_url ?? '/',
 			linux: downloadInfo.downloads.linux.browser_download_url ?? '/',
-			macos: downloadInfo.downloads.macos.browser_download_url ?? '/'
+			macos: downloadInfo.downloads.macos.browser_download_url ?? '/',
+			version: downloadInfo.version ?? 'v1.0'
 		}
 	)
 	res.send(html);
