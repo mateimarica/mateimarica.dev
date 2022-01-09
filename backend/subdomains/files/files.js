@@ -28,6 +28,10 @@ const storage = multer.diskStorage({
 	}
 });
 
+const limits = {
+	fileSize: 1024 * 1024, // 1 MB (max file size)
+};
+
 const upload = multer({ storage: storage });
 
 router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
@@ -44,12 +48,11 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/upload', [authManager.authInspector, upload.array('files')], (req, res) => {
-	console.log(req.files);
+	// console.log(req.files);
 	res.sendStatus(200); 
 });
 
 router.get('/files', (req, res) => {
-	console.log(req.get('SessionId'));
 	res.sendStatus(200); 
 });
 

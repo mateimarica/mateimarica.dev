@@ -84,13 +84,9 @@ submitBtn.addEventListener('click', () => {
 submitBtn.click();
 
 function setUpMainPage() {
-	function uploadFiles(files=null) {
+	function uploadFiles(files) {
 		const formData = new FormData();
-
-		if (files === null) {
-			files = document.querySelector('#filePicker').files;
-		}
-
+	
 		for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
    		 }
@@ -126,12 +122,23 @@ function setUpMainPage() {
 	});
 
 	filePickerDropArea.addEventListener('drop', e => {
-		let dt = e.dataTransfer;
-		let files = dt.files;
-		console.log('go');
-		uploadFiles(files);
+		uploadFiles(e.dataTransfer.files);
 	}, false);
 
+	const filePicker = document.querySelector('#filePicker');
+
+	filePicker.addEventListener('change', function(e) {
+		if (this.files.length > 0) {
+			uploadFiles(this.files);
+		}
+	});
+	
+	triggerTransitions();
+}
+
+async function triggerTransitions() {
+	await sleep(100);
+	document.querySelector('#storageBarUsed').style.width = '75%';
 }
 
 function setMessageBox(className, innerHTML) {

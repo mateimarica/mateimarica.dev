@@ -8,8 +8,6 @@ function authInspector(req, res, next) {
 		return res.sendStatus(401);
 	}
 
-	console.log(req.files);
-	
 	next();
 }
 
