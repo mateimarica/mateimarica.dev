@@ -10,6 +10,7 @@ const express = require('express'),
       reqSniffer = require('request-sniffer'),
       invalidJsonHandler = require('invalid-json-handler'),
       qrequest = require('./subdomains/qr/qr'),
+	  files = require('./subdomains/files/files'),
       subdomain = require('express-subdomain');
 
 reqSniffer.initializeIpCache();
@@ -45,8 +46,8 @@ let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
 app.use(morganLogger('common', { stream: accessLogStream }));
 app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
+app.use(subdomain('files', files));
 app.use(subdomain('qr', qrequest));
-
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));

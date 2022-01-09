@@ -1,0 +1,375 @@
+:root {
+	--mainBackgroundColor: #06080a;
+	--secondaryBackgroundColor: #15222e;
+	--sectionCardColor: #11161b;
+	--textFieldmainBackgroundColor: #0b0e11;
+
+	--oddComplaintsBackgroundColor: #132638;
+	--evenComplaintsBackgroundColor: #0c1a27;
+
+	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--descriptionFont: 'Franklin Gothic Medium', Arial, Helvetica, sans-serif;
+	--defaultBorderRadius: 8px;
+}
+
+html {
+	height: 100%; /* Prevents background repeating/tiling */
+}
+
+html, body {
+	width: 100%;
+	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+}
+
+body {
+	margin: 0;
+	margin-top: 65px;
+	font-family: var(--defaultFont);
+	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
+	color: whitesmoke;
+	text-align: center;
+}
+
+/* Uncomment this to see borders of all elements */
+/* *{
+	border: 2px solid red;
+} */
+
+#navigationBar {
+	background-color: rgba(13, 17, 23, 1);
+	position: fixed;
+	top: 0; /* Pushes navbar to the top of the screen - always */
+	z-index: 1; /* layering priority - higher value -> on top */
+
+	display: flex;
+	left: 0; right: 0; /* This makes the navbar span across the whole page */
+	align-items: center; /* Center vertically */
+	justify-content: center; /* Hugs the elements together in the center */
+	
+	padding: 12px;
+	margin-left: auto;
+	margin-right: auto;
+	height: auto;
+}
+
+#navigationBar a {
+	color: rgb(187, 187, 187); /* light grey */
+	text-decoration: none;
+}
+
+#navigationBar a:hover {
+	color:whitesmoke;
+	transition: 0.2s ease;
+	-moz-transition: 0.2s ease;
+	-o-transition: 0.2s ease;
+	-webkit-transition: 0.2s ease;
+}
+
+#navigationBar ul {
+	margin: 0;
+}
+
+#navigationBar li {
+	display: inline;
+	margin-right: 16px;
+}
+
+.navigationBarOnScroll {
+	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
+	-webkit-transition: .25s linear;
+	-moz-transition: .25s linear;
+	-o-transition: .25s linear;
+	transition: .25s linear;
+	background-color: rgba(13, 17, 23, 0.5) !important;
+	backdrop-filter: blur(1.5px);
+
+}
+
+.navigationBarOnScroll:hover {
+	background-color: rgba(13, 17, 23, 0.75) !important;
+}
+
+.navigationBarOriginalPosition {
+	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
+	-webkit-transition: .25s linear;
+	-moz-transition: .25s linear;
+	-o-transition: .25s linear;
+	transition: .25s linear;
+	background-color: rgba(13, 17, 23, 1);
+}
+
+#logo {
+	width: 32px;
+	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
+}
+
+#logo:hover {
+	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
+}
+
+.sectionCard {
+	width: 70%;
+	max-width: 900px;
+	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
+	margin-right: auto;
+	margin-bottom: 20px;
+	padding: 32px 48px 32px; /* top, left&right, bottom */
+	background-color: var(--sectionCardColor);
+	border-radius: var(--defaultBorderRadius);
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.centerCard {
+	position: absolute;
+	top: 0; bottom: 0; left: 0; right: 0;
+	margin: auto;
+	max-height: 225px;
+	max-width: 400px;
+	width: 500px;
+}
+
+/* Mobile viewing optimization */
+@media screen and (max-width: 400px) {
+	.sectionCard {
+		width: 90%;
+		padding: 32px 24px 32px; /* top, left&right, bottom */
+	}
+}
+
+.centeredHeader {
+	margin-top: 0;
+	text-align: center;
+}
+
+
+.tooltip:hover span {
+	visibility: visible;
+	opacity: 1;
+}
+
+
+
+#complaintsShowcase {
+	margin-left: auto;
+	margin-right: auto;
+	width: 80%;
+	min-width: 288px;
+	overflow: hidden;
+}
+
+
+
+#complaintsList {
+	border: 2px solid lightgray;
+	border-radius: var(--defaultBorderRadius);
+	list-style: none;
+	padding-left: 0;
+	margin: 0;
+}
+
+
+.complaintsListItem {
+	color: whitesmoke;
+	padding: 20px;
+	text-align: left;
+
+	max-height: 800px; /* Just some random big number that it'll never get to */
+	opacity: 1;
+	
+	-webkit-transition: opacity 1s ease, max-height 5s linear;
+	-moz-transition: opacity 1s ease, max-height 5s linear;
+	-o-transition: opacity 1s ease, max-height 5s linear;
+	transition: opacity 1s ease, max-height 5s linear;
+	will-change: opacity, max-height;
+
+}
+
+.complaintsListItemInvisible {
+	opacity: 0;
+	max-height: 0;
+}
+
+.complaintsListItem:nth-child(odd) {
+	background-color: var(--oddComplaintsBackgroundColor);
+}
+
+.complaintsListItem:nth-child(even) {
+	background-color: var(--evenComplaintsBackgroundColor);
+}
+
+.complaintsListItem:first-child {
+	border-top-left-radius: var(--defaultBorderRadius); 
+	border-top-right-radius: var(--defaultBorderRadius); 
+}
+
+.complaintsListItem:last-child {
+	border-bottom-left-radius: var(--defaultBorderRadius); 
+	border-bottom-right-radius: var(--defaultBorderRadius); 
+}
+
+.complaintsListItem > .complaintsListItemInfo {
+	width: 100%;
+	margin: auto;
+	color:	slategray;
+	display: inline-block;
+	margin-bottom: 20px;
+}
+
+.complaintsListItem > .complaintsListItemText {
+	word-wrap: break-word; /* Don't want long words running off the page */
+}
+
+#passwordForm {
+	width: 100%;
+	min-width: 260px;
+	border-radius: var(--defaultBorderRadius);
+	margin: 15px auto auto; /* Puts form to the middle */
+
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+	display: inline-block;
+}
+
+/* Mobile viewing optimization */
+@media screen and (max-width: 400px) {
+	#passwordForm {
+		min-width: 30px;
+		width: 100%;
+	}
+}
+
+.complaintFieldError {
+	border: 2px solid darkred;
+}
+
+.formField, #submitBtn {
+	
+	background-color: var(--textFieldmainBackgroundColor);
+	color: whitesmoke;
+	font-family: var(--defaultFont);
+	font-size: 18px;
+	resize: none;
+	width: 100%;
+	padding: 16px;
+	border-radius: var(--defaultBorderRadius);
+	overflow: hidden; /* Prevents fields from leaving complaintField outline */
+	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
+	justify-content: center;
+	width: 100px;
+	vertical-align: middle;
+}
+
+
+#passwordField {
+	width: 200px;
+	padding: 16px;
+	margin: auto;
+	justify-content: center;
+	height: 60px;
+	margin: 0;
+	width: 70%;
+}
+
+.formField::placeholder {
+	font-weight: bolder;
+}
+
+#submitBtn {
+	font-weight: bold;
+	color: lightgrey;
+	transition: 0.2s ease;
+	-moz-transition: 0.2s ease;
+	-o-transition: 0.2s ease;
+	-webkit-transition: 0.2s ease;
+
+	cursor: pointer;
+	padding: 0;
+	font-size: 40px;
+	width: 60px;
+	height: 60px;
+}
+
+#submitBtn:hover {
+	color: whitesmoke;
+	transition: 0.2s ease;
+	-moz-transition: 0.2s ease;
+	-o-transition: 0.2s ease;
+	-webkit-transition: 0.2s ease;
+	background-color: #1f2831;
+}
+
+#submitBtn:mouse {
+	color: whitesmoke;
+	transition: 0.2s ease;
+	-moz-transition: 0.2s ease;
+	-o-transition: 0.2s ease;
+	-webkit-transition: 0.2s ease;
+	background-color: #1f2831;
+	background-position: 212px 0px, 0px 116px, 0px 0px, 216px 116px;
+}
+
+#submitBtn:active {
+	background-color: #12171d;
+}
+
+.lock {
+	background: gray;
+	border-radius: 3px;
+	width: 25px;
+	height: 20px;
+	margin-top: 15px;
+	position: absolute;
+	right: 30px;
+	top: 30px;
+}
+  
+.lock:before {
+	content: "";
+	display: block;
+	position: absolute;
+	border:3px solid gray;
+	top: -14px;
+	left: 2.2px;
+	width: 15px;
+	height: 27px;
+	border-radius: 35px 35px 0 0;
+}
+
+#filePicker {
+	display: none;
+}
+
+#filePickerDropArea {
+	cursor: pointer;
+	/* margin: 100px; */
+	border: 2px dashed lightgrey;
+	border-radius: var(--defaultBorderRadius);
+	padding: 50px;
+	display: inline-block;
+}
+
+
+/* Source: https://stackoverflow.com/a/57382510 */
+.highlightedFilePickerDropArea {
+  width: max-content;
+  background: linear-gradient(90deg, lightgrey 64%, transparent 36%), linear-gradient(90deg, lightgrey 64%, transparent 36%), linear-gradient(0deg, lightgrey 64%, transparent 36%), linear-gradient(0deg, lightgrey 64%, transparent 36%);
+
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 11px 2px, 11px 2px, 2px 11px, 2px 11px;
+  padding: 200px;
+  animation: border-dance 4s infinite linear;
+  margin: 2px !important;
+  border: none !important;
+}
+
+@keyframes border-dance {
+  0% {
+    background-position: 0 0, 100% 100%, 0 100%, 100% 0;
+  }
+  100% {
+    background-position: 100% 0, 0 100%, 0 0, 100% 100%;
+  }
+}

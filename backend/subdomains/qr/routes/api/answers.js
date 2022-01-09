@@ -62,7 +62,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 	let sql = 
 		`SELECT a.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE answerId=a.id), 0) AS votes, ` +
-		`COALESCE((SELECT vote FROM votes WHERE answerId=a.id AND voter=?), 0) as currentUserVote ` +
+		`COALESCE((SELECT vote FROM votes WHERE answerId=a.id AND voter=?), 0) AS currentUserVote ` +
 		`FROM answers AS a WHERE a.questionId=? ` +
 		`ORDER BY votes DESC LIMIT 35;`;
 

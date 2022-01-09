@@ -59,8 +59,8 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 	let sql = 
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
-		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
-		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) AS currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) AS answerCount ` +
 		`FROM questions AS q WHERE q.id=? LIMIT 1;`;
 
 	let params = [req.body.session.username, req.body.params.id];
@@ -95,8 +95,8 @@ router.get('/list', LIST_RATE_LIMITER, (req, res) => {
 	let sql = 
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
-		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
-		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) AS currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) AS answerCount ` +
 		`FROM questions AS q ` +
 		`ORDER BY q.isPinned DESC, votes DESC LIMIT 35;`
 
@@ -179,9 +179,9 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 	let sql =
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
-		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) as currentUserVote, ` +
-		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) as answerCount 
-		FROM questions AS q WHERE ` +
+		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) AS currentUserVote, ` +
+		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) AS answerCount ` +
+		`FROM questions AS q WHERE ` +
 		`${addKeywords(keywords, params)} AND ${addTag(tag, params)} AND ${addHasSolvedAnsConstraint(hasSolvedAnswer)} ` +
 		`ORDER BY q.isPinned DESC LIMIT 40;`;
 

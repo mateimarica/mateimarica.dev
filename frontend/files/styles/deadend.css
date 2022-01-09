@@ -1,0 +1,86 @@
+:root {
+	--navbarColor: #0D1117;
+	--mainBackgroundColor: #06080a;
+	--secondaryBackgroundColor: #15222e;
+	--sectionCardColor: #11161b;
+
+	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--defaultBorderRadius: 8px;
+}
+
+html {
+	height: 100%; /* Prevents background repeating/tiling */
+}
+
+html, body {
+	width: 100%;
+	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	display: flex;
+}
+
+body {
+	margin: 0;
+	font-family: var(--defaultFont);
+	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
+	color: whitesmoke;
+}
+
+/* Uncomment this to see borders of all elements */
+/* *{
+	border: 2px solid red;
+} */
+
+.sectionCard {
+	width: 300px;
+	max-width: 300px;
+	margin: auto; /* this means the margins are the same, so it gets pushed to the middle */
+
+	padding-left: 48px;
+	padding-right: 48px;
+	padding-top: 32px;
+	padding-bottom: 32px;
+
+	background-color: var(--sectionCardColor);
+	border-radius: var(--defaultBorderRadius);
+}
+
+.sectionCard h1 {
+	margin: 0;
+	text-align: center;
+	font-size: 100px;
+}
+
+
+.sectionCard h2 {
+	margin: 0;
+	text-align: center;
+}
+
+.sectionCard h3 {
+	text-align: center;
+}
+
+@media screen and (max-width: 450px) {
+	.sectionCard {
+		max-width: none;
+		width: 100%;
+		margin-left: 25px;
+		margin-right: 25px;
+	}
+
+	.sectionCard h1 {
+		font-size: 25vw;
+	}
+}
+
+a, a:visited{
+	color: #bbbbbb;
+}
+
+a:hover {
+	color: white;
+}
+
+a:active {
+	color: #a7a7a7;
+}

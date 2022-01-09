@@ -40,7 +40,7 @@ async function recordSuspiciousIP(req, statusCode=404, newVisits=1) {
 
 	let sql = `INSERT INTO suspicious_ips (ip, res_code, first_endpoint) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE visits = visits + ?;`
 	let params = [req.socket.remoteAddress, statusCode, (req.method + ' ' + req.originalUrl), newVisits];
-	pool.execute(sql, params);
+	pool.execute(sql, params, () => {});
 }
 
 module.exports = { initializeIpCache, requestSniffer, recordSuspiciousIP };
