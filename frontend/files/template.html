@@ -2,12 +2,19 @@
 	<img id="logo" src="/images/logo-small.png" alt="Site logo">
 </nav>
 <div class="sectionCard">
-		<label id="filePickerDropArea">
-			<input id="filePicker" type="file" multiple>
-			Click or drag files here
-		</label>
-		<div id="storageBar">
-			<div id="storageBarBackground"></div>
-			<div id="storageBarUsed"></div>
-		</div>
+	<div id="storageBarContainer">
+		<label id="storageBarLabel"> </label>
+		<div id="storageBarBackground" class="storageBar"></div>
+		<div id="storageBarUsed" class="storageBar"></div>
+	</div>
+	
+	<label id="filePickerDropArea">
+		<input id="filePicker" type="file" multiple>
+		Click or drag files here
+	</label>
+	<ul id="filesList">
+		<li class="filesListItem"><span class="filesListItemText">Looks like there's nothing here. Hmm...</span></li>
+	</ul>
+	
+		
 </div>

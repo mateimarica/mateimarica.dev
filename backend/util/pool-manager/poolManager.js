@@ -23,6 +23,7 @@ function createPool(databaseName) {
 		connectTimeout: process.env.DB_CONNECT_TIMOUT_MILLI
 	});
 
+
 	let poolWrapper = {
 		pool: pool,
 		databaseName: databaseName

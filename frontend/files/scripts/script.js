@@ -1,10 +1,8 @@
-
 let sessionId = '';
 
 let lastKnownScrollPosition = 0;
 let ticking = false;
 document.addEventListener('scroll', (e) => {
-	
 	lastKnownScrollPosition = window.scrollY;
 
 	if (!ticking) {
@@ -12,8 +10,6 @@ document.addEventListener('scroll', (e) => {
 
 		window.requestAnimationFrame(() => {
 			setNavbarTransparency(lastKnownScrollPosition);
-			displayComplaintsList();
-			
 			ticking = false;
 		});
 	}
@@ -28,18 +24,8 @@ function setNavbarTransparency(scrollPos) {
 	}
 }
 
-function displayComplaintsList() {
-	if(fillComplaintsListCallback != null && isElementInViewport(complaintsList)) {
-		fillComplaintsListCallback();
-		fillComplaintsListCallback = null;
-		return true;
-	}
-	return false;
-}
-
 const passwordField = document.querySelector('#passwordField'),
       submitBtn = document.querySelector('#submitBtn');
-
 
 passwordField.addEventListener('keydown', (e) => {
     if (e.code === 'Enter') {
@@ -47,21 +33,17 @@ passwordField.addEventListener('keydown', (e) => {
     }
 });
 
-// remove line for PROD
-passwordField.value = 'hello';
-
 submitBtn.addEventListener('click', () => {
 	const password = passwordField.value
 
 	if (!password || password === '') return;
 
-	sendHttpRequest('POST', '/login', null, {'Authorization': btoa(password)}, (http) => {
+	sendHttpRequest('POST', '/login', {headers: {'Authorization': btoa(password)}}, (http) => {
 		switch (http.status) {
 			case 200:
 				sessionId = http.getResponseHeader('Authorization');
 
-
-				sendHttpRequest('GET', '/template.html', null, [], (http) => {
+				sendHttpRequest('GET', '/template.html', {}, (http) => {
 					switch (http.status) {
 						case 200:
 							document.body.innerHTML = http.responseText;
@@ -80,20 +62,40 @@ submitBtn.addEventListener('click', () => {
 	passwordField.value = '';
 });
 
-// remove line for PROD
+// remove lines for PROD
+passwordField.value = 'hello';
 submitBtn.click();
 
+
 function setUpMainPage() {
+	navigationBar = document.querySelector('#navigationBar');
+
+	function refreshPageInfo() {
+		sendHttpRequest('GET', '/files', {headers: {'Authorization': sessionId}}, (http) => {
+			switch (http.status) {
+				case 200:
+					fillMainPage(JSON.parse(http.responseText));
+					break;
+				default:
+			}
+		});
+	}
+
+	refreshPageInfo();
+	
 	function uploadFiles(files) {
+		if (files.length === 0) return;
+
 		const formData = new FormData();
 	
 		for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
    		 }
 
-		sendHttpRequest('POST', '/upload', formData, {'Authorization': sessionId}, (http) => {
+		sendHttpRequest('POST', '/upload', {data: formData, headers: {'Authorization': sessionId}}, (http) => {
 			switch (http.status) {
 				case 200:
+					refreshPageInfo();
 					break;
 				default:
 			}
@@ -133,41 +135,81 @@ function setUpMainPage() {
 		}
 	});
 	
-	triggerTransitions();
-}
+	function fillMainPage(filesInfo) {
 
-async function triggerTransitions() {
-	await sleep(100);
-	document.querySelector('#storageBarUsed').style.width = '75%';
-}
+		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(filesInfo.usedSpace) + " used / " + getFormattedSize(filesInfo.totalSpace) + ' total';
+		let usedSpacePercent = (filesInfo.usedSpace / filesInfo.totalSpace * 100).toFixed(1); // Percent with 1 decimal space
+		if (usedSpacePercent < 1 && filesInfo.usedSpace > 0) {
+			usedSpacePercent = 0.05;
+		} else if (usedSpacePercent > 100) {
+			usedSpacePercent = 100;
+		}
 
-function setMessageBox(className, innerHTML) {
-	let messageBox = document.querySelector('#messageBox');
-	messageBox.className = className;
-	messageBox.innerHTML = innerHTML;
-	window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
-}
+		setTimeout(() => {
+			document.querySelector('#storageBarUsed').style.width = usedSpacePercent + '%';
+	 	}, 10);
 
-function sendHttpRequest(method, suburl, data, headers, callback=null) {
-	const http = new XMLHttpRequest();
-	const url = `${window.location.protocol}//${window.location.host + suburl}`;
-	http.addEventListener('load', () => callback(http)); // If ready state is 4, do async callback
-	http.open(method, url, async=true);
-	for (let key in headers) {
-		http.setRequestHeader(key, headers[key]);
+		let filesList = document.querySelector('#filesList');
+		filesList.innerHTML = ''; // Removes the default list item
+		
+		const currentDate = new Date();
+		let files = filesInfo.files;
+		for (let i = 0; i < files.length; i++) {
+			let filesListItem = document.createElement('li');
+			filesListItem.classList.add('filesListItem');
+
+			let filename = document.createElement('span');
+			filename.classList.add('filesListItemComponentLeft');
+			filename.innerHTML = files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '...' + files[i].ext : files[i].baseName;
+
+			let size = document.createElement('span');
+			size.classList.add('filesListItemTextComponent');
+			size.innerHTML = getFormattedSize(files[i].size);
+
+			let date = document.createElement('span');
+			date.classList.add('filesListItemTextComponent');
+			date.innerHTML = getRelativeTime(files[i].uploadDate, currentDate);
+
+			let shareButton = document.createElement('span');
+			shareButton.classList.add('icon', 'shareIcon');
+
+
+			let downloadButton = document.createElement('span');
+			downloadButton.classList.add('icon', 'downloadIcon');
+		
+			downloadButton.addEventListener('click', () => {
+				sendHttpRequest('GET', '/download?name=' + btoa(files[i].baseName), {headers: {'Authorization': sessionId}, responseType: 'blob'}, (http, e) => {
+					let blob = e.currentTarget.response;
+					let a = document.createElement('a');
+					a.href = window.URL.createObjectURL(blob);
+					a.download = files[i].baseName;
+					a.click();
+				});
+			});
+			
+			filesListItem.append(filename, size, date, shareButton, downloadButton);
+			filesList.appendChild(filesListItem);
+		}
 	}
-	http.send(data);
 }
 
-// Runs once the page is fully loaded
-window.addEventListener('load', () => {
+function sendHttpRequest(method, url, options, callback) {
+	const http = new XMLHttpRequest();
+	//const url = `${window.location.protocol}//${window.location.host + url}`;
 
-});
+	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
 
-async function fillComplaintsList(complaints) {
-	let complaintsList = document.querySelector('#complaintsList');
-	complaintsList.innerHTML = ''; // Removes the default list item
+	http.open(method, url, async=true);
 
+	if (options.headers)
+		for (let key in options.headers) {
+			http.setRequestHeader(key, options.headers[key]);
+		}
+
+	if (options.responseType)
+		http.responseType = options.responseType;
+
+	http.send(options.data ?? null);
 }
 
 /** A simple sleep function. Obviously, only call this from async functions. */
@@ -181,7 +223,6 @@ function randomInt(floorNum, ceilNum) {
     return floorNum + Math.floor((Math.random() * (ceilNum - floorNum + 1)));
 }
 
-
 const MILLI_PER_MIN = 60000;
 const MINS_PER_HOUR = 60;
 const MINS_PER_DAY = 1440;
@@ -194,6 +235,9 @@ function getRelativeTime(datetime, currentDate) {
 	let date = new Date(Date.parse(datetime));
 
 	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - date)) / MILLI_PER_MIN); 
+
+	if (MINUTES_PASSED === 0)
+		return 'Just now';
 
 	// If less than an hour has passed, print minutes
 	if(MINUTES_PASSED < MINS_PER_HOUR) {
@@ -225,6 +269,27 @@ function getRelativeTime(datetime, currentDate) {
 	}
 }
 
+const KILOBYTE = 1000;
+const MEGABYTE = 1000000;
+const GIGABYTE = 1000000000;
+
+// The parseFloat() removes trailing zeroes (eg: 1.0 -> 1)
+function getFormattedSize(bytes) {
+	if(bytes < KILOBYTE) {
+		return bytes + ' B';
+	}
+
+	if(bytes < MEGABYTE) {
+		return parseFloat((bytes / KILOBYTE).toFixed(1)) + ' KB';
+	}
+
+	if(bytes < GIGABYTE) {
+		return parseFloat((bytes / MEGABYTE).toFixed(1)) + ' MB';
+	}
+
+	return parseFloat((bytes / GIGABYTE).toFixed(1)) + ' GB';
+}
+
 function isElementInViewport(element) {
 	let rect = element.getBoundingClientRect();
 	return rect.bottom > 0 &&
@@ -232,9 +297,3 @@ function isElementInViewport(element) {
 	       rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
 	       rect.top< (window.innerHeight || document.documentElement.clientHeight);
 }
-
-
-
-
-////////////////////////////////////
-
