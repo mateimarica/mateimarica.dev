@@ -18,7 +18,7 @@ function authInspector(req, res, next) {
 function createNewSession() {
 	let newSession = {
 		creationDate: new Date(),
-		authorization: crypto.randomBytes(16).toString('base64')
+		authorization: crypto.randomBytes(16).toString('hex')
 	}
 
 	sessions.push(newSession);

@@ -5,7 +5,8 @@ const express = require('express'),
       fs = require('fs'),
       poolManager = require('pool-manager'),
       authManager = require('./authManager'),
-      { atob } = require('buffer');
+      { atob } = require('buffer'),
+      crypto = require('crypto');
 
 const pool = poolManager.getPool('files_db');
 
@@ -103,15 +104,49 @@ router.get('/files', authManager.authInspector, (req, res) => {
 });
 
 router.get('/download',  (req, res) => {
+	if (!req.query.key)
+		return res.sendStatus(400);
+
+	const currentDate = new Date();
+	for (let i = 0; i < downloadSessions.length; i++) {
+		if (req.query.key === downloadSessions[i].key) {
+			if (currentDate - downloadSessions[i].dateCreated < 3000) {
+				if (!fs.existsSync(downloadSessions[i].filePath))
+					return res.sendStatus(410);
+
+				res.download(downloadSessions[i].filePath);
+				downloadSessions.splice(i, 1);
+				return;
+			} else {
+				return sendStatus(401);
+			}
+		}
+	}
+
+	return res.sendStatus(400);
+});
+
+let downloadSessions = [];
+
+router.get('/download/request', authManager.authInspector, (req, res) => {
 	if (!req.query.name)
 		return res.sendStatus(400);
 
-	const fileURL = path.join(__dirname, 'uploads', atob(req.query.name));
-	
-	if (!fs.existsSync(fileURL))
+	const filePath = path.join(__dirname, 'uploads', atob(req.query.name));
+
+	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);
 
-	res.download(fileURL);
+	const downloadSession = {
+		key: crypto.randomBytes(16).toString('hex'),
+		dateCreated: new Date(),
+		filePath: filePath
+	};
+
+	downloadSessions.push(downloadSession);
+	
+	res.set('Authorization', downloadSession.key);
+	res.sendStatus(200);
 });
 
 module.exports = router;

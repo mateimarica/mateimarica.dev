@@ -176,14 +176,17 @@ function setUpMainPage() {
 
 			let downloadButton = document.createElement('span');
 			downloadButton.classList.add('icon', 'downloadIcon');
-		
 			downloadButton.addEventListener('click', () => {
-				sendHttpRequest('GET', '/download?name=' + btoa(files[i].baseName), {headers: {'Authorization': sessionId}, responseType: 'blob'}, (http, e) => {
-					let blob = e.currentTarget.response;
+				downloadButton.className = 'loadingIcon';
+
+				sendHttpRequest('GET', '/download/request?name=' + btoa(files[i].baseName), {headers: {'Authorization': sessionId}}, async (http) => {
 					let a = document.createElement('a');
-					a.href = window.URL.createObjectURL(blob);
-					a.download = files[i].baseName;
+					a.href = '/download?key=' + http.getResponseHeader('Authorization');
 					a.click();
+
+					await sleep(1000);
+					downloadButton.className = '';
+					downloadButton.classList.add('icon', 'downloadIcon');
 				});
 			});
 			
@@ -193,10 +196,9 @@ function setUpMainPage() {
 	}
 }
 
+
 function sendHttpRequest(method, url, options, callback) {
 	const http = new XMLHttpRequest();
-	//const url = `${window.location.protocol}//${window.location.host + url}`;
-
 	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
 
 	http.open(method, url, async=true);
