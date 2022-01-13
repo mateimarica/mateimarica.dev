@@ -134,7 +134,7 @@ function setUpMainPage() {
 			uploadFiles(this.files);
 		}
 	});
-	
+
 	function fillMainPage(filesInfo) {
 
 		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(filesInfo.usedSpace) + " used / " + getFormattedSize(filesInfo.totalSpace) + ' total';
@@ -172,6 +172,20 @@ function setUpMainPage() {
 
 			let shareButton = document.createElement('span');
 			shareButton.classList.add('icon', 'shareIcon');
+			shareButton.addEventListener('click', () => {
+				document.querySelector('#darkOverlay').style.display = 'block';
+				document.querySelector('html').style.overflow = 'hidden';
+				
+				let sharePopup = document.querySelector('#sharePopup');
+				sharePopup.style.display = 'block';
+				// sharePopup.innerHTML += (files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '...' + files[i].ext : files[i].baseName); // bad
+
+				document.querySelector("#xButton").addEventListener('click', () => {
+					document.querySelector('#darkOverlay').style.display = 'none';
+					document.querySelector('#sharePopup').style.display = 'none';
+					document.querySelector('html').style.overflow = 'visible';
+				});
+			});
 
 
 			let downloadButton = document.createElement('span');
