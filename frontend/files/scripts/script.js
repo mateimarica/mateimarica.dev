@@ -135,6 +135,47 @@ function setUpMainPage() {
 		}
 	});
 
+	document.querySelector("#xButton").addEventListener('click', () => {
+		document.querySelector('#darkOverlay').style.display = 'none';
+		document.querySelector('#sharePopup').style.display = 'none';
+		document.documentElement.style.overflow = '';
+	});
+
+	function setRadioButtons(elementArr, activeClassName) {
+		return function() {
+			this.classList.add(activeClassName);
+			for (let i = 0; i < elementArr.length; i++) {
+				if (this === elementArr[i]) continue;
+				elementArr[i].classList.remove(activeClassName);
+			}
+		}
+	}
+
+	[
+		{
+			selectorClass: '.downloadLimitSelector', 
+			fieldSelectorClass: '.downloadLimitField', 
+			activeSelectorClass: 'activeDownloadLimitSelector' 
+		},
+		{
+			selectorClass: '.validityPeriodSelector',  
+			fieldSelectorClass: '.validityPeriodField', 
+			activeSelectorClass: 'activeValidityPeriodSelector'
+		},
+	].forEach(selectorGroup => {
+		let selectors = document.querySelectorAll(selectorGroup.selectorClass);
+		for (let i = 0; i < selectors.length; i++) {
+			selectors[i].addEventListener('click', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
+		}
+	
+		let selectorFields = document.querySelectorAll(selectorGroup.fieldSelectorClass);
+		for (let i = 0; i < selectorFields.length; i++) {
+			selectorFields[i].addEventListener('keydown', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
+		}
+	});
+
+	
+
 	function fillMainPage(filesInfo) {
 
 		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(filesInfo.usedSpace) + " used / " + getFormattedSize(filesInfo.totalSpace) + ' total';
@@ -165,26 +206,29 @@ function setUpMainPage() {
 			let size = document.createElement('span');
 			size.classList.add('filesListItemTextComponent');
 			size.innerHTML = getFormattedSize(files[i].size);
-
+			
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
 			date.innerHTML = getRelativeTime(files[i].uploadDate, currentDate);
-
 			let shareButton = document.createElement('span');
 			shareButton.classList.add('icon', 'shareIcon');
 			shareButton.addEventListener('click', () => {
-				document.querySelector('#darkOverlay').style.display = 'block';
-				document.querySelector('html').style.overflow = 'hidden';
-				
-				let sharePopup = document.querySelector('#sharePopup');
-				sharePopup.style.display = 'block';
-				// sharePopup.innerHTML += (files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '...' + files[i].ext : files[i].baseName); // bad
+				document.querySelector('.downloadLimitSelector').click();
+				document.querySelector('.validityPeriodSelector').click();
 
-				document.querySelector("#xButton").addEventListener('click', () => {
-					document.querySelector('#darkOverlay').style.display = 'none';
-					document.querySelector('#sharePopup').style.display = 'none';
-					document.querySelector('html').style.overflow = 'visible';
+				['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
+					document.querySelectorAll(fieldSelectorClass).forEach(fieldSelector => {
+						fieldSelector.value = '';
+					});
 				});
+
+				document.querySelector('#sharePopupFilename').textContent = files[i].baseName;
+				document.querySelector('#sharePopupUploadDate').textContent = 'Uploaded ' + date.textContent;
+				document.querySelector('#sharePopupSize').textContent = size.textContent;
+
+				document.querySelector('#sharePopup').style.display = 'block';
+				document.querySelector('#darkOverlay').style.display = 'block';
+				document.documentElement.style.overflow = 'hidden';
 			});
 
 

@@ -1,7 +1,22 @@
 
 <div id="sharePopup" class="sectionCard">
-	<button id="xButton">X</button>
+	<button id="xButton">&times;</button>
 	<h2>Share File</h2>
+	<span id="sharePopupFilename"></span>
+	<span id="sharePopupUploadDate"></span>
+	<span id=sharePopupSize></span>
+
+	<h3>Download Limit</h3>
+	<button class="downloadLimitSelector activeDownloadLimitSelector" value=1>1</button>
+	<button class="downloadLimitSelector" value=10>10</button>
+	<button class="downloadLimitSelector" value=100>100</button>
+	<input class="downloadLimitSelector formField downloadLimitField" maxlength="4">
+	
+	<h3>Validity Period</h3>
+	<button class="validityPeriodSelector activeValidityPeriodSelector" value=0.25>15m</button>
+	<button class="validityPeriodSelector" value=1>1h</button>
+	<button class="validityPeriodSelector" value=24>24h</button>
+	<input class="validityPeriodSelector formField validityPeriodField" maxlength="4" placeholder="h">
 </div>
 
 <div id="darkOverlay"></div>

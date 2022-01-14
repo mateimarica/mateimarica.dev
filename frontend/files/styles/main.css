@@ -18,7 +18,7 @@ html {
 
 html, body {
 	width: 100%;
-	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	overflow-x: hidden; /* Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
 }
 
 body {
@@ -26,6 +26,7 @@ body {
 	width: 100vw;
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
+	background-size: 100vw;
 	color: whitesmoke;
 	text-align: center;
 }
@@ -78,10 +79,10 @@ body {
 
 .navigationBarOnScroll {
 	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
+	-webkit-transition: background-color .25s linear;
+	-moz-transition: background-color .25s linear;
+	-o-transition: background-color .25s linear;
+	transition: background-color .25s linear;
 	background-color: rgba(13, 17, 23, 0.5) !important;
 	backdrop-filter: blur(1.5px);
 }
@@ -92,10 +93,10 @@ body {
 
 .navigationBarOriginalPosition {
 	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
+	-webkit-transition: background-color .25s linear;
+	-moz-transition: background-color .25s linear;
+	-o-transition: background-color .25s linear;
+	transition: background-color .25s linear;
 	background-color: rgba(13, 17, 23, 1);
 }
 
@@ -110,9 +111,7 @@ body {
 
 .sectionCard {
 	width: 1100px;
-	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
-	margin-right: auto;
-	margin-bottom: 20px;
+	margin: 20px auto; /* top/bottom, left/right */
 	padding: 32px 48px 32px; /* top, left&right, bottom */
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
@@ -156,7 +155,7 @@ body {
 
 
 .filesListItem {
-	color: whitesmoke;
+	color: lightgray;
 	padding: 10px 20px 10px; /* top left/right bottom */
 
 	gap: 20px;
@@ -171,6 +170,11 @@ body {
 
 	display: flex;
   	justify-content: right;
+
+	  transition: background-color 0.2s ease;
+	-moz-transition: background-color 0.2s ease;
+	-o-transition: background-color 0.2s ease;
+	-webkit-transition: background-color 0.2s ease;
 
 }
 
@@ -197,6 +201,15 @@ body {
 	border-bottom-right-radius: var(--defaultBorderRadius); 
 }
 
+.filesListItem:hover {
+	transition: background-color 0.2s ease;
+	-moz-transition: background-color 0.2s ease;
+	-o-transition: background-color 0.2s ease;
+	-webkit-transition: background-color 0.2s ease;
+	background-color: #091520;	
+	color: whitesmoke;
+}
+/*091520*/
 .filesListItem > .filesListItemTextComponent {
 	width: 120px;
 	text-align: left;
@@ -256,7 +269,7 @@ body {
 	border: 2px solid darkred;
 }
 
-.formField, #submitBtn {
+.formField {
 	background-color: var(--textFieldmainBackgroundColor);
 	color: whitesmoke;
 	font-family: var(--defaultFont);
@@ -287,41 +300,84 @@ body {
 }
 
 #submitBtn {
-	font-weight: bold;
-	color: lightgrey;
-	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
-
-	cursor: pointer;
-	padding: 0;
 	font-size: 40px;
 	width: 60px;
 	height: 60px;
+	padding: 0;
 }
 
-#submitBtn:hover {
+button {
+	font-weight: bold;
+	color: lightgrey;
+	background-color: #060a0c;
+	border: 2px solid #24272b;
+	transition: 0.2s ease;
+	-moz-transition: 0.2s ease;
+	-o-transition: 0.2s ease;
+	-webkit-transition: 0.2s ease;	
+	font-size: 20px;
+	text-align: center;
+	vertical-align: top;
+	border-radius: var(--defaultBorderRadius);
+}
+
+
+button:hover {
 	color: whitesmoke;
+	border: 2px solid #464c53;
 	transition: 0.2s ease;
 	-moz-transition: 0.2s ease;
 	-o-transition: 0.2s ease;
 	-webkit-transition: 0.2s ease;
-	background-color: #1f2831;
+	background-color: #0a0c0f;
 }
 
-#submitBtn:mouse {
-	color: whitesmoke;
+input {
+	border: 2px solid #24272b;
+	transition: border 0.2s ease;
+	-moz-transition: border 0.2s ease;
+	-o-transition: border 0.2s ease;
+	-webkit-transition: border 0.2s ease;
+}
+
+
+input:hover {
+	border: 2px solid #464c53;
+	transition: border 0.2s ease;
+	-moz-transition: border 0.2s ease;
+	-o-transition: border 0.2s ease;
+	-webkit-transition: border 0.2s ease;
+}
+
+/* input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+	-moz-appearance: textfield;
+} */
+
+/* button:mouse {
 	transition: 0.2s ease;
 	-moz-transition: 0.2s ease;
 	-o-transition: 0.2s ease;
 	-webkit-transition: 0.2s ease;
 	background-color: #1f2831;
 	background-position: 212px 0px, 0px 116px, 0px 0px, 216px 116px;
+} */
+
+button:active {
+	background-color: #12171d;
 }
 
-#submitBtn:active {
-	background-color: #12171d;
+.arrowIcon {
+	content: url("../images/arrow-right.svg");
+	filter: invert(85%);
+	height: 100%; /* vertically center */
+	width: 30px;
 }
 
 .lock {
@@ -472,9 +528,13 @@ body {
 	left: 50%;
 	top: 50%;
     transform: translate(-50%, -50%);
-	width: 500px;
-	height: 400px;
+	width: 400px;
+	height: 500px;
 	display: none;
+}
+
+#sharePopup > h2 {
+	margin-top: 0;
 }
 
 #darkOverlay {
@@ -492,24 +552,56 @@ body {
 	position: absolute;
 	top: 5px;
 	right: 5px;
+	width: 40px;
+	height: 40px;
+	font-size: 30px;
 }
 
 /* width */
 ::-webkit-scrollbar {
 	width: 15px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
+}
+
+/* Track */
+::-webkit-scrollbar-track {
 	background: #131416;;
-  }
-  
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
 	background: #3a3f44;
-  }
-	
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
 	background: #555;
-  }
+}
+
+#sharePopupFilename, #sharePopupUploadDate, #sharePopupSize {
+	display: block;
+}
+
+#sharePopupFilename {
+	font-weight: bold;
+}
+
+#sharePopupUploadDate, #sharePopupSize {
+	color: lightgray;
+}
+
+.downloadLimitSelector, .validityPeriodSelector {
+	width: 60px;
+	height: 60px;
+}
+
+.downloadLimitField, .validityPeriodField {
+	text-align: center;
+	padding: 0;
+	font-weight: bold;
+}
+
+.activeDownloadLimitSelector, .activeDownloadLimitSelector:hover,
+.activeValidityPeriodSelector, .activeValidityPeriodSelector:hover {
+	background-color: #102335;
+	border-color: lightslategray;
+}
