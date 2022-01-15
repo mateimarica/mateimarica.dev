@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Download</title>
+		<title>File Download</title>
+		<link rel="stylesheet" type="text/css" href="/styles/download.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="refresh" content="0;url=${url}" />
 	</head>
 	<body>
-		<a href="${url}">If the download didn't start automatically, click here</a>
+		<div class="sectionCard centerCard">
+			<label>If the download didn't start automatically,</label>
+			<a href="${url}">click here</a>
+		</div>
+		<script src="/scripts/download.js"></script>
 	</body>
 </html>

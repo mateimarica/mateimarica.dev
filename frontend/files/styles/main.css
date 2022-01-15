@@ -235,6 +235,9 @@ body {
 
 .icon {
 	transition: .2s ease;
+	-moz-transition: .2s ease;
+	-o-transition: .2s ease;
+	-webkit-transition: .2s ease;
 	filter: invert(75%);
 	cursor: pointer;
 }
