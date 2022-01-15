@@ -131,18 +131,27 @@ body {
 	max-height: 225px;
 	max-width: 400px;
 	width: 500px;
+	padding: 15px 5px 15px;
+	
+}
+
+.noWrapContainer {
+	white-space: nowrap;
+	text-align: left;
 }
 
 @media screen and (max-width: 1175px) {
 	.sectionCard {
 		width: 95%;
-		padding: 32px 24px 32px; /* top, left&right, bottom */
 	}
+
+
 }
 
 .centeredHeader {
 	margin-top: 0;
 	text-align: center;
+	cursor: default;
 }
 
 #filesList {
@@ -169,6 +178,8 @@ body {
 	will-change: opacity, max-height;
 
 	display: flex;
+	flex-wrap: wrap;
+	text-align: left;
   	justify-content: right;
 
 	  transition: background-color 0.2s ease;
@@ -245,25 +256,17 @@ body {
 	content: url("../images/share.svg");
 }
 
-#passwordForm {
-	width: 100%;
-	min-width: 260px;
-	border-radius: var(--defaultBorderRadius);
-	margin: 15px auto auto; /* Puts form to the middle */
-
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box;         /* Opera/IE 8+ */
-	display: inline-block;
+.fieldForm {
+	text-align: left;
 }
 
 /* Mobile viewing optimization */
-@media screen and (max-width: 400px) {
+/* @media screen and (max-width: 400px) {
 	#passwordForm {
 		min-width: 30px;
 		width: 100%;
 	}
-}
+} */
 
 .complaintFieldError {
 	border: 2px solid darkred;
@@ -276,27 +279,33 @@ body {
 	font-size: 18px;
 	resize: none;
 	width: 100%;
+	height: 20px;
 	padding: 16px;
 	border-radius: var(--defaultBorderRadius);
+	
 	overflow: hidden; /* Prevents fields from leaving complaintField outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
 	justify-content: center;
-	width: 100px;
 	vertical-align: middle;
 }
 
-#passwordField {
-	width: 200px;
+.formField:focus {
+	border-color: lightgray;
+	background-color: #070a0c;
+}
+
+#usernameField, #passwordField {
 	padding: 16px;
-	margin: auto;
-	justify-content: center;
+	margin: 0 auto 5px; 
+	/* justify-content: center; */
+	font-weight: bold;
+	margin-left: 20%;
+	max-width: 60%;
 	height: 60px;
-	margin: 0;
-	width: 70%;
 }
 
 .formField::placeholder {
-	font-weight: bolder;
+	font-weight: bold;
 }
 
 #submitBtn {
@@ -304,6 +313,7 @@ body {
 	width: 60px;
 	height: 60px;
 	padding: 0;
+	
 }
 
 button {
@@ -315,7 +325,9 @@ button {
 	-moz-transition: 0.2s ease;
 	-o-transition: 0.2s ease;
 	-webkit-transition: 0.2s ease;	
+	padding: 10px;
 	font-size: 20px;
+	margin: 0;
 	text-align: center;
 	vertical-align: top;
 	border-radius: var(--defaultBorderRadius);
@@ -324,7 +336,7 @@ button {
 
 button:hover {
 	color: whitesmoke;
-	border: 2px solid #464c53;
+	border: 2px solid lightslategray;
 	transition: 0.2s ease;
 	-moz-transition: 0.2s ease;
 	-o-transition: 0.2s ease;
@@ -338,39 +350,22 @@ input {
 	-moz-transition: border 0.2s ease;
 	-o-transition: border 0.2s ease;
 	-webkit-transition: border 0.2s ease;
+	outline: none;
 }
 
 
 input:hover {
-	border: 2px solid #464c53;
+	border: 2px solid lightslategray;
 	transition: border 0.2s ease;
 	-moz-transition: border 0.2s ease;
 	-o-transition: border 0.2s ease;
 	-webkit-transition: border 0.2s ease;
+	
 }
-
-/* input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
-}
-
-/* Firefox */
-input[type=number] {
-	-moz-appearance: textfield;
-} */
-
-/* button:mouse {
-	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
-	background-color: #1f2831;
-	background-position: 212px 0px, 0px 116px, 0px 0px, 216px 116px;
-} */
 
 button:active {
 	background-color: #12171d;
+	border: 2px solid lightslategray;
 }
 
 .arrowIcon {
@@ -380,18 +375,18 @@ button:active {
 	width: 30px;
 }
 
-.lock {
+#lock {
 	background: gray;
 	border-radius: 3px;
 	width: 25px;
 	height: 20px;
 	margin-top: 15px;
 	position: absolute;
-	right: 30px;
-	top: 30px;
+	left: 30px;
+	top: 20	px;
 }
 
-.lock::before {
+#lock::before {
 	content: "";
 	display: block;
 	position: absolute;
@@ -401,6 +396,17 @@ button:active {
 	width: 15px;
 	height: 27px;
 	border-radius: 35px 35px 0 0;
+}
+
+@media screen and (max-width: 333px) {
+	#lock {
+		display: none;
+	}
+
+	.noWrapContainer {
+		display: flex;
+		gap: 5px;
+	}
 }
 
 #filePicker {
@@ -521,7 +527,7 @@ button:active {
 }
 
 #sharePopup {
-	padding: 0, 0;
+	padding: 20px 0;
 	position: fixed;
 	border: 2px solid gray;
 	z-index: 100;
@@ -529,7 +535,8 @@ button:active {
 	top: 50%;
     transform: translate(-50%, -50%);
 	width: 400px;
-	height: 500px;
+	max-width: 95%;	
+	min-height: fit-content;
 	display: none;
 }
 
@@ -550,6 +557,7 @@ button:active {
 #xButton {
 	z-index: 101;
 	position: absolute;
+	padding: 0px;
 	top: 5px;
 	right: 5px;
 	width: 40px;
@@ -604,4 +612,31 @@ button:active {
 .activeValidityPeriodSelector, .activeValidityPeriodSelector:hover {
 	background-color: #102335;
 	border-color: lightslategray;
+}
+
+#createLinkBtn {
+	background-color: #102335;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 25px;
+}
+
+#createLinkBtn:hover {
+	background-color: #1f4161;
+	-ms-transform: scale(1.05);
+	-moz-transform: scale(1.05);
+	-webkit-transform: scale(1.05);
+	-o-transform: scale(1.05);
+	transform: scale(1.05);
+}
+
+#createLinkBtn:active {
+	background-color: #0f202f;
+}
+
+#shareLinkField {
+	width: 70%;
+	display: none;
+	margin-top: 15px;
 }

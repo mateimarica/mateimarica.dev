@@ -14,14 +14,18 @@
 			<img id="logo" src="/images/logo-small.png" alt="Site logo">
 		</nav>
 		
-		<div class="sectionCard centerCard" style="vertical-align: middle; ">
+		<div class="sectionCard centerCard" >
 		
-				<div class="lock"></div>
-				<h1 class="centeredHeader">File Storage</h1>
+			<div id="lock"></div>
+			<h1 class="centeredHeader">File Storage</h1>
 
-			<div id="passwordForm">
-				<input class="formField" id="passwordField" type="password" name="password" placeholder="Password" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus>
-				<button id="submitBtn"><span class="arrowIcon"></span></button>
+			<div class="fieldForm">
+				<input class="formField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus>
+				<div class="noWrapContainer">
+					<input class="formField" id="passwordField" type="password" placeholder="Password" value ="" spellcheck=false maxlength=50 autocomplete="off">
+					<button id="submitBtn"><span class="arrowIcon"></span></button>
+				</div>
+				
 			</div>
 
 		</div>

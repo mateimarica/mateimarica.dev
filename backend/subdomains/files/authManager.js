@@ -6,17 +6,20 @@ const FILES_REMOVE_EXPIRED_SESSIONS_FREQ_MILLI = process.env.FILES_REMOVE_EXPIRE
 setInterval(removeExpiredSessions, FILES_REMOVE_EXPIRED_SESSIONS_FREQ_MILLI);
 
 function authInspector(req, res, next) {
-	if (!isSessionValid(req.get('Authorization'))) {
+	let username = isSessionValid(req.get('Authorization'));
+	if (!username) {
 		res.set('WWW-Authenticate', 'xBasic realm="files"');
 		return res.sendStatus(401);
 	}
-
+	//console.log(username);
+	req.headers['Username'] = username;
 	next();
 }
 
 /** Returns the authorization string */
-function createNewSession() {
+function createNewSession(username) {
 	let newSession = {
+		username: username,
 		creationDate: new Date(),
 		authorization: crypto.randomBytes(16).toString('hex')
 	}
@@ -34,7 +37,7 @@ function isSessionValid(authorization) {
 	let currentDate = new Date();
 	for (let i = sessions.length-1; i >= 0; i--) { // Count down since new sessions are appended to sessions array
 		if ((currentDate - sessions[i].creationDate) <= FILES_SESSION_VALIDITY_DURATION_MILLI) {
-			if(sessions[i].authorization === authorization) return true;
+			if(sessions[i].authorization === authorization) return sessions[i].username;
 		} else {
 			if(sessions[i].authorization === authorization) {
 				sessions.splice(i, 1); // removes 1 element starting at index i

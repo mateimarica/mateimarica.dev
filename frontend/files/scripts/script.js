@@ -25,20 +25,29 @@ function setNavbarTransparency(scrollPos) {
 }
 
 const passwordField = document.querySelector('#passwordField'),
+      usernameField = document.querySelector('#usernameField');
       submitBtn = document.querySelector('#submitBtn');
 
-passwordField.addEventListener('keydown', (e) => {
-    if (e.code === 'Enter') {
-        submitBtn.click();
-    }
+[usernameField, passwordField].forEach(field => {
+	field.addEventListener('keydown', (e) => {
+		if (e.code === 'Enter') {
+			submitBtn.click();
+		}
+	});
 });
 
 submitBtn.addEventListener('click', () => {
-	const password = passwordField.value
+	const username = usernameField.value,
+	      password = passwordField.value;
 
-	if (!password || password === '') return;
+	if (!username || username === '') return;
 
-	sendHttpRequest('POST', '/login', {headers: {'Authorization': btoa(password)}}, (http) => {
+	const headers = {
+		'Username': username,
+		'Authorization': btoa(password)
+	}
+
+	sendHttpRequest('POST', '/login', {headers: headers}, (http) => {
 		switch (http.status) {
 			case 200:
 				sessionId = http.getResponseHeader('Authorization');
@@ -63,9 +72,8 @@ submitBtn.addEventListener('click', () => {
 });
 
 // remove lines for PROD
-passwordField.value = 'hello';
+usernameField.value = 'matei';
 submitBtn.click();
-
 
 function setUpMainPage() {
 	navigationBar = document.querySelector('#navigationBar');
@@ -138,8 +146,18 @@ function setUpMainPage() {
 	document.querySelector("#xButton").addEventListener('click', () => {
 		document.querySelector('#darkOverlay').style.display = 'none';
 		document.querySelector('#sharePopup').style.display = 'none';
+		const shareLinkField = document.querySelector('#shareLinkField');
+		shareLinkField.style.display = 'none';
+		shareLinkField.value = '';
 		document.documentElement.style.overflow = '';
+		const createLinkBtn = document.querySelector('#createLinkBtn');
+		createLinkBtn.outerHTML = createLinkBtn.outerHTML; // remove all event listeners
 	});
+
+	document.querySelector("#darkOverlay").addEventListener('click', () => {
+		document.querySelector("#xButton").click();
+	});
+	
 
 	function setRadioButtons(elementArr, activeClassName) {
 		return function() {
@@ -174,8 +192,6 @@ function setUpMainPage() {
 		}
 	});
 
-	
-
 	function fillMainPage(filesInfo) {
 
 		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(filesInfo.usedSpace) + " used / " + getFormattedSize(filesInfo.totalSpace) + ' total';
@@ -191,10 +207,13 @@ function setUpMainPage() {
 	 	}, 10);
 
 		let filesList = document.querySelector('#filesList');
-		filesList.innerHTML = ''; // Removes the default list item
-		
+
 		const currentDate = new Date();
 		let files = filesInfo.files;
+
+		if (files.length > 0)
+			filesList.innerHTML = ''; // Removes the default list item
+
 		for (let i = 0; i < files.length; i++) {
 			let filesListItem = document.createElement('li');
 			filesListItem.classList.add('filesListItem');
@@ -229,6 +248,42 @@ function setUpMainPage() {
 				document.querySelector('#sharePopup').style.display = 'block';
 				document.querySelector('#darkOverlay').style.display = 'block';
 				document.documentElement.style.overflow = 'hidden';
+
+				document.querySelector('#createLinkBtn').addEventListener('click', () => {
+					const limit = document.querySelector('.activeDownloadLimitSelector').value,
+					      validity = document.querySelector('.activeValidityPeriodSelector').value;
+
+					// const params = new URLSearchParams();
+					// params.append('name',)
+					// const url = new URL(window.location.protocol + '//' + window.location.hostname + '/share');
+
+					const body = JSON.stringify({
+						name: files[i].baseName,
+						limit: Number(limit), // convert to number b/c they may be strings
+						validity: Number(validity)
+					});
+
+					const options = {
+						headers: {
+							'Authorization': sessionId,
+							'Content-Type': 'application/json'
+						},
+						data: body
+					};
+		
+					sendHttpRequest('POST', '/share', options, (http) => {
+						switch (http.status) {
+							case 201:
+								const url = JSON.parse(http.responseText).url;
+								navigator.clipboard.writeText(url);
+								const shareLinkField = document.querySelector('#shareLinkField');
+								shareLinkField.style.display = 'inline-block';
+								shareLinkField.value = url;
+								break;
+							default:
+						}
+					});
+				});
 			});
 
 
@@ -254,7 +309,7 @@ function setUpMainPage() {
 	}
 }
 
-
+/** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', data: 'some data'} */
 function sendHttpRequest(method, url, options, callback) {
 	const http = new XMLHttpRequest();
 	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
