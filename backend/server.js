@@ -46,7 +46,7 @@ let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
 app.use(morganLogger('common', { stream: accessLogStream }));
 app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
-app.use(subdomain('files', files));
+app.use(subdomain('files', files.router));
 app.use(subdomain('qr', qrequest));
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
