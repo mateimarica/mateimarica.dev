@@ -1,7 +1,8 @@
 const express = require('express'),
       router = express.Router(),
       authManager = require('../authManager'),
-      files = require('../files');
+      files = require('../files'),
+      path = require('path');
 
 const pool = files.pool;
 
@@ -23,7 +24,7 @@ router.post('/', (req, res) => {
 
 		if (results && results.length === 1) {
 			res.set('Authorization', authManager.createNewSession(username));
-			res.sendStatus(200);
+			res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
 		} else {
 			res.sendStatus(401);	
 		}

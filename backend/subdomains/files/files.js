@@ -6,6 +6,7 @@ const express = require('express'),
 
 const pool = poolManager.getPool('files_db');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
+const COMPONENTS_DIR = path.join(__dirname, 'components');
 
 if (!fs.existsSync(UPLOAD_DIR))
 	fs.mkdirSync(UPLOAD_DIR);
@@ -25,7 +26,7 @@ router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extende
 router.get('/index.html', (req, res) => res.redirect('/'));
 router.use(express.static(path.join(__dirname, '../../../frontend/files')));
 
-module.exports = { router, pool, UPLOAD_DIR };
+module.exports = { router, pool, UPLOAD_DIR, COMPONENTS_DIR };
 
 router.use('/login', require('./routes/login'));
 router.use('/files', require('./routes/files'));

@@ -414,25 +414,43 @@ button:active {
 
 #filePicker {
 	display: none;
+	cursor: pointer;
 }
 
 #filePickerDropArea {
 	cursor: pointer;
 	border: 2px dashed lightgrey;
 	border-radius: var(--defaultBorderRadius);
-	padding: 50px;
-	display: inline-block;
+
+	display: flex;
 	transition: background-color 0.25s ease-out;
 	margin-bottom: 30px;
+	margin: 0 auto 30px auto;
+	width: 300px;
+	height: 100px;
+	align-items: center;
+	justify-content: center;
 }
 
 #filePickerDropArea:hover {
 	background-color: rgba(255, 255, 255, 0.025);
 }
 
+#filePickerDropAreaLabel {
+	pointer-events: none;
+}
+
+.inProgressFilePickerDropArea {
+	border: 2px solid lightgrey !important;
+	cursor: default !important;
+}
+
+.inProgressFilePicker {
+	cursor: default !important;
+}
+
 /* Idea from https://stackoverflow.com/a/57382510 */
 .highlightedFilePickerDropArea {
-	
 	background: linear-gradient(90deg, lightgrey 64%, transparent 36%), linear-gradient(90deg, lightgrey 64%, transparent 36%), linear-gradient(0deg, lightgrey 64%, transparent 36%), linear-gradient(0deg, lightgrey 64%, transparent 36%);
 
 	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
@@ -444,7 +462,7 @@ button:active {
 	-ms-animation: border-dance 4s infinite linear;
 	-o-animation: border-dance 4s infinite linear;
 	animation: border-dance 4s infinite linear;
-	padding: 52px !important;
+	padding: 2px !important;
 	border: none !important;
 }
 

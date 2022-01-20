@@ -1,7 +1,10 @@
-let sessionId = '';
+let sessionId = '',
+    usedSpace = 0,
+    totalSpace = 0;
 
-let lastKnownScrollPosition = 0;
-let ticking = false;
+
+let lastKnownScrollPosition = 0,
+    ticking = false;
 document.addEventListener('scroll', (e) => {
 	lastKnownScrollPosition = window.scrollY;
 
@@ -51,16 +54,8 @@ submitBtn.addEventListener('click', () => {
 		switch (http.status) {
 			case 200:
 				sessionId = http.getResponseHeader('Authorization');
-
-				sendHttpRequest('GET', '/template.html', {}, (http) => {
-					switch (http.status) {
-						case 200:
-							document.body.innerHTML = http.responseText;
-							setUpMainPage();
-							break;
-						default:
-					}
-				});
+				document.body.innerHTML = http.responseText;
+				setUpMainPage();
 				break;
 			case 403:
 			case 500:
@@ -95,22 +90,57 @@ function setUpMainPage() {
 		if (files.length === 0) return;
 
 		const formData = new FormData();
-	
+
+		let totalSize = 0;
 		for (let i = 0; i < files.length; i++) {
             formData.append("files", files[i]);
+			totalSize += files[i].size;
    		 }
 
-		sendHttpRequest('POST', '/upload', {data: formData, headers: {'Authorization': sessionId}}, (http) => {
+		if (usedSpace + totalSize > totalSpace) {
+			alert(`You don't have enough space for that.\nYou would need an extra ${getFormattedSize(usedSpace + totalSize - totalSpace)} of space.`);
+			return;
+		}
+
+		const filePickerDropAreaLabel = document.querySelector('#filePickerDropAreaLabel'),
+		      formerFilePickerDropAreaLabelText = filePickerDropAreaLabel.innerHTML,
+		      filePickerDropArea = document.querySelector('#filePickerDropArea'),
+		      filePicker = document.querySelector('#filePicker');
+
+		const options = {
+			data: formData,
+			headers: {'Authorization': sessionId},
+			uploadOnProgress: (e) => {
+				const percent = Math.floor(100 * e.loaded / e.total);
+				filePickerDropAreaLabel.innerHTML = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '<br>' + percent + '%';
+				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddComplaintsBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
+			}
+		}
+
+		filePickerDropArea.classList.add('inProgressFilePickerDropArea');
+		filePicker.classList.add('inProgressFilePicker');
+		filePicker.disabled = true;
+
+		sendHttpRequest('POST', '/upload', options, (http) => {
+			filePickerDropAreaLabel.innerHTML = formerFilePickerDropAreaLabelText;
+			filePickerDropArea.classList.remove('inProgressFilePickerDropArea');
+			filePicker.classList.remove('inProgressFilePicker');
+			filePicker.disabled = false;
+			filePickerDropArea.style.background = '';
 			switch (http.status) {
 				case 200:
 					refreshPageInfo();
+					break;
+				case 413:
+					// File is too large. Shouldn't reach this but w/e if it does
 					break;
 				default:
 			}
 		});
 	}
 
-	const filePickerDropArea = document.querySelector('#filePickerDropArea');
+	const filePickerDropArea = document.querySelector('#filePickerDropArea'),
+	      filePicker = document.querySelector('#filePicker');
 
 	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
 		filePickerDropArea.addEventListener(eventName, e => {
@@ -119,23 +149,27 @@ function setUpMainPage() {
 		}, false);
 	});
 
+
 	['dragenter', 'dragover'].forEach(eventName => {
 		filePickerDropArea.addEventListener(eventName, e => {
-			filePickerDropArea.classList.add('highlightedFilePickerDropArea');
+			if (!filePicker.disabled)
+				filePickerDropArea.classList.add('highlightedFilePickerDropArea');
 		}, false);
 	});
 
 	['dragleave', 'drop'].forEach(eventName => {
 		filePickerDropArea.addEventListener(eventName, e => {
-			filePickerDropArea.classList.remove('highlightedFilePickerDropArea');
+			if (!filePicker.disabled)
+				filePickerDropArea.classList.remove('highlightedFilePickerDropArea');
 		}, false);
 	});
 
 	filePickerDropArea.addEventListener('drop', e => {
-		uploadFiles(e.dataTransfer.files);
+		if (!filePicker.disabled)
+			uploadFiles(e.dataTransfer.files);
 	}, false);
 
-	const filePicker = document.querySelector('#filePicker');
+	
 
 	filePicker.addEventListener('change', function(e) {
 		if (this.files.length > 0) {
@@ -193,10 +227,12 @@ function setUpMainPage() {
 	});
 
 	function fillMainPage(filesInfo) {
+		usedSpace = filesInfo.usedSpace;
+		totalSpace = filesInfo.totalSpace;
 
-		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(filesInfo.usedSpace) + " used / " + getFormattedSize(filesInfo.totalSpace) + ' total';
-		let usedSpacePercent = (filesInfo.usedSpace / filesInfo.totalSpace * 100).toFixed(1); // Percent with 1 decimal space
-		if (usedSpacePercent < 1 && filesInfo.usedSpace > 0) {
+		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
+		let usedSpacePercent = (usedSpace / totalSpace * 100).toFixed(1); // Percent with 1 decimal space
+		if (usedSpacePercent < 1 && usedSpace > 0) {
 			usedSpacePercent = 0.05;
 		} else if (usedSpacePercent > 100) {
 			usedSpacePercent = 100;
@@ -252,10 +288,6 @@ function setUpMainPage() {
 				document.querySelector('#createLinkBtn').addEventListener('click', () => {
 					const limit = document.querySelector('.activeDownloadLimitSelector').value,
 					      validity = document.querySelector('.activeValidityPeriodSelector').value;
-
-					// const params = new URLSearchParams();
-					// params.append('name',)
-					// const url = new URL(window.location.protocol + '//' + window.location.hostname + '/share');
 
 					const body = JSON.stringify({
 						name: files[i].baseName,
@@ -313,6 +345,9 @@ function setUpMainPage() {
 function sendHttpRequest(method, url, options, callback) {
 	const http = new XMLHttpRequest();
 	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
+
+	if (options.uploadOnProgress)
+		http.upload.onprogress = options.uploadOnProgress;
 
 	http.open(method, url, async=true);
 
@@ -410,5 +445,5 @@ function isElementInViewport(element) {
 	return rect.bottom > 0 &&
 	       rect.right > 0 &&
 	       rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
-	       rect.top< (window.innerHeight || document.documentElement.clientHeight);
+	       rect.top < (window.innerHeight || document.documentElement.clientHeight);
 }

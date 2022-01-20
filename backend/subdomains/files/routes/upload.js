@@ -8,6 +8,7 @@ const express = require('express'),
 	  files = require('../files');
 
 const pool = files.pool;
+const UPLOAD_DIR = files.UPLOAD_DIR;
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
@@ -26,8 +27,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('/upload', [authManager.authInspector, sizeVerifier.sizeVerifier, upload.array('files')], (req, res) => {
+router.post('/', [authManager.authInspector, sizeVerifier.sizeVerifier, upload.array('files')], (req, res) => {
 	const FILES = req.files;
+
+	if (FILES.length === 0)
+		return res.status(400).send('No files recieved');
+
 	let sql = `INSERT INTO files (baseName, name, ext, size, path, uploader) VALUES `;
 	let params = [];
 
