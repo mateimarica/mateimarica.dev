@@ -2,13 +2,14 @@ const express = require('express'),
       router = express.Router(),
       authManager = require('../authManager'),
       files = require('../files'),
-      path = require('path');
+      path = require('path'),
+      { atob } = require('buffer');
 
 const pool = files.pool;
 
 router.post('/', (req, res) => {
 	const username = req.get('Username'),
-	      password = req.get('Authorization');
+	      password = atob(req.get('Authorization'));
 
 	if (!username || (!password && password !== '')) 
 		res.sendStatus(400);
