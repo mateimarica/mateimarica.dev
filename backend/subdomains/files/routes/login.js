@@ -3,11 +3,19 @@ const express = require('express'),
       authManager = require('../authManager'),
       files = require('../files'),
       path = require('path'),
-      { atob } = require('buffer');
+      { atob } = require('buffer'),
+      rateLimit = require('express-rate-limit');
 
 const pool = files.pool;
 
-router.post('/', (req, res) => {
+const FAILED_LOGIN_RATE_LIMITER = rateLimit({
+	windowMs: process.env.FILES_LOGIN_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.FILES_LOGIN_LIMITER_MAX_FAILED_REQUESTS,
+	headers: false,
+	skipSuccessfulRequests: true
+});
+
+router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 	const username = req.get('Username'),
 	      password = atob(req.get('Authorization'));
 

@@ -51,6 +51,7 @@ submitBtn.addEventListener('click', () => {
 	}
 
 	sendHttpRequest('POST', '/login', {headers: headers}, (http) => {
+		// These alerts are placeholders
 		switch (http.status) {
 			case 200:
 				sessionId = http.getResponseHeader('Authorization');
@@ -58,8 +59,17 @@ submitBtn.addEventListener('click', () => {
 				setUpMainPage();
 				break;
 			case 403:
+				alert('Invalid credentials, try again.');
+				break;
+			case 429:
+				alert('Too many failed attempts. Try again later.');
+				break;
 			case 500:
+			case 502:
+				alert('Server error. Try again later.');
+				break;
 			default:
+				alert('Something went wrong. Status code: ' + http.status);
 		}
 	});
 
