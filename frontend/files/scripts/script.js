@@ -58,7 +58,7 @@ submitBtn.addEventListener('click', () => {
 				document.body.innerHTML = http.responseText;
 				setUpMainPage();
 				break;
-			case 403:
+			case 401:
 				alert('Invalid credentials, try again.');
 				break;
 			case 429:

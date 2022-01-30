@@ -144,8 +144,14 @@ body {
 	.sectionCard {
 		width: 95%;
 	}
+}
 
-
+@media screen and (max-width: 700px) {
+	.sectionCard {
+		width: 100%;
+		padding-left: 4px;
+		padding-right: 4px;
+	}
 }
 
 .centeredHeader {
@@ -430,7 +436,7 @@ button:active {
 	transition: background-color 0.25s ease-out;
 	margin-bottom: 30px;
 	margin: 0 auto 30px auto;
-	width: 300px;
+	max-width: 300px;
 	height: 100px;
 	align-items: center;
 	justify-content: center;
