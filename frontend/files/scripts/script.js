@@ -66,10 +66,6 @@ submitBtn.addEventListener('click', () => {
 	passwordField.value = '';
 });
 
-// remove lines for PROD
-usernameField.value = 'matei';
-submitBtn.click();
-
 function setUpMainPage() {
 	navigationBar = document.querySelector('#navigationBar');
 

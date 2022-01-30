@@ -2,7 +2,8 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      poolManager = require('pool-manager');
+      poolManager = require('pool-manager'),
+      rateLimit = require('express-rate-limit');
 
 const pool = poolManager.getPool('files_db');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -15,6 +16,13 @@ if (!fs.existsSync(UPLOAD_DIR))
 // 	fileSize: 1024 * 1024, // 1 MB (max file size)
 // };
 
+const GENERAL_RATE_LIMITER = rateLimit({
+	windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.FILES_GENERAL_LIMITER_MAX_REQUESTS,
+	headers: false
+});
+
+router.use(GENERAL_RATE_LIMITER);
 router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 

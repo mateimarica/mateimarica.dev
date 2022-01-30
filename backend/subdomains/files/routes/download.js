@@ -5,11 +5,18 @@ const express = require('express'),
       authManager = require('../authManager'),
       { atob } = require('buffer'),
       crypto = require('crypto'),
-      files = require('../files');
+      files = require('../files'),
+      rateLimit = require('express-rate-limit');
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 
-router.get('/', (req, res) => {
+const DOWNLOADS_RATE_LIMITER = rateLimit({
+	windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.FILES_DOWNLOADS_LIMITER_MAX_REQUESTS,
+	headers: false
+});
+
+router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 	if (!req.query.key)
 		return res.sendStatus(400);
 
