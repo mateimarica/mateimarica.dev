@@ -82,7 +82,7 @@ router.get('/approve', (req, res) => {
 			console.log(err);
 			return res.sendStatus(500);
 		} else if (result.affectedRows === 0) {
-			return;
+			return res.sendStatus(404);
 		}
 			
 		console.log("A complaint's approval was changed");
