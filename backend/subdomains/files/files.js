@@ -33,3 +33,4 @@ router.use('/files', require('./routes/files'));
 router.use('/upload', require('./routes/upload'));
 router.use('/download', require('./routes/download'));
 router.use('/share', require('./routes/share'));
+router.use('/delete', require('./routes/delete'));

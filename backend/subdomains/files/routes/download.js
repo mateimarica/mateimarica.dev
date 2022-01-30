@@ -9,7 +9,7 @@ const express = require('express'),
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 
-router.get('/',  (req, res) => {
+router.get('/', (req, res) => {
 	if (!req.query.key)
 		return res.sendStatus(400);
 

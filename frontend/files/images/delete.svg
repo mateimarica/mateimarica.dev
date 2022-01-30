@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink" 
+  width="20px"
+  height="20px"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  x="0px" y="0px"
+>
+  <line x1="20" y1="4" x2="4" y2="20" />
+  <line x1="4" y1="4" x2="20" y2="20" />
+</svg>

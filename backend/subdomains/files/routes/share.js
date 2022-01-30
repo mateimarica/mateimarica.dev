@@ -26,7 +26,7 @@ router.post('/', authManager.authInspector, (req, res) => {
 		return res.sendStatus(404);
 
 	const id = crypto.randomBytes(16).toString('hex');
-	
+
 	const sql = `INSERT INTO shares (id, baseName, expirationDate, maxDownloads, sharer) ` +
 	            `VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?)`,
 	      params = [id, name, validity * 60, limit, req.headers['Username']];
@@ -82,7 +82,6 @@ router.get('/download', (req, res) => {
 			      expirationDate = new Date(results[0].expirationDate);
 
 			const downloadsAvailable = results[0].maxDownloads - results[0].downloads;
-
 			if (currentDate > expirationDate || downloadsAvailable < 1) {
 				res.sendStatus(404);
 				pool.execute(`DELETE FROM shares WHERE id=?`, params, (err) => {
@@ -100,7 +99,7 @@ router.get('/download', (req, res) => {
 				});
 				return;
 			}
-			res.statusMessage = "Current password does not match";
+			
 			res.download(filePath);
 			
 			if (downloadsAvailable === 1) {

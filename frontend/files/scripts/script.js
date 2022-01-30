@@ -73,11 +73,11 @@ submitBtn.click();
 function setUpMainPage() {
 	navigationBar = document.querySelector('#navigationBar');
 
-	function refreshPageInfo() {
+	function refreshPageInfo(causedByDelete=false) {
 		sendHttpRequest('GET', '/files', {headers: {'Authorization': sessionId}}, (http) => {
 			switch (http.status) {
 				case 200:
-					fillMainPage(JSON.parse(http.responseText));
+					fillMainPage(JSON.parse(http.responseText), causedByDelete);
 					break;
 				default:
 			}
@@ -169,8 +169,6 @@ function setUpMainPage() {
 			uploadFiles(e.dataTransfer.files);
 	}, false);
 
-	
-
 	filePicker.addEventListener('change', function(e) {
 		if (this.files.length > 0) {
 			uploadFiles(this.files);
@@ -226,7 +224,7 @@ function setUpMainPage() {
 		}
 	});
 
-	function fillMainPage(filesInfo) {
+	function fillMainPage(filesInfo, causedByDelete) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
@@ -249,6 +247,8 @@ function setUpMainPage() {
 
 		if (files.length > 0)
 			filesList.innerHTML = ''; // Removes the default list item
+		else
+		 	filesList.innerHTML = `<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Hmm...</span></li>`;
 
 		for (let i = 0; i < files.length; i++) {
 			let filesListItem = document.createElement('li');
@@ -265,6 +265,32 @@ function setUpMainPage() {
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
 			date.innerHTML = getRelativeTime(files[i].uploadDate, currentDate);
+			
+			let deleteButton = document.createElement('span');
+			deleteButton.classList.add('icon', 'deleteIcon');
+			deleteButton.addEventListener('click', () => {
+
+				if (!confirm('Are you sure you want to delete ' + files[i].baseName + '?')) {
+					return;
+				}
+
+				const options = {
+					headers: {
+						'Filename': files[i].baseName,
+						'Authorization': sessionId
+					}
+				};
+
+				sendHttpRequest('DELETE', '/delete', options, (http) => {
+					switch (http.status) {
+						case 204:
+							refreshPageInfo();
+							break;
+						default:
+					}
+				});
+			});
+			
 			let shareButton = document.createElement('span');
 			shareButton.classList.add('icon', 'shareIcon');
 			shareButton.addEventListener('click', () => {
@@ -335,7 +361,7 @@ function setUpMainPage() {
 				});
 			});
 			
-			filesListItem.append(filename, size, date, shareButton, downloadButton);
+			filesListItem.append(filename, size, date, deleteButton, shareButton, downloadButton);
 			filesList.appendChild(filesListItem);
 		}
 	}

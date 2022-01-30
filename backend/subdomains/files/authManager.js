@@ -11,7 +11,7 @@ function authInspector(req, res, next) {
 		res.set('WWW-Authenticate', 'xBasic realm="files"');
 		return res.sendStatus(401);
 	}
-	//console.log(username);
+
 	req.headers['Username'] = username;
 	next();
 }
