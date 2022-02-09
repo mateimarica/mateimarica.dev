@@ -11,6 +11,7 @@ const express = require('express'),
       invalidJsonHandler = require('invalid-json-handler'),
       qrequest = require('./subdomains/qr/qr'),
 	  files = require('./subdomains/files/files'),
+	  searchicton = require('./subdomains/searchicton/searchicton'),
       subdomain = require('express-subdomain');
 
 reqSniffer.initializeIpCache();
@@ -48,6 +49,7 @@ app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
 app.use(subdomain('files', files.router));
 app.use(subdomain('qr', qrequest));
+app.use(subdomain('searchicton', searchicton));
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));

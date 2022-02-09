@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Searchicton</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+			body {
+				background-color: black;
+				color: whitesmoke;
+				font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+			}
+
+			input, textarea {
+				font-weight: bold;
+				font-size: 18px;
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+			}
+
+			a {
+				color: lightskyblue;
+			}
+
+			button {
+				font-weight: bold;
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+				font-size: 18px;
+			}
+
+			#sideBySideDiv {
+				display: inline-flex;
+				gap: 100px;
+			}
+
+			.actionDiv {
+				border: 1px dashed gray;
+				border-radius: 10px;
+				padding: 10px;
+			}
+
+			h3 {
+				margin: 0;
+				margin-bottom: 15px;
+			}
+
+			.newResponse {
+				color: dodgerblue;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>Searchicton</h1>
+		
+		<div id="sideBySideDiv">
+			<div class="actionDiv">
+				<h3>Create landmark</h3>
+				<form id="createLandmarkForm">
+					<input id="titleInput" class="resetable" title="[Title] Length required: 1-255" pattern="^[\s\S]{1,255}$" placeholder="Title" required/>
+					<br><br>
+					<textarea id="descInput" class="resetable" title="[Description] Length required: 1-1000" pattern="^[\s\S]{1,1000}$" placeholder="Description" cols="21" rows="5" required></textarea>
+					<br><br>
+					<input id="pointsInput" class="resetable" title="[Points] Must be positive integer" pattern="^[0-9]*$"  placeholder="Points" required/>
+					<br><br>
+					<input id="categoryInput" class="resetable" title="[Category] Length required: 1-255" pattern="^[\s\S]{1,1000}$" placeholder="Category" required/>
+					<br><br>
+					<input id="longitudeInput" class="resetable" title="[Longitude] Max of 14 decimal places" type="number" placeholder="Longitude" step="0.00000000000001" required/>
+					<button type="button" id="pasteBtn">Paste</button>
+					<br><br>
+					<input id="latitudeInput" class="resetable" title="[Latitude] Max of 14 decimal places" type="number" placeholder="Latitude" step="0.00000000000001" required/>
+					<br><br>
+					<input id="createPasswordInput" class="passwordField" type="password" placeholder="Password" required/>
+					<button id="createSubmitBtn">Create</button>
+				</form>
+				<br>
+				<label id="createResponseLabel"></label>
+			</div>
+			
+			<div class="actionDiv">
+				<h3>Delete landmark</h3>
+				<form id="deleteLandmarkForm">
+					<input id="idInput" class="resetable" title="[id] Length required: 36"  placeholder="id" maxlength="36" size="35" pattern="^[\s\S]{36}$" required/>
+					<br><br>
+					<input id="deletePasswordInput" class="passwordField" type="password" placeholder="Password" required/>
+					<button id="deleteSubmitBtn">Delete</button>
+				</form>
+				<br>
+				<label id="deleteResponseLabel"> </label>
+			</div>
+		</div>
+		
+		
+		<br><br><br><br>
+		<a href="/landmarks">See landmarks page</a>
+		<script src="/scripts/script.js"> </script>
+	</body>
+</html>
