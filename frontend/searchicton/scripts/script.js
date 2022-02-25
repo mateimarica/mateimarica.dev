@@ -16,7 +16,7 @@ document.querySelector('#createLandmarkForm').addEventListener('submit', e => {
 				category: document.querySelector('#categoryInput').value,
 				longitude: parseFloat(document.querySelector('#longitudeInput').value),
 				latitude: parseFloat(document.querySelector('#latitudeInput').value)
-			})
+		})
 	}
 
 	sendHttpRequest('POST', '/landmarks', options, (http) => {
@@ -85,8 +85,8 @@ document.querySelector('#pasteBtn').addEventListener('click', async () => {
 	const text = await navigator.clipboard.readText();
 	const longLat = text.match(/[^, ]+/g);
 
-	document.querySelector('#longitudeInput').value = longLat[0];
-	document.querySelector('#latitudeInput').value = longLat[1];
+	document.querySelector('#latitudeInput').value = longLat[0];
+	document.querySelector('#longitudeInput').value = longLat[1];
 });
 
 async function responseChange(responseLabel) {
