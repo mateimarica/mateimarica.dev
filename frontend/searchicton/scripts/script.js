@@ -52,7 +52,7 @@ document.querySelector('#deleteLandmarkForm').addEventListener('submit', e => {
 			'Authorization': document.querySelector('#deletePasswordInput').value
 		},
 		body: JSON.stringify({
-				id: document.querySelector('#idInput').value
+				id: parseInt(document.querySelector('#idInput').value)
 			})
 	}
 

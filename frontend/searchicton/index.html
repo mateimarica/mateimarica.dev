@@ -81,7 +81,7 @@
 			<div class="actionDiv">
 				<h3>Delete landmark</h3>
 				<form id="deleteLandmarkForm">
-					<input id="idInput" class="resetable" title="[id] Length required: 36"  placeholder="id" maxlength="36" size="35" pattern="^[\s\S]{36}$" required/>
+					<input id="idInput" class="resetable" title="[id] Must be a positive integer"  placeholder="id" maxlength="100" size="5" pattern="^[0-9]*$" required/>
 					<br><br>
 					<input id="deletePasswordInput" class="passwordField" type="password" placeholder="Password" required/>
 					<button id="deleteSubmitBtn">Delete</button>

@@ -80,8 +80,8 @@ router.delete('/landmarks', FAILED_AUTH_RATE_LIMITER, authInspector, (req, res) 
 
 	let id = req.body.id;
 
-	if (!id || id.length != 36) {
-		return res.status(400).send('id length must be 36');
+	if (!id || !Number.isInteger(id) || id < 1) {
+		return res.status(400).send('id must be positive integer');
 	 }
 
 	const sql = `DELETE FROM landmarks WHERE id=?`;
