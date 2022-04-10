@@ -1,38 +1,60 @@
 
-<div id="sharePopup" class="sectionCard">
-	<button id="xButton">&times;</button>
+<div id="sharePopup" class="sectionCard popup">
+	<button class="xButton">&times;</button>
 	<h2>Share File</h2>
 	<span id="sharePopupFilename"></span>
 	<span id="sharePopupUploadDate"></span>
 	<span id=sharePopupSize></span>
 
 	<h3>Download Limit</h3>
-	<button class="downloadLimitSelector activeDownloadLimitSelector" value=1>1</button>
-	<button class="downloadLimitSelector" value=10>10</button>
-	<button class="downloadLimitSelector" value=100>100</button>
-	<input class="downloadLimitSelector formField downloadLimitField" maxlength="4">
+	<button class="shareDownloadLimitSelector shareActiveDownloadLimitSelector" value=1>1</button>
+	<button class="shareDownloadLimitSelector" value=10>10</button>
+	<button class="shareDownloadLimitSelector" value=100>100</button>
+	<input class="shareDownloadLimitSelector formField shareDownloadLimitField" maxlength="4">
 	
 	<h3>Validity Period</h3>
-	<button class="validityPeriodSelector activeValidityPeriodSelector" value=0.25>15m</button>
-	<button class="validityPeriodSelector" value=1>1h</button>
-	<button class="validityPeriodSelector" value=24>24h</button>
-	<input class="validityPeriodSelector formField validityPeriodField" maxlength="4" placeholder="h">
+	<button class="shareValidityPeriodSelector shareActiveValidityPeriodSelector" value=0.25>15m</button>
+	<button class="shareValidityPeriodSelector" value=1>1h</button>
+	<button class="shareValidityPeriodSelector" value=24>24h</button>
+	<input class="shareValidityPeriodSelector formField shareValidityPeriodField" maxlength="4" placeholder="h">
 
-	<button id="createLinkBtn">Copy link</button>
+	<button id="createShareLinkBtn">Copy link</button>
 	<input id="shareLinkField" class="formField" readonly>
+</div>
+
+<div id="invitePopup" class="sectionCard popup">
+	<button class="xButton">&times;</button>
+	<h2>Create invite</h2>
+
+	<input id="inviteNameField" class="formField" placeholder="Name" title="Name">
+	<textarea id="inviteMessageField" class="formField" placeholder="Message" title="Message"></textarea>
+
+	<h3>Validity Period</h3>
+	<button class="inviteValidityPeriodSelector inviteActiveValidityPeriodSelector" value=0.25>15m</button>
+	<button class="inviteValidityPeriodSelector" value=1>1h</button>
+	<button class="inviteValidityPeriodSelector" value=24>24h</button>
+	<input class="inviteValidityPeriodSelector formField inviteValidityPeriodField" maxlength="4" placeholder="h">
+
+	<h3>Max Upload Size</h3>
+	<button class="inviteMaxUploadSizeSelector inviteActiveMaxUploadSizeSelector" value=0.025>25MB</button>
+	<button class="inviteMaxUploadSizeSelector" value=0.5>500MB</button>
+	<button class="inviteMaxUploadSizeSelector" value=1>1GB</button>
+	<input class="inviteMaxUploadSizeSelector formField inviteMaxUploadSizeField" maxlength="4" placeholder="GB">
+
+	<button id="createInviteLinkBtn">Copy link</button>
+	<input id="inviteLinkField" class="formField" readonly>
 </div>
 
 <div id="darkOverlay"></div>
 
-<nav id="navigationBar">
-	<img id="logo" src="/images/logo-small.png" alt="Site logo">
-</nav>
 <div class="sectionCard firstSectionCard">
 	<div id="storageBarContainer">
 		<label id="storageBarLabel">0 B used / 0 B total</label>
 		<div id="storageBarBackground" class="storageBar"></div>
 		<div id="storageBarUsed" class="storageBar"></div>
 	</div>
+
+	<button id="inviteButton">Invite</button>
 	
 	<label id="filePickerDropArea">
 		<input id="filePicker" type="file" multiple><label id="filePickerDropAreaLabel">Click or drag files here</label></input>

@@ -5,23 +5,41 @@ let sessions = [];
 const FILES_REMOVE_EXPIRED_SESSIONS_FREQ_MILLI = process.env.FILES_REMOVE_EXPIRED_SESSIONS_FREQ_MINS * 60 * 1000;
 setInterval(removeExpiredSessions, FILES_REMOVE_EXPIRED_SESSIONS_FREQ_MILLI);
 
-function authInspector(req, res, next) {
-	let username = isSessionValid(req.get('Authorization'));
-	if (!username) {
-		res.set('WWW-Authenticate', 'xBasic realm="files"');
-		return res.sendStatus(401);
-	}
+const ROLE = {
+    ADMIN: 'admin',
+    USER: 'user',
+    INVITEE: 'invitee'
+}
 
-	req.headers['Username'] = username;
-	next();
+// admin can do anything, so calling authInspector() implies only admin can do the action
+function authInspector(...permittedRoles) {
+	return function (req, res, next) {
+		let session = isSessionValid(req.get('Authorization'), permittedRoles);
+		if (!session) {
+			res.set('WWW-Authenticate', 'xBasic realm="files"');
+			return res.sendStatus(401);
+		}
+		
+		req.headers['Role'] = session.role;
+		req.headers['Username'] = session.username;
+
+		if (session.role === ROLE.INVITEE) {
+			req.headers['MaxUploadSize'] = session.invite.maxUploadSize;
+			req.headers['ExpirationDate'] = session.invite.expirationDate;
+		} 
+		
+		next();
+	}
 }
 
 /** Returns the authorization string */
-function createNewSession(username) {
+function createNewSession(username, role, invite=undefined) {
 	let newSession = {
 		username: username,
+		role: role,
 		creationDate: new Date(),
-		authorization: crypto.randomBytes(16).toString('hex')
+		authorization: crypto.randomBytes(16).toString('hex'),
+		invite: invite
 	}
 
 	sessions.push(newSession);
@@ -31,13 +49,25 @@ function createNewSession(username) {
 
 const FILES_SESSION_VALIDITY_DURATION_MILLI = process.env.FILES_SESSION_VALIDITY_DURATION_MINS * 60 * 1000;
 
-function isSessionValid(authorization) {
+// Returns session if session valid. False if session invalid
+function isSessionValid(authorization, permittedRoles) {
 	if (!authorization) return false
 
 	let currentDate = new Date();
-	for (let i = sessions.length-1; i >= 0; i--) { // Count down since new sessions are appended to sessions array
+	for (let i = sessions.length-1; i >= 0; i--) { // Count down for efficiency since new sessions are appended to sessions array
 		if ((currentDate - sessions[i].creationDate) <= FILES_SESSION_VALIDITY_DURATION_MILLI) {
-			if(sessions[i].authorization === authorization) return sessions[i].username;
+			if(sessions[i].authorization === authorization) {
+				if (sessions[i].role === ROLE.ADMIN) {
+					return sessions[i];
+				} else {
+					for (const permittedRole of permittedRoles) {
+						if (sessions[i].role === permittedRole) {
+							return sessions[i];
+						}
+					}
+					return false;
+				}
+			} 
 		} else {
 			if(sessions[i].authorization === authorization) {
 				sessions.splice(i, 1); // removes 1 element starting at index i
@@ -45,7 +75,6 @@ function isSessionValid(authorization) {
 			} 
 		}
 	}
-	
 	return false;
 }
 
@@ -58,4 +87,4 @@ function removeExpiredSessions() {
 	}
 }
 
-module.exports = { authInspector, createNewSession }
+module.exports = { authInspector, createNewSession, ROLE }

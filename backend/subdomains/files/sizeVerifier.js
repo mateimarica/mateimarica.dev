@@ -20,4 +20,15 @@ function sizeVerifier(req, res, next) {
 	});
 }
 
-module.exports = { sizeVerifier, FILES_MAX_STORAGE_BYTES }
+function enoughSpace(desiredSpaceBytes, callback) {
+	pool.execute(sql, (err, results) => {
+		if (err) {
+			console.log(err);
+			return sendStatus(502);
+		}
+		
+		callback(Number(results[0].size) + desiredSpaceBytes <= FILES_MAX_STORAGE_BYTES);
+	});
+}
+
+module.exports = { sizeVerifier, enoughSpace, FILES_MAX_STORAGE_BYTES }

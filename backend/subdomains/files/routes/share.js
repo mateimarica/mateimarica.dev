@@ -2,7 +2,7 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      authManager = require('../authManager'),
+      {authInspector, ROLE} = require('../authManager'),
       crypto = require('crypto'),
       templateEngine = require('template-engine'),
       files = require('../files');
@@ -10,7 +10,7 @@ const express = require('express'),
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
 	  
-router.post('/', authManager.authInspector, (req, res) => {
+router.post('/', authInspector(ROLE.USER), (req, res) => {
 	const name = req.body.name,
 	      limit = req.body.limit,
 	      validity = req.body.validity; // validity is in hours
@@ -20,7 +20,7 @@ router.post('/', authManager.authInspector, (req, res) => {
 	    !validity || isNaN(validity) || validity <= 0 || validity > 9999)
 		return res.sendStatus(400);
 
-	const filePath = path.join(UPLOAD_DIR, name);
+	const filePath = path.join(UPLOAD_DIR, 'users', req.headers['Username'], name);
 
 	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);
@@ -68,7 +68,7 @@ router.get('/download', (req, res) => {
 	if (!id)
 		return res.sendStatus(400);
 
-	const sql = `SELECT baseName, expirationDate, maxDownloads, downloads  FROM shares WHERE id=?`,
+	const sql = `SELECT baseName, expirationDate, maxDownloads, downloads, sharer FROM shares WHERE id=?`,
 	     params = [id];
 
 	pool.execute(sql, params, (err, results) => {
@@ -90,7 +90,7 @@ router.get('/download', (req, res) => {
 				return;
 			}
 
-			const filePath = path.join(UPLOAD_DIR, results[0].baseName);
+			const filePath = path.join(UPLOAD_DIR, 'users', results[0].sharer, results[0].baseName);
 
 			if (!fs.existsSync(filePath)) {
 				res.sendStatus(410);

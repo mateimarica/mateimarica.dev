@@ -26,11 +26,6 @@ router.use(GENERAL_RATE_LIMITER);
 router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 
-// router.get('/', (req, res, next) => {
-// 	console.log(req.query);
-// 	next();
-// });
-
 router.get('/index.html', (req, res) => res.redirect('/'));
 router.use(express.static(path.join(__dirname, '../../../frontend/files')));
 
@@ -42,3 +37,4 @@ router.use('/upload', require('./routes/upload'));
 router.use('/download', require('./routes/download'));
 router.use('/share', require('./routes/share'));
 router.use('/delete', require('./routes/delete'));
+router.use('/invite', require('./routes/invite'));

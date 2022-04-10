@@ -25,14 +25,14 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 	const sql = `SELECT username, role FROM users where username=? AND password=SHA1(?)`,
 	      params = [username, password];
 
-	pool.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
+	pool.execute({sql: sql}, params, (err, results) => {
 		if (err) {
 			console.log(err);
 			return res.sendStatus(502);
 		}
 
 		if (results && results.length === 1) {
-			res.set('Authorization', authManager.createNewSession(username));
+			res.set('Authorization', authManager.createNewSession(username, results[0].role));
 			res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
 		} else {
 			res.sendStatus(401);	

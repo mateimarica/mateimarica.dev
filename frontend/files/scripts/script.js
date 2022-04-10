@@ -1,3 +1,6 @@
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 let sessionId = '',
     usedSpace = 0,
     totalSpace = 0;
@@ -10,7 +13,7 @@ document.addEventListener('scroll', (e) => {
 
 	if (!ticking) {
 		ticking = true;
-
+	
 		window.requestAnimationFrame(() => {
 			setNavbarTransparency(lastKnownScrollPosition);
 			ticking = false;
@@ -18,7 +21,7 @@ document.addEventListener('scroll', (e) => {
 	}
 });
 
-let navigationBar = document.querySelector('#navigationBar');
+let navigationBar = $('#navigationBar');
 function setNavbarTransparency(scrollPos) {
 	if(scrollPos > 0) {
 		navigationBar.className = 'navigationBarOnScroll';
@@ -27,9 +30,9 @@ function setNavbarTransparency(scrollPos) {
 	}
 }
 
-const passwordField = document.querySelector('#passwordField'),
-      usernameField = document.querySelector('#usernameField');
-      submitBtn = document.querySelector('#submitBtn');
+const passwordField = $('#passwordField'),
+      usernameField = $('#usernameField');
+      submitBtn = $('#submitBtn');
 
 [usernameField, passwordField].forEach(field => {
 	field.addEventListener('keydown', (e) => {
@@ -55,7 +58,7 @@ submitBtn.addEventListener('click', () => {
 		switch (http.status) {
 			case 200:
 				sessionId = http.getResponseHeader('Authorization');
-				document.body.innerHTML = http.responseText;
+				$('#app').innerHTML = http.responseText;
 				setUpMainPage();
 				break;
 			case 401:
@@ -76,9 +79,7 @@ submitBtn.addEventListener('click', () => {
 	passwordField.value = '';
 });
 
-function setUpMainPage() {
-	navigationBar = document.querySelector('#navigationBar');
-
+function setUpMainPage(isInvite=false) {
 	function refreshPageInfo(causedByDelete=false) {
 		sendHttpRequest('GET', '/files', {headers: {'Authorization': sessionId}}, (http) => {
 			switch (http.status) {
@@ -92,7 +93,7 @@ function setUpMainPage() {
 
 	refreshPageInfo();
 	
-	function uploadFiles(files) {
+	function mainUploadFiles(files) {
 		if (files.length === 0) return;
 
 		const formData = new FormData();
@@ -108,13 +109,13 @@ function setUpMainPage() {
 			return;
 		}
 
-		const filePickerDropAreaLabel = document.querySelector('#filePickerDropAreaLabel'),
+		const filePickerDropAreaLabel = $('#filePickerDropAreaLabel'),
 		      formerFilePickerDropAreaLabelText = filePickerDropAreaLabel.innerHTML,
-		      filePickerDropArea = document.querySelector('#filePickerDropArea'),
-		      filePicker = document.querySelector('#filePicker');
+		      filePickerDropArea = $('#filePickerDropArea'),
+		      filePicker = $('#filePicker');
 
 		const options = {
-			data: formData,
+			body: formData,
 			headers: {'Authorization': sessionId},
 			uploadOnProgress: (e) => {
 				const percent = Math.floor(100 * e.loaded / e.total);
@@ -145,56 +146,7 @@ function setUpMainPage() {
 		});
 	}
 
-	const filePickerDropArea = document.querySelector('#filePickerDropArea'),
-	      filePicker = document.querySelector('#filePicker');
-
-	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-		filePickerDropArea.addEventListener(eventName, e => {
-			e.preventDefault();
-			e.stopPropagation();
-		}, false);
-	});
-
-
-	['dragenter', 'dragover'].forEach(eventName => {
-		filePickerDropArea.addEventListener(eventName, e => {
-			if (!filePicker.disabled)
-				filePickerDropArea.classList.add('highlightedFilePickerDropArea');
-		}, false);
-	});
-
-	['dragleave', 'drop'].forEach(eventName => {
-		filePickerDropArea.addEventListener(eventName, e => {
-			if (!filePicker.disabled)
-				filePickerDropArea.classList.remove('highlightedFilePickerDropArea');
-		}, false);
-	});
-
-	filePickerDropArea.addEventListener('drop', e => {
-		if (!filePicker.disabled)
-			uploadFiles(e.dataTransfer.files);
-	}, false);
-
-	filePicker.addEventListener('change', function(e) {
-		if (this.files.length > 0) {
-			uploadFiles(this.files);
-		}
-	});
-
-	document.querySelector("#xButton").addEventListener('click', () => {
-		document.querySelector('#darkOverlay').style.display = 'none';
-		document.querySelector('#sharePopup').style.display = 'none';
-		const shareLinkField = document.querySelector('#shareLinkField');
-		shareLinkField.style.display = 'none';
-		shareLinkField.value = '';
-		document.documentElement.style.overflow = '';
-		const createLinkBtn = document.querySelector('#createLinkBtn');
-		createLinkBtn.outerHTML = createLinkBtn.outerHTML; // remove all event listeners
-	});
-
-	document.querySelector("#darkOverlay").addEventListener('click', () => {
-		document.querySelector("#xButton").click();
-	});
+	
 	
 
 	function setRadioButtons(elementArr, activeClassName) {
@@ -207,34 +159,20 @@ function setUpMainPage() {
 		}
 	}
 
-	[
-		{
-			selectorClass: '.downloadLimitSelector', 
-			fieldSelectorClass: '.downloadLimitField', 
-			activeSelectorClass: 'activeDownloadLimitSelector' 
-		},
-		{
-			selectorClass: '.validityPeriodSelector',  
-			fieldSelectorClass: '.validityPeriodField', 
-			activeSelectorClass: 'activeValidityPeriodSelector'
-		},
-	].forEach(selectorGroup => {
-		let selectors = document.querySelectorAll(selectorGroup.selectorClass);
-		for (let i = 0; i < selectors.length; i++) {
-			selectors[i].addEventListener('click', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
-		}
 	
-		let selectorFields = document.querySelectorAll(selectorGroup.fieldSelectorClass);
-		for (let i = 0; i < selectorFields.length; i++) {
-			selectorFields[i].addEventListener('keydown', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
-		}
-	});
+
+	setUpFilePicker(mainUploadFiles);
+
+	function showDarkOverlayForPopup() {
+		$('#darkOverlay').style.display = 'block';
+		document.documentElement.style.overflow = 'hidden';
+	}
 
 	function fillMainPage(filesInfo, causedByDelete) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
-		document.querySelector('#storageBarLabel').innerHTML = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
+		$('#storageBarLabel').innerHTML = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
 		let usedSpacePercent = (usedSpace / totalSpace * 100).toFixed(1); // Percent with 1 decimal space
 		if (usedSpacePercent < 1 && usedSpace > 0) {
 			usedSpacePercent = 0.05;
@@ -243,10 +181,10 @@ function setUpMainPage() {
 		}
 
 		setTimeout(() => {
-			document.querySelector('#storageBarUsed').style.width = usedSpacePercent + '%';
+			$('#storageBarUsed').style.width = usedSpacePercent + '%';
 	 	}, 10);
 
-		let filesList = document.querySelector('#filesList');
+		let filesList = $('#filesList');
 
 		const currentDate = new Date();
 		let files = filesInfo.files;
@@ -283,6 +221,8 @@ function setUpMainPage() {
 				const options = {
 					headers: {
 						'Filename': files[i].baseName,
+						'Uploader': files[i].uploader,
+						'IsInvited': files[i].isInvited,
 						'Authorization': sessionId
 					}
 				};
@@ -296,84 +236,268 @@ function setUpMainPage() {
 					}
 				});
 			});
-			
-			let shareButton = document.createElement('span');
-			shareButton.classList.add('icon', 'shareIcon');
-			shareButton.addEventListener('click', () => {
-				document.querySelector('.downloadLimitSelector').click();
-				document.querySelector('.validityPeriodSelector').click();
 
-				['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
-					document.querySelectorAll(fieldSelectorClass).forEach(fieldSelector => {
-						fieldSelector.value = '';
+			filesListItem.append(filename, size, date, deleteButton);
+
+			if (!isInvite) {
+				let shareButton = document.createElement('span');
+				shareButton.classList.add('icon', 'shareIcon');
+				shareButton.addEventListener('click', () => {
+					
+					// Selects the first selector by default
+					$('.shareDownloadLimitSelector').click();
+					$('.shareValidityPeriodSelector').click();
+	
+					['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
+						$$(fieldSelectorClass).forEach(fieldSelector => {
+							fieldSelector.value = '';
+						});
+					});
+	
+					$('#sharePopupFilename').textContent = files[i].baseName;
+					$('#sharePopupUploadDate').textContent = 'Uploaded ' + date.textContent;
+					$('#sharePopupSize').textContent = size.textContent;
+	
+					$('#sharePopup').style.display = 'block';
+					showDarkOverlayForPopup();
+	
+					$('#createShareLinkBtn').addEventListener('click', () => {
+						const limit = $('.shareActiveDownloadLimitSelector').value,
+							  validity = $('.shareActiveValidityPeriodSelector').value;
+	
+						const options = {
+							headers: {
+								'Authorization': sessionId,
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								name: files[i].baseName,
+								limit: Number(limit), // convert to number b/c they may be strings
+								validity: Number(validity)
+							})
+						};
+			
+						sendHttpRequest('POST', '/share', options, (http) => {
+							switch (http.status) {
+								case 201:
+									const url = JSON.parse(http.responseText).url;
+									navigator.clipboard.writeText(url);
+									const shareLinkField = $('#shareLinkField');
+									shareLinkField.style.display = 'inline-block';
+									shareLinkField.value = url;
+									break;
+								default:
+							}
+						});
 					});
 				});
-
-				document.querySelector('#sharePopupFilename').textContent = files[i].baseName;
-				document.querySelector('#sharePopupUploadDate').textContent = 'Uploaded ' + date.textContent;
-				document.querySelector('#sharePopupSize').textContent = size.textContent;
-
-				document.querySelector('#sharePopup').style.display = 'block';
-				document.querySelector('#darkOverlay').style.display = 'block';
-				document.documentElement.style.overflow = 'hidden';
-
-				document.querySelector('#createLinkBtn').addEventListener('click', () => {
-					const limit = document.querySelector('.activeDownloadLimitSelector').value,
-					      validity = document.querySelector('.activeValidityPeriodSelector').value;
-
-					const body = JSON.stringify({
-						name: files[i].baseName,
-						limit: Number(limit), // convert to number b/c they may be strings
-						validity: Number(validity)
-					});
-
+	
+	
+				let downloadButton = document.createElement('span');
+				downloadButton.classList.add('icon', 'downloadIcon');
+				downloadButton.addEventListener('click', () => {
+					downloadButton.className = 'loadingIcon';
+	
 					const options = {
-						headers: {
+						headers: { 
 							'Authorization': sessionId,
 							'Content-Type': 'application/json'
 						},
-						data: body
+						body: JSON.stringify({
+							baseName: files[i].baseName,
+							uploader: files[i].uploader,
+							isInvited: files[i].isInvited
+						})
 					};
-		
-					sendHttpRequest('POST', '/share', options, (http) => {
+	
+					sendHttpRequest('POST', '/download/request', options, async (http) => {
 						switch (http.status) {
-							case 201:
-								const url = JSON.parse(http.responseText).url;
-								navigator.clipboard.writeText(url);
-								const shareLinkField = document.querySelector('#shareLinkField');
-								shareLinkField.style.display = 'inline-block';
-								shareLinkField.value = url;
+							case 200:
+								let a = document.createElement('a');
+								a.href = '/download?key=' + http.getResponseHeader('Authorization');
+								a.click();
+			
+								await sleep(1000);
+								downloadButton.className = '';
+								downloadButton.classList.add('icon', 'downloadIcon');
 								break;
 							default:
 						}
 					});
 				});
-			});
-
-
-			let downloadButton = document.createElement('span');
-			downloadButton.classList.add('icon', 'downloadIcon');
-			downloadButton.addEventListener('click', () => {
-				downloadButton.className = 'loadingIcon';
-
-				sendHttpRequest('GET', '/download/request?name=' + btoa(files[i].baseName), {headers: {'Authorization': sessionId}}, async (http) => {
-					let a = document.createElement('a');
-					a.href = '/download?key=' + http.getResponseHeader('Authorization');
-					a.click();
-
-					await sleep(1000);
-					downloadButton.className = '';
-					downloadButton.classList.add('icon', 'downloadIcon');
-				});
-			});
-			
-			filesListItem.append(filename, size, date, deleteButton, shareButton, downloadButton);
+				filesListItem.append(shareButton, downloadButton);
+			}
 			filesList.appendChild(filesListItem);
 		}
 	}
+
+	if (!isInvite) {
+		$$('.xButton').forEach(xButton => {
+			xButton.addEventListener('click', function() {
+				$('#darkOverlay').style.display = 'none';
+				this.parentElement.style.display = 'none';
+				const shareLinkField = $('#shareLinkField');
+				shareLinkField.style.display = 'none';
+				shareLinkField.value = '';
+				document.documentElement.style.overflow = '';
+				const createShareLinkBtn = $('#createShareLinkBtn');
+				createShareLinkBtn.outerHTML = createShareLinkBtn.outerHTML; // remove all event listeners
+				const createInviteLinkBtn = $('#createInviteLinkBtn');
+				createInviteLinkBtn.outerHTML = createInviteLinkBtn.outerHTML; // remove all event listeners
+			});
+		});
+	
+		$("#darkOverlay").addEventListener('click', () => {
+			$$('.xButton').forEach((xButton) => {
+				xButton.click();
+			});
+		});
+
+		[
+			{
+				selectorClass: '.shareDownloadLimitSelector', 
+				fieldSelectorClass: '.shareDownloadLimitField', 
+				activeSelectorClass: 'shareActiveDownloadLimitSelector' 
+			},
+			{
+				selectorClass: '.shareValidityPeriodSelector',  
+				fieldSelectorClass: '.shareValidityPeriodField', 
+				activeSelectorClass: 'shareActiveValidityPeriodSelector'
+			},
+			{
+				selectorClass: '.inviteValidityPeriodSelector',  
+				fieldSelectorClass: '.inviteValidityPeriodField', 
+				activeSelectorClass: 'inviteActiveValidityPeriodSelector'
+			},
+			{
+				selectorClass: '.inviteMaxUploadSizeSelector',  
+				fieldSelectorClass: '.inviteMaxUploadSizeField', 
+				activeSelectorClass: 'inviteActiveMaxUploadSizeSelector'
+			},
+		].forEach(selectorGroup => {
+			let selectors = $$(selectorGroup.selectorClass);
+			for (let i = 0; i < selectors.length; i++) {
+				selectors[i].addEventListener('click', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
+			}
+		
+			let selectorFields = $$(selectorGroup.fieldSelectorClass);
+			for (let i = 0; i < selectorFields.length; i++) {
+				selectorFields[i].addEventListener('keydown', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
+			}
+		});
+
+		// Remove red outline on invite name field 
+		var recentInviteAttempt = false; // This variable exists so we don't change the DOM for every key we type. 
+		                           // It is set to true when the Copy Link button is clicked
+		$('#inviteNameField').addEventListener('input', function() {
+			if (recentInviteAttempt) {
+				recentInviteAttempt = false;
+				this.classList.remove('fieldError');
+			}
+		});
+
+		$('#inviteButton').addEventListener('click', () => {
+			$('#inviteNameField').classList.remove('fieldError');
+			$('.inviteValidityPeriodSelector').click();
+			$('.inviteMaxUploadSizeSelector').click();
+		
+			['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
+				$$(fieldSelectorClass).forEach(fieldSelector => {
+					fieldSelector.value = '';
+				});
+			});
+		
+			$('#invitePopup').style.display = 'block';
+			showDarkOverlayForPopup();
+		
+			$('#createInviteLinkBtn').addEventListener('click', () => {
+				recentInviteAttempt = true;
+
+				const name = $('#inviteNameField').value,
+					  message = $('#inviteMessageField').value,
+					  maxUploadSize = $('.inviteActiveMaxUploadSizeSelector').value,
+					  validity = $('.inviteActiveValidityPeriodSelector').value;
+	
+				if (name === '' || !name.trim()) {
+					$('#inviteNameField').classList.add('fieldError');
+					return;
+				}
+
+				const options = {
+					headers: {
+						'Authorization': sessionId,
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						name: name,
+						message: message,
+						maxUploadSize: Number(maxUploadSize * 1000000000), // Convert from GB to bytes
+						validity: Number(validity)
+					})
+				};
+	
+				sendHttpRequest('POST', '/invite', options, (http) => {
+					switch (http.status) {
+						case 201:
+							const url = JSON.parse(http.responseText).url;
+							navigator.clipboard.writeText(url);
+							const inviteLinkField = $('#inviteLinkField');
+							inviteLinkField.style.display = 'inline-block';
+							inviteLinkField.value = url;
+							break;
+						default:
+					}
+				});
+			});
+		});
+
+		// Makes the complaintField expand to accommodate its input text.
+		$('#inviteMessageField').addEventListener('input', function() {
+			this.style.height = "";
+			this.style.height = this.scrollHeight + "px";
+		});
+	}
 }
 
-/** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', data: 'some data'} */
+function setUpFilePicker(uploadFilesFunction) {
+	const filePickerDropArea = $('#filePickerDropArea'),
+	      filePicker = $('#filePicker');
+
+	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+		filePickerDropArea.addEventListener(eventName, e => {
+			e.preventDefault();
+			e.stopPropagation();
+		}, false);
+	});
+
+
+	['dragenter', 'dragover'].forEach(eventName => {
+		filePickerDropArea.addEventListener(eventName, e => {
+			if (!filePicker.disabled)
+				filePickerDropArea.classList.add('highlightedFilePickerDropArea');
+		}, false);
+	});
+
+	['dragleave', 'drop'].forEach(eventName => {
+		filePickerDropArea.addEventListener(eventName, e => {
+			if (!filePicker.disabled)
+				filePickerDropArea.classList.remove('highlightedFilePickerDropArea');
+		}, false);
+	});
+
+	filePickerDropArea.addEventListener('drop', e => {
+		if (!filePicker.disabled)
+			uploadFilesFunction(e.dataTransfer.files);
+	}, false);
+
+	filePicker.addEventListener('change', function(e) {
+		if (this.files.length > 0) {
+			uploadFilesFunction(this.files);
+		}
+	});
+}
+
+/** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', body: 'some data'} */
 function sendHttpRequest(method, url, options, callback) {
 	const http = new XMLHttpRequest();
 	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
@@ -391,8 +515,9 @@ function sendHttpRequest(method, url, options, callback) {
 	if (options.responseType)
 		http.responseType = options.responseType;
 
-	http.send(options.data ?? null);
+	http.send(options.body ?? null);
 }
+
 
 /** A simple sleep function. Obviously, only call this from async functions. */
 function sleep(milli) {
@@ -472,10 +597,28 @@ function getFormattedSize(bytes) {
 	return parseFloat((bytes / GIGABYTE).toFixed(1)) + ' GB';
 }
 
-function isElementInViewport(element) {
-	let rect = element.getBoundingClientRect();
-	return rect.bottom > 0 &&
-	       rect.right > 0 &&
-	       rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
-	       rect.top < (window.innerHeight || document.documentElement.clientHeight);
-}
+// Check for invite after DOM loads
+document.addEventListener('DOMContentLoaded', (e) => {
+	const urlParams = new URLSearchParams(window.location.search);
+	const inviteCode = urlParams.get('invite');
+	if(inviteCode) {
+		sendHttpRequest('GET', '/invite?id=' + inviteCode, {}, (http) => {
+			switch (http.status) {
+				case 200:
+					sessionId = http.getResponseHeader('Authorization');
+					$('#app').innerHTML = http.responseText;
+					setUpMainPage(true);
+					break;
+				case 404:
+					alert('Invitation doesn\'t exist.');
+					break;
+				case 500:
+				case 502:
+					alert('Server error. Try again later.');
+					break;
+				default:
+					alert('Something went wrong. Status code: ' + http.status);
+			}
+		});
+	}
+});

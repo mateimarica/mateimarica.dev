@@ -1,19 +1,49 @@
 const express = require('express'),
       router = express.Router(),
-      authManager = require('../authManager'),
+      {authInspector, ROLE} = require('../authManager'),
       sizeVerifier = require('../sizeVerifier')
       files = require('../files');
 
 const pool = files.pool;
 
-router.get('/', authManager.authInspector, (req, res) => {
-	pool.execute(`SELECT baseName, name, ext, size, uploadDate, uploader FROM files ORDER BY uploadDate DESC`, (err1, results1) => {
+router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
+
+	switch (req.headers['Role']) {
+		case ROLE.ADMIN:
+			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files ORDER BY uploadDate DESC`;
+			var params = [];
+			break;
+		case ROLE.USER:
+			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files WHERE uploader=? ORDER BY uploadDate DESC`;
+			var params = [req.headers['Username']];
+			break;
+		case ROLE.INVITEE:
+			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files WHERE uploader=? AND isInvited=? ORDER BY uploadDate DESC`;
+			var params = [req.headers['Username'], true];
+			break;
+	}
+
+	pool.execute(sql, params, (err1, results1) => {
 		if (err1) {
 			console.log(err1);
 			return res.sendStatus(502);
 		}
 
-		pool.execute(`SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files`, (err2, results2) => {
+		const role = req.headers['Role'];
+
+		switch (role) {
+			case ROLE.ADMIN:
+			case ROLE.USER:
+				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files`;
+				params = [];
+				break;
+			case ROLE.INVITEE:
+				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files WHERE uploader=? AND isInvited=?`;
+				params = [req.headers['Username'], true];
+				break;
+		}
+
+		pool.execute(sql, params, (err2, results2) => {
 			if (err2) {
 				console.log(err2);
 				return res.sendStatus(502);
@@ -21,10 +51,9 @@ router.get('/', authManager.authInspector, (req, res) => {
 
 			res.status(200).send({
 				usedSpace: results2[0].usedSpace,
-				totalSpace: sizeVerifier.FILES_MAX_STORAGE_BYTES,
+				totalSpace: (role === ROLE.INVITEE ? req.headers['MaxUploadSize'] : sizeVerifier.FILES_MAX_STORAGE_BYTES),
 				files: results1
 			});
-
 		});
 	});
 });

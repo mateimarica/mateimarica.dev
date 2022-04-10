@@ -557,7 +557,7 @@ button:active {
 	}	
 }
 
-#sharePopup {
+.popup {
 	padding: 20px 0;
 	position: fixed;
 	border: 2px solid gray;
@@ -571,7 +571,7 @@ button:active {
 	display: none;
 }
 
-#sharePopup > h2 {
+.popup > h2 {
 	margin-top: 0;
 }
 
@@ -585,7 +585,7 @@ button:active {
 	display: none;
 }
 
-#xButton {
+.xButton {
 	z-index: 101;
 	position: absolute;
 	padding: 0px;
@@ -628,24 +628,24 @@ button:active {
 	color: lightgray;
 }
 
-.downloadLimitSelector, .validityPeriodSelector {
+.shareDownloadLimitSelector, .shareValidityPeriodSelector, .inviteValidityPeriodSelector {
 	width: 60px;
 	height: 60px;
 }
 
-.downloadLimitField, .validityPeriodField {
+#inviteNameField, #inviteMessageField, .shareDownloadLimitField, .shareValidityPeriodField, .inviteValidityPeriodField, .inviteMaxUploadSizeField {
 	text-align: center;
 	padding: 0;
 	font-weight: bold;
 }
 
-.activeDownloadLimitSelector, .activeDownloadLimitSelector:hover,
-.activeValidityPeriodSelector, .activeValidityPeriodSelector:hover {
+.shareActiveDownloadLimitSelector, .shareActiveDownloadLimitSelector:hover,
+.shareActiveValidityPeriodSelector, .shareActiveValidityPeriodSelector:hover, .inviteActiveValidityPeriodSelector, .inviteActiveValidityPeriodSelector:hover, .inviteActiveMaxUploadSizeSelector, .inviteActiveMaxUploadSizeSelector:hover {
 	background-color: #102335;
 	border-color: lightslategray;
 }
 
-#createLinkBtn {
+#createShareLinkBtn, #createInviteLinkBtn {
 	background-color: #102335;
 	display: block;
 	margin-left: auto;
@@ -653,7 +653,7 @@ button:active {
 	margin-top: 25px;
 }
 
-#createLinkBtn:hover {
+#createShareLinkBtn:hover, #createInviteLinkBtn:hover {
 	background-color: #1f4161;
 	-ms-transform: scale(1.05);
 	-moz-transform: scale(1.05);
@@ -662,12 +662,38 @@ button:active {
 	transform: scale(1.05);
 }
 
-#createLinkBtn:active {
+#createShareLinkBtn:active, #createInviteLinkBtn:active {
 	background-color: #0f202f;
 }
 
-#shareLinkField {
+#shareLinkField, #inviteLinkField {
 	width: 70%;
 	display: none;
 	margin-top: 15px;
+}
+
+#inviteNameField {
+	height: 50px;
+	width: 100px;
+	margin-right: 5px;
+}
+
+.inviteMaxUploadSizeSelector {
+	height: 60px;
+	width: 90px;
+}
+
+#inviteMessageField {
+	height: 50px;
+	width: 200px;
+	text-align: left;
+	padding: 10px;
+}
+
+#inviteMessageField::placeholder {
+	text-align: center;
+}
+
+.fieldError {
+	border: 2px solid darkred;
 }
