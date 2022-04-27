@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 					sessionId = http.getResponseHeader('Authorization');
 					$('#app').innerHTML = http.responseText;
 					setUpMainPage(true);
-					break;
+					return;
 				case 404:
 					alert('Invitation doesn\'t exist.');
 					break;
@@ -619,6 +619,9 @@ document.addEventListener('DOMContentLoaded', (e) => {
 				default:
 					alert('Something went wrong. Status code: ' + http.status);
 			}
+
+			// Remove query string from URL so that the error alert doesn't show again on refresh
+			window.history.pushState({}, '', window.location.origin);
 		});
 	}
 });
