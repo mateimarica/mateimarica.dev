@@ -48,20 +48,23 @@
 <div id="darkOverlay"></div>
 
 <div class="sectionCard firstSectionCard">
+	<span id="refreshButton" class="icon refreshIcon"></span>
+	<br>
 	<div id="storageBarContainer">
 		<label id="storageBarLabel">0 B used / 0 B total</label>
 		<div id="storageBarBackground" class="storageBar"></div>
 		<div id="storageBarUsed" class="storageBar"></div>
 	</div>
 
-	<button id="inviteButton">Invite</button>
-	
 	<label id="filePickerDropArea">
 		<input id="filePicker" type="file" multiple><label id="filePickerDropAreaLabel">Click or drag files here</label></input>
 	</label>
+
+	<div id="buttonDock">
+		<button id="inviteButton">Invite</button>
+	</div>
+
 	<ul id="filesList">
 		<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Hmm...</span></li>
-	</ul>
-	
-		
+	</ul>	
 </div>

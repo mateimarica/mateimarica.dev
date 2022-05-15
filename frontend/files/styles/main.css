@@ -527,6 +527,21 @@ button:active {
 	animation: rotating 2s linear infinite;
 }
 
+.refreshIcon {
+	float: right;
+	content: url("../images/refresh.svg");
+	filter: invert(95%);
+}
+
+.refreshing {
+	-webkit-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+	-moz-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+	-ms-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+	-o-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+	animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+}
+
+
 @-webkit-keyframes rotating /* Safari and Chrome */ {
 	from {
 		-webkit-transform: rotate(0deg);
@@ -696,4 +711,12 @@ button:active {
 
 .fieldError {
 	border: 2px solid darkred;
+}
+
+#inviteButton {
+	
+}
+
+#buttonDock {
+	margin-bottom: 25px;
 }

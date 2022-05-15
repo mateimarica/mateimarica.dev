@@ -40,7 +40,14 @@ const API_RATE_LIMITER = rateLimit({
 });
 
 const app = express();
-app.use(helmet());
+app.use(helmet({
+	contentSecurityPolicy: { // Must modify this so I can reference a same-site absolute URL. Eg: 1 favicon URL for all subdomains
+		useDefaults: true,
+		directives: {
+		  "img-src": ["'self'", "https: data:"]
+		}
+	}
+}));
 app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })

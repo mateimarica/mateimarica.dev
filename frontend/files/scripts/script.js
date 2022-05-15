@@ -80,18 +80,30 @@ submitBtn.addEventListener('click', () => {
 });
 
 function setUpMainPage(isInvite=false) {
-	function refreshPageInfo(causedByDelete=false) {
+	function refreshPageInfo(onFinishCallback=null) {
 		sendHttpRequest('GET', '/files', {headers: {'Authorization': sessionId}}, (http) => {
 			switch (http.status) {
 				case 200:
-					fillMainPage(JSON.parse(http.responseText), causedByDelete);
+					fillMainPage(JSON.parse(http.responseText));
 					break;
 				default:
+			}
+			if (onFinishCallback !== null) {
+				onFinishCallback();
 			}
 		});
 	}
 
 	refreshPageInfo();
+
+	let refreshButton = $('#refreshButton')
+	refreshButton.addEventListener('click', async () => {
+		refreshPageInfo();
+		refreshButton.classList.add('refreshing');
+		await sleep(1000);
+		refreshButton.classList.remove('refreshing');
+		
+	});
 	
 	function mainUploadFiles(files) {
 		if (files.length === 0) return;
@@ -146,9 +158,6 @@ function setUpMainPage(isInvite=false) {
 		});
 	}
 
-	
-	
-
 	function setRadioButtons(elementArr, activeClassName) {
 		return function() {
 			this.classList.add(activeClassName);
@@ -168,7 +177,7 @@ function setUpMainPage(isInvite=false) {
 		document.documentElement.style.overflow = 'hidden';
 	}
 
-	function fillMainPage(filesInfo, causedByDelete) {
+	function fillMainPage(filesInfo) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
