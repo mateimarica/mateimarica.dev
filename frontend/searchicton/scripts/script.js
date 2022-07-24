@@ -1,37 +1,40 @@
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 let passworded = false;
 const TRANSITION_DURATION = 1400;
 
-document.querySelector('#createLandmarkForm').addEventListener('submit', e => {
+$('#createLandmarkForm').addEventListener('submit', e => {
 	e.preventDefault();
 
 	const options = {
 		headers: {
 			'Content-Type': 'application/json', 
-			'Authorization': document.querySelector('#createPasswordInput').value
+			'Authorization': $('#createPasswordInput').value
 		},
 		body: JSON.stringify({
-				title: document.querySelector('#titleInput').value,
-				description: document.querySelector('#descInput').value,
-				points: parseInt(document.querySelector('#pointsInput').value),
-				category: document.querySelector('#categoryInput').value,
-				longitude: parseFloat(document.querySelector('#longitudeInput').value),
-				latitude: parseFloat(document.querySelector('#latitudeInput').value)
+				title: $('#titleInput').value,
+				description: $('#descInput').value,
+				points: parseInt($('#pointsInput').value),
+				category: $('#categoryInput').value,
+				longitude: parseFloat($('#longitudeInput').value),
+				latitude: parseFloat($('#latitudeInput').value)
 		})
 	}
 
 	sendHttpRequest('POST', '/landmarks', options, (http) => {
-		let responseLabel = document.querySelector('#createResponseLabel');
+		let responseLabel = $('#createResponseLabel');
 		switch (http.status) {
 			case 201:
 				responseLabel.innerHTML = http.status + ' Created \u2713';
-				document.querySelectorAll('#createLandmarkForm > .resetable').forEach(input => {
+				$$('#createLandmarkForm > .resetable').forEach(input => {
 					input.value = "";
 				});
 
 				if (!passworded) {
-					document.querySelectorAll('.passwordField').forEach(field => {
+					$$('.passwordField').forEach(field => {
 						field.disabled = true;
-						field.value = document.querySelector('#createPasswordInput').value;
+						field.value = $('#createPasswordInput').value;
 					});
 					passworded = true;
 				}
@@ -43,33 +46,33 @@ document.querySelector('#createLandmarkForm').addEventListener('submit', e => {
 	});
 });
 
-document.querySelector('#deleteLandmarkForm').addEventListener('submit', e => {
+$('#deleteLandmarkForm').addEventListener('submit', e => {
 	e.preventDefault();
 
 	const options = {
 		headers: {
 			'Content-Type': 'application/json', 
-			'Authorization': document.querySelector('#deletePasswordInput').value
+			'Authorization': $('#deletePasswordInput').value
 		},
 		body: JSON.stringify({
-				id: parseInt(document.querySelector('#idInput').value)
+				id: parseInt($('#idInput').value)
 			})
 	}
 
 	sendHttpRequest('DELETE', '/landmarks', options, (http) => {
-		let responseLabel = document.querySelector('#deleteResponseLabel');
+		let responseLabel = $('#deleteResponseLabel');
 		switch (http.status) {
 			case 204:
 				responseLabel.innerHTML = http.status + ' Deleted \u2713';
 
-				document.querySelectorAll('#deleteLandmarkForm > .resetable').forEach(input => {
+				$$('#deleteLandmarkForm > .resetable').forEach(input => {
 					input.value = "";
 				});
 
 				if (!passworded) {
-					document.querySelectorAll('.passwordField').forEach(field => {
+					$$('.passwordField').forEach(field => {
 						field.disabled = true;
-						field.value = document.querySelector('#deletePasswordInput').value;
+						field.value = $('#deletePasswordInput').value;
 					});
 					passworded = true;
 				}
@@ -81,12 +84,12 @@ document.querySelector('#deleteLandmarkForm').addEventListener('submit', e => {
 	});
 });
 
-document.querySelector('#pasteBtn').addEventListener('click', async () => {
+$('#pasteBtn').addEventListener('click', async () => {
 	const text = await navigator.clipboard.readText();
 	const longLat = text.match(/[^, ]+/g);
 
-	document.querySelector('#latitudeInput').value = longLat[0];
-	document.querySelector('#longitudeInput').value = longLat[1];
+	$('#latitudeInput').value = longLat[0];
+	$('#longitudeInput').value = longLat[1];
 });
 
 async function responseChange(responseLabel) {

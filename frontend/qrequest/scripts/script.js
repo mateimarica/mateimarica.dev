@@ -1,4 +1,5 @@
-let style = getComputedStyle(document.body);
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
 
 let lastKnownScrollPosition = 0;
 let ticking = false;
@@ -15,7 +16,7 @@ document.addEventListener('scroll', (e) => {
 	}
 });
 
-let navigationBar = document.querySelector('#navigationBar');
+let navigationBar = $('#navigationBar');
 function setNavbarTransparency(scrollPos) {
 	if(scrollPos > 0) {
 		navigationBar.className = 'navigationBarOnScroll';
@@ -36,8 +37,8 @@ const SLIDE_DURATION = 6000,
       TRANSITION_DURATION = 1400,
       QUICK_TRANSITION_DURATION = 450;
 
-let slides = document.querySelectorAll('.slide'),
-    pauseIcon = document.querySelector('#pauseIcon')
+let slides = $$('.slide'),
+    pauseIcon = $('#pauseIcon')
     pauseSlides = false,
     currentSlide = 0, // Used to save the index of current slide when slideslow is paused.
     isRunning = false; // Whether the doSlideshow() function is running. Used to ensure only 1 instance of the method runs at a time.

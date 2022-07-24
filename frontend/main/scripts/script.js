@@ -1,11 +1,14 @@
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
 let style = getComputedStyle(document.body)
 let secondaryBackgroundColor = style.getPropertyValue('--secondaryBackgroundColor');
 let sectionCardColor = style.getPropertyValue('--sectionCardColor');
 
-let complaintField = document.querySelector('#complaintField');
+let complaintField = $('#complaintField');
 complaintField.style.height = complaintField.scrollHeight + 'px';
 
-let UNBTooltip = document.querySelector('#UNBtooltip');
+let UNBTooltip = $('#UNBtooltip');
 let tooltipPopup = UNBTooltip.querySelector('span');
 let tooltipMouseOver = false
 UNBTooltip.addEventListener('mouseover', function() {
@@ -23,7 +26,7 @@ UNBTooltip.addEventListener('mouseover', function() {
 	}
 
 	// Set fake inverted styling
-	let bodyCard = document.querySelector('#bodyCard');
+	let bodyCard = $('#bodyCard');
 	let distanceFromTooltipToCardEdge = Math.floor(bodyCard.getBoundingClientRect().right - tooltipPopup.getBoundingClientRect().left);
 	tooltipPopup.style.background = `linear-gradient(90deg, ${secondaryBackgroundColor} ${distanceFromTooltipToCardEdge}px, ${sectionCardColor} ${distanceFromTooltipToCardEdge}px)`;
 });
@@ -41,11 +44,10 @@ UNBTooltip.addEventListener('transitionend', () => {
 	}
 });
 
-let complaintsList = document.querySelector('#complaintsList');
+let complaintsList = $('#complaintsList');
 let lastKnownScrollPosition = 0;
 let ticking = false;
 document.addEventListener('scroll', (e) => {
-	
 	lastKnownScrollPosition = window.scrollY;
 
 	if (!ticking) {
@@ -60,7 +62,7 @@ document.addEventListener('scroll', (e) => {
 	}
 });
 
-let navigationBar = document.querySelector('#navigationBar');
+let navigationBar = $('#navigationBar');
 function setNavbarTransparency(scrollPos) {
 	if(scrollPos > 0) {
 		navigationBar.className = 'navigationBarOnScroll';
@@ -79,16 +81,15 @@ function displayComplaintsList() {
 }
 
 // Makes the complaintField expand to accommodate its input text.
-document.querySelector('#complaintField').addEventListener('input', function() {
+$('#complaintField').addEventListener('input', function() {
 	this.style.height = "";
 	this.style.height = this.scrollHeight + "px";
 });
 
-document.querySelector('#formSubmit').addEventListener("click", () => {
+$('#formSubmit').addEventListener("click", () => {
 	recentSubmission = true;
 
-	let complaintForm = document.querySelector('#complaintForm');
-	//let complaintField = complaintForm.querySelector('#complaintField'); // We already get the complaintField at top of file ^
+	let complaintForm = $('#complaintForm');
 	let complaint = complaintField.value;
 
 	// If there's nothing in the complaintField, alert the user
@@ -126,7 +127,7 @@ document.querySelector('#formSubmit').addEventListener("click", () => {
 });
 
 function setMessageBox(className, innerHTML) {
-	let messageBox = document.querySelector('#messageBox');
+	let messageBox = $('#messageBox');
 	messageBox.className = className;
 	messageBox.innerHTML = innerHTML;
 	window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
@@ -159,7 +160,7 @@ window.addEventListener('load', () => {
 				fillComplaintsListCallback = () => { fillComplaintsList(complaints) };	
 			}
 		} else {
-			let complaintsListDefaultItem = document.querySelector('#complaintsList').querySelector('li');
+			let complaintsListDefaultItem = $('#complaintsList li');
 			switch (http.status) { 
 				case 429: // If too many requests
 					complaintsListDefaultItem.innerHTML = http.responseText;
@@ -172,7 +173,7 @@ window.addEventListener('load', () => {
 });
 
 async function fillComplaintsList(complaints) {
-	let complaintsList = document.querySelector('#complaintsList');
+	let complaintsList = $('#complaintsList');
 	complaintsList.innerHTML = ''; // Removes the default list item
 	
 	let currentDate = new Date();
@@ -217,7 +218,7 @@ complaintField.addEventListener('input', function() {
 	if (recentSubmission) {
 		recentSubmission = false;
 		this.classList.remove('complaintFieldError');
-		document.querySelector('#messageBox').className = 'hiddenMessageBox';
+		$('#messageBox').className = 'hiddenMessageBox';
 	}
 });
 
