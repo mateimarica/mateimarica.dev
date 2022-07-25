@@ -148,7 +148,7 @@ async function sendComplaintForApproval(complaint, req) {
 	};
 
 	transporter.sendMail(email, (err, info) => {
-		if (error) {
+		if (err) {
 			console.log(err);
 		} else {
 			console.log('Approval email sent: ' + info.response);

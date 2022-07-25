@@ -5,13 +5,26 @@
 		<title>QRequest - Gain Knowledge</title>
 		<meta name="description" content="QRequest is a JavaFX forum application that allows users to request and share knowledge.">
 		<link rel="stylesheet" type="text/css" href="/styles/main.css">
+		<link rel="stylesheet" type="text/css" href="https://mateimarica.dev/styles/navbar.css">
+		<link rel="stylesheet" type="text/css" href="https://mateimarica.dev/styles/scrollbar.css">
 		<link rel="icon" type="image/ico" href="https://mateimarica.dev/favicon.ico">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 
 	<body>
 		<nav id="navigationBar">
-			<img id="logo" src="/images/logo-small.png" alt="Site logo">
+			<a class="subdomain-container" href="https://mateimarica.dev">
+				<img class="subdomain-icon" src="https://mateimarica.dev/images/main_100p.png" alt="Site icon">
+				<p class="subdomain-text">Main</p>
+			</a>
+			<a class="subdomain-container" href="https://qr.mateimarica.dev" selected>
+				<img class="subdomain-icon" src="https://mateimarica.dev/images/qr_filled_100p.png" alt="QR icon">
+				<p class="subdomain-text">QRequest</p>
+			</a>
+			<a class="subdomain-container" href="https://files.mateimarica.dev">
+				<img class="subdomain-icon" src="https://mateimarica.dev/images/files_100p.png" alt="Files icon">
+				<p class="subdomain-text">Files</p>
+			</a>
 		</nav>
 
 		<div class="sectionCard" style="width: 80%; max-width: 600px">
@@ -33,9 +46,9 @@
 			<div class="sectionCard sideBySide" style="max-width: 600px;">
 				<h1 class="centeredHeader">Downloads</h1>
 				<div id="downloadButtons">
-					<a href="${windows}" class="button windows">Windows<img src="./images/windows.png"></a>
-					<a href="${linux}" class="button linux">Linux<img src="./images/linux.png"></a>
-					<a href="${macos}" class="button macos">macOS<img src="./images/macos.png"></a>
+					<a href="${windows}" class="downloadButton windows">Windows<img src="./images/windows.png"></a>
+					<a href="${linux}" class="downloadButton linux">Linux<img src="./images/linux.png"></a>
+					<a href="${macos}" class="downloadButton macos">macOS<img src="./images/macos.png"></a>
 				</div>
 	
 				<h2 class="centeredHeader claustrophobicHeader">Minimum Requirements</h1>

@@ -35,78 +35,6 @@ body {
 	border: 2px solid red;
 } */
 
-#navigationBar {
-	background-color: rgba(13, 17, 23, 1);
-	position: fixed;
-	top: 0; /* Pushes navbar to the top of the screen - always */
-	z-index: 1; /* layering priority - higher value -> on top */
-
-	display: flex;
-	left: 0; right: 0; /* This makes the navbar span across the whole page */
-	align-items: center; /* Center vertically */
-	justify-content: center; /* Hugs the elements together in the center */
-	
-	padding: 12px;
-	margin-left: auto;
-	margin-right: auto;
-	height: auto;
-}
-
-#navigationBar a {
-	color: rgb(187, 187, 187); /* light grey */
-	text-decoration: none;
-}
-
-#navigationBar a:hover {
-	color:whitesmoke;
-	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
-}
-
-#navigationBar ul {
-	margin: 0;
-}
-
-#navigationBar li {
-	display: inline;
-	margin-right: 16px;
-}
-
-.navigationBarOnScroll {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
-	background-color: rgba(13, 17, 23, 0.5) !important;
-	backdrop-filter: blur(1.5px);
-
-}
-
-.navigationBarOnScroll:hover {
-	background-color: rgba(13, 17, 23, 0.75) !important;
-}
-
-.navigationBarOriginalPosition {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
-	background-color: rgba(13, 17, 23, 1);
-}
-
-#logo {
-	width: 32px;
-	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
-}
-
-#logo:hover {
-	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
-}
-
 .sectionCard {
 	width: 70%;
 	max-width: 900px;
@@ -116,9 +44,7 @@ body {
 	padding: 32px 48px 32px; /* top, left&right, bottom */
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box;         /* Opera/IE 8+ */
+	box-sizing: border-box;
 }
 
 #complaintsCard {
@@ -135,10 +61,7 @@ body {
 
 .titleCard {
 	width: 480px;
-	padding-left: 0;
-	padding-right: 0;
-	padding-top: 16px;
-	padding-bottom: 1px;
+	padding: 16px 0 1px 0;
 	width: 60%;
 	max-width: 500px;
 }
@@ -222,7 +145,6 @@ body {
 }
   
 .tooltip span {
-	
 	background-color: var(--mainBackgroundColor);
 	color: #fff;
 	display: inline-block;
@@ -244,17 +166,12 @@ body {
 	visibility: hidden;
 	opacity: 0;
 	transition: opacity 0.1s linear, visibility  0.1s  linear;
-	-moz-transition: opacity 0.1s linear, visibility  0.1s  linear;
-	-o-transition: opacity 0.1s linear, visibility  0.1s  linear;
-	-webkit-transition: opacity 0.1s linear, visibility  0.1s  linear;
 }
 
 .tooltip:hover span {
 	visibility: visible;
 	opacity: 1;
 }
-
-
 
 #complaintsShowcase {
 	margin-left: auto;
@@ -289,12 +206,8 @@ body {
 	max-height: 800px; /* Just some random big number that it'll never get to */
 	opacity: 1;
 	
-	-webkit-transition: opacity 1s ease, max-height 5s linear;
-	-moz-transition: opacity 1s ease, max-height 5s linear;
-	-o-transition: opacity 1s ease, max-height 5s linear;
 	transition: opacity 1s ease, max-height 5s linear;
 	will-change: opacity, max-height;
-
 }
 
 .complaintsListItemInvisible {
@@ -353,9 +266,7 @@ body {
 	margin: 15px auto auto; /* Puts form to the middle */
 	overflow: hidden;
 	padding: 15px 14px 15px; /* top, left&right, bottom */
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box;         /* Opera/IE 8+ */
+	box-sizing: border-box;
 }
 
 /* Mobile viewing optimization */
@@ -423,9 +334,6 @@ body {
 	font-weight: bold;
 	color: lightgrey;
 	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
 	width: 40%;
 	max-width: 200px;
 	min-width: 150px;
@@ -438,18 +346,12 @@ body {
 #formSubmit:hover {
 	color: whitesmoke;
 	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
 	background-color: #1f2831;
 }
 
 #formSubmit:mouse {
 	color: whitesmoke;
 	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
 	background-color: #1f2831;
 }
 

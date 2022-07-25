@@ -15,7 +15,7 @@ html {
 
 html, body {
 	width: 100%;
-	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	overflow-x: hidden;
 }
 
 body {
@@ -32,78 +32,6 @@ body {
 	border: 2px solid red;
 } */
 
-#navigationBar {
-	background-color: #0a0e11;
-	position: fixed;
-	top: 0; /* Pushes navbar to the top of the screen - always */
-	z-index: 1; /* layering priority - higher value -> on top */
-
-	display: flex;
-	left: 0; right: 0; /* This makes the navbar span across the whole page */
-	align-items: center; /* Center vertically */
-	justify-content: center; /* Hugs the elements together in the center */
-	border-bottom: 2px solid rgb(14, 3, 3);
-	
-	padding: 12px;
-	margin-left: auto;
-	margin-right: auto;
-	height: auto;
-}
-
-#navigationBar a {
-	color: rgb(187, 187, 187); /* light grey */
-	text-decoration: none;
-}
-
-#navigationBar a:hover {
-	color:whitesmoke;
-	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
-}
-
-#navigationBar ul {
-	margin: 0;
-}
-
-#navigationBar li {
-	display: inline;
-	margin-right: 16px;
-}
-
-.navigationBarOnScroll {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
-	background-color: rgba(20, 4, 4, 0.5) !important;
-	backdrop-filter: blur(1.5px);
-}
-
-.navigationBarOnScroll:hover {
-	background-color: rgba(20, 4, 4, 0.75) !important;
-}
-
-.navigationBarOriginalPosition {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: .25s linear;
-	-moz-transition: .25s linear;
-	-o-transition: .25s linear;
-	transition: .25s linear;
-	background-color: rgba(20, 4, 4, 1);
-}
-
-#logo {
-	width: 32px;
-	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
-}
-
-#logo:hover {
-	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
-}
-
 .sectionCard {
 	width: 100%;
 	max-width: 1000px;
@@ -113,8 +41,6 @@ body {
 	padding: 32px 48px 32px; /* top, left&right, bottom */
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
@@ -173,15 +99,8 @@ body {
 }
 
 .fadeIn {
-	-webkit-animation-name: fadeIn;
-	-webkit-animation-duration: 1.5s;
 	animation-name: fadeIn;
 	animation-duration: 1.5s;
-}
-
-@-webkit-keyframes fadeIn {
-	from {opacity: 0}
-	to {opacity: 1}
 }
 
 @keyframes fadeIn {
@@ -190,15 +109,8 @@ body {
 }
 
 .fadeOut {
-	-webkit-animation-name: fadeOut;
-	-webkit-animation-duration: 1.5s;
 	animation-name: fadeOut;
 	animation-duration: 1.5s;
-}
-
-@-webkit-keyframes fadeOut {
-	from {opacity: 1}
-	to {opacity: 0}
 }
 
 @keyframes fadeOut {
@@ -207,15 +119,8 @@ body {
 }
 
 .fadeInQuick {
-	-webkit-animation-name: fadeInQuick;
-	-webkit-animation-duration: 0.5s;
 	animation-name: fadeInQuick;
 	animation-duration: 0.5s;
-}
-
-@-webkit-keyframes fadeInQuick {
-	from {opacity: 0}
-	to {opacity: 1}
 }
 
 @keyframes fadeInQuick {
@@ -224,15 +129,8 @@ body {
 }
 
 .fadeOutQuick {
-	-webkit-animation-name: fadeOutQuick;
-	-webkit-animation-duration: 0.5s;
 	animation-name: fadeOutQuick;
 	animation-duration: 0.5s;
-}
-
-@-webkit-keyframes fadeOutQuick {
-	from {opacity: 1}
-	to {opacity: 0}
 }
 
 @keyframes fadeOutQuick {
@@ -246,9 +144,7 @@ body {
 	flex-wrap: wrap;
 }
 
-a.button {
-    -webkit-appearance: button;
-    -moz-appearance: button;
+.downloadButton {
     appearance: button;
 	
     text-decoration: none;
@@ -266,24 +162,28 @@ a.button {
 	margin-left: 10px;
 	margin-right: 10px;
 	margin-bottom: 20px;
+
+	will-change: transform;
+	transition: transform .1s ease;
 }
 
-a.button.windows {
+/* Expands on hover, gets small again on hold-click */
+.downloadButton:hover:not(:active) {
+	transform: scale(1.1);
+}
+
+.downloadButton.windows {
 	background-color: #00508d;
 }
 
-a.button.linux {
+.downloadButton.linux {
 	background-color: #6b0000;
 }
 
-a.button.macos {
+.downloadButton.macos {
 	background-color: #666666;
 }
 
-a img {
+.downloadButton > img {
 	margin-left: 10px;
-}
-
-a {
-	color: #d3d3d3;
 }

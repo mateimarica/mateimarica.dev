@@ -37,87 +37,13 @@ body {
 	border: 2px solid red;
 } */
 
-#navigationBar {
-	background-color: rgba(13, 17, 23, 1);
-	position: fixed;
-	top: 0; /* Pushes navbar to the top of the screen - always */
-	z-index: 1;
-	width: 100vw;
-	margin-bottom: 0;
-	display: flex;
-	left: 0; right: 0; /* This makes the navbar span across the whole page */
-	align-items: center; /* Center vertically */
-	justify-content: center; /* Hugs the elements together in the center */
-	
-	padding: 12px;
-	margin-left: auto;
-	margin-right: auto;
-	height: auto;
-}
-
-#navigationBar a {
-	color: rgb(187, 187, 187); /* light grey */
-	text-decoration: none;
-}
-
-#navigationBar a:hover {
-	color:whitesmoke;
-	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
-}
-
-#navigationBar ul {
-	margin: 0;
-}
-
-#navigationBar li {
-	display: inline;
-	margin-right: 16px;
-}
-
-.navigationBarOnScroll {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: background-color .25s linear;
-	-moz-transition: background-color .25s linear;
-	-o-transition: background-color .25s linear;
-	transition: background-color .25s linear;
-	background-color: rgba(13, 17, 23, 0.5) !important;
-	backdrop-filter: blur(1.5px);
-}
-
-.navigationBarOnScroll:hover {
-	background-color: rgba(13, 17, 23, 0.75) !important;
-}
-
-.navigationBarOriginalPosition {
-	/* If you keep the transition out of the #navigationBar style, it won't flash on page refresh (chrome bug?) */
-	-webkit-transition: background-color .25s linear;
-	-moz-transition: background-color .25s linear;
-	-o-transition: background-color .25s linear;
-	transition: background-color .25s linear;
-	background-color: rgba(13, 17, 23, 1);
-}
-
-#logo {
-	width: 32px;
-	filter: invert(80%); /* Maybe bad design. Just have a white logo instead? */
-}
-
-#logo:hover {
-	filter: invert(95%) drop-shadow(0px 0px 2px lightgray); /* First 2 params are the x and y offsets (we want no offset b/c we want the shadow to look like a "glow" directly behind logo). 3rd param is the blur-radius */
-}
-
 .sectionCard {
 	width: 1100px;
 	margin: 20px auto; /* top/bottom, left/right */
 	padding: 32px 48px 32px; /* top, left&right, bottom */
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
-	box-sizing: border-box;         /* Opera/IE 8+ */
+	box-sizing: border-box;
 }
 
 .firstSectionCard {
@@ -132,7 +58,6 @@ body {
 	max-width: 400px;
 	width: 500px;
 	padding: 15px 5px 15px;
-	
 }
 
 .noWrapContainer {
@@ -177,9 +102,6 @@ body {
 	max-height: 800px; /* Just some random big number that it'll never get to */
 	opacity: 1;
 	
-	-webkit-transition: opacity 1s ease, max-height 5s linear;
-	-moz-transition: opacity 1s ease, max-height 5s linear;
-	-o-transition: opacity 1s ease, max-height 5s linear;
 	transition: opacity 1s ease, max-height 5s linear;
 	will-change: opacity, max-height;
 
@@ -188,11 +110,7 @@ body {
 	text-align: left;
   	justify-content: right;
 
-	  transition: background-color 0.2s ease;
-	-moz-transition: background-color 0.2s ease;
-	-o-transition: background-color 0.2s ease;
-	-webkit-transition: background-color 0.2s ease;
-
+	transition: background-color 0.2s ease;
 }
 
 .filesListItemInvisible {
@@ -220,9 +138,6 @@ body {
 
 .filesListItem:hover {
 	transition: background-color 0.2s ease;
-	-moz-transition: background-color 0.2s ease;
-	-o-transition: background-color 0.2s ease;
-	-webkit-transition: background-color 0.2s ease;
 	background-color: #091520;	
 	color: whitesmoke;
 }
@@ -241,19 +156,12 @@ body {
 
 .icon {
 	transition: .2s ease;
-	-moz-transition: .2s ease;
-	-o-transition: .2s ease;
-	-webkit-transition: .2s ease;
 	filter: invert(75%);
 	cursor: pointer;
 }
 
 .icon:hover {
 	filter: invert(100%);
-	-ms-transform: scale(1.25);
-	-moz-transform: scale(1.25);
-	-webkit-transform: scale(1.25);
-	-o-transform: scale(1.25);
 	transform: scale(1.25);
 }
 
@@ -326,7 +234,6 @@ body {
 	width: 60px;
 	height: 60px;
 	padding: 0;
-	
 }
 
 button {
@@ -335,9 +242,6 @@ button {
 	background-color: #060a0c;
 	border: 2px solid #24272b;
 	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;	
 	padding: 10px;
 	font-size: 20px;
 	margin: 0;
@@ -351,18 +255,12 @@ button:hover {
 	color: whitesmoke;
 	border: 2px solid lightslategray;
 	transition: 0.2s ease;
-	-moz-transition: 0.2s ease;
-	-o-transition: 0.2s ease;
-	-webkit-transition: 0.2s ease;
 	background-color: #0a0c0f;
 }
 
 input {
 	border: 2px solid #24272b;
 	transition: border 0.2s ease;
-	-moz-transition: border 0.2s ease;
-	-o-transition: border 0.2s ease;
-	-webkit-transition: border 0.2s ease;
 	outline: none;
 }
 
@@ -370,9 +268,6 @@ input {
 input:hover {
 	border: 2px solid lightslategray;
 	transition: border 0.2s ease;
-	-moz-transition: border 0.2s ease;
-	-o-transition: border 0.2s ease;
-	-webkit-transition: border 0.2s ease;
 	
 }
 
@@ -467,10 +362,6 @@ button:active {
 	background-size: 10px 2px, 10px 2px, 2px 10px, 2px 10px;
 
 	background-color: rgba(255, 255, 255, 0.025);
-	-webkit-animation: border-dance 4s infinite linear;
-	-moz-animation: border-dance 4s infinite linear;
-	-ms-animation: border-dance 4s infinite linear;
-	-o-animation: border-dance 4s infinite linear;
 	animation: border-dance 4s infinite linear;
 	padding: 2px !important;
 	border: none !important;
@@ -520,10 +411,6 @@ button:active {
 .loadingIcon {
 	content: url("../images/loading.svg");
 	filter: invert(95%);
-	-webkit-animation: rotating 2s linear infinite;
-	-moz-animation: rotating 2s linear infinite;
-	-ms-animation: rotating 2s linear infinite;
-	-o-animation: rotating 2s linear infinite;
 	animation: rotating 2s linear infinite;
 }
 
@@ -534,40 +421,14 @@ button:active {
 }
 
 .refreshing {
-	-webkit-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
-	-moz-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
-	-ms-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
-	-o-animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
 	animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
-}
-
-
-@-webkit-keyframes rotating /* Safari and Chrome */ {
-	from {
-		-webkit-transform: rotate(0deg);
-		-o-transform: rotate(0deg);
-		transform: rotate(0deg);
-	}
-	to {
-		-webkit-transform: rotate(360deg);
-		-o-transform: rotate(360deg);
-		transform: rotate(360deg);
-	}
 }
 
 @keyframes rotating {
 	from {
-		-ms-transform: rotate(0deg);
-		-moz-transform: rotate(0deg);
-		-webkit-transform: rotate(0deg);
-		-o-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
 	to {
-		-ms-transform: rotate(360deg);
-		-moz-transform: rotate(360deg);
-		-webkit-transform: rotate(360deg);
-		-o-transform: rotate(360deg);
 		transform: rotate(360deg);
 	}	
 }
@@ -611,26 +472,6 @@ button:active {
 	font-size: 30px;
 }
 
-/* width */
-::-webkit-scrollbar {
-	width: 15px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-	background: #131416;;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-	background: #3a3f44;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-	background: #555;
-}
-
 #sharePopupFilename, #sharePopupUploadDate, #sharePopupSize {
 	display: block;
 }
@@ -669,11 +510,6 @@ button:active {
 }
 
 #createShareLinkBtn:hover, #createInviteLinkBtn:hover {
-	background-color: #1f4161;
-	-ms-transform: scale(1.05);
-	-moz-transform: scale(1.05);
-	-webkit-transform: scale(1.05);
-	-o-transform: scale(1.05);
 	transform: scale(1.05);
 }
 

@@ -4,13 +4,16 @@
   "description": "The backend for mateimarica.dev",
   "main": "server.js",
   "scripts": {
-    "prod": "screen cross-env NODE_ENV=production node --max-http-header-size=4096 server",
-    "debug-prod": "cross-env NODE_ENV=production nodemon --max-http-header-size=4096 server",
-    "dev": "cross-env NODE_ENV=development nodemon server"
+    "build": "cd ../frontend && (cp -r src build || Xcopy /E /I /Y /Q src build) && postcss --no-map --use autoprefixer --replace \"build/**/*.css\" && echo Project built successfully",
+	"set-local-urls": "replace-in-file --configFile=replace-in-file.config.js",
+    "prod": "npm run build && screen cross-env NODE_ENV=production node --max-http-header-size=4096 server",
+    "debug-prod": "cross-env NODE_ENV=production nodemon",
+    "dev": "cross-env NODE_ENV=development nodemon"
   },
   "author": "Matei Marica",
   "license": "MIT",
   "dependencies": {
+    "autoprefixer": "^10.4.7",
     "binary-search": "file:./util/binary-search",
     "cross-env": "^7.0.3",
     "date-formatter": "file:./util/date-formatter",
@@ -25,10 +28,13 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.2",
     "pool-manager": "file:./util/pool-manager",
+    "replace-in-file": "^6.3.5",
     "request-sniffer": "file:./middleware/request-sniffer",
     "template-engine": "file:./util/template-engine"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "postcss": "^8.4.14",
+    "postcss-cli": "^10.0.0"
   }
 }

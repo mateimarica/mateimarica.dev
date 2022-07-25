@@ -5,3 +5,4 @@ backend/documents
 backend/access.log
 backend/node_modules
 backend/subdomains/files/uploads
+frontend/build

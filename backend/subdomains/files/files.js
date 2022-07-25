@@ -27,7 +27,7 @@ router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 
 router.get('/index.html', (req, res) => res.redirect('/'));
-router.use(express.static(path.join(__dirname, '../../../frontend/files')));
+router.use(express.static(path.join(__dirname, '../../../frontend/build/files')));
 
 module.exports = { router, pool, UPLOAD_DIR, COMPONENTS_DIR };
 
