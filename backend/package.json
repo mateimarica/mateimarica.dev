@@ -4,7 +4,7 @@
   "description": "The backend for mateimarica.dev",
   "main": "server.js",
   "scripts": {
-    "build": "cd ../frontend && ((rm -r build || cp -r src build) || (del /Q build && Xcopy /E /I /Y /Q src build)) && postcss --no-map --use autoprefixer --replace \"build/**/*.css\" && echo Project built successfully",
+    "build": "cd ../frontend && ((rm -rf build ; cp -r src build) || (del /F /S /Q build | xcopy /E /I /Y /Q src build)) && postcss --no-map --use autoprefixer --replace \"build/**/*.css\" && echo Project built successfully",
     "set-local-urls": "replace-in-file --configFile=replace-in-file.config.js",
     "prod": "npm run build && screen cross-env NODE_ENV=production node --max-http-header-size=4096 server",
     "debug-prod": "cross-env NODE_ENV=production nodemon",
