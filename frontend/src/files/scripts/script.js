@@ -95,15 +95,6 @@ function setUpMainPage(isInvite=false) {
 	}
 
 	refreshPageInfo();
-
-	let refreshButton = $('#refreshButton')
-	refreshButton.addEventListener('click', async () => {
-		refreshPageInfo();
-		refreshButton.classList.add('refreshing');
-		await sleep(1000);
-		refreshButton.classList.remove('refreshing');
-		
-	});
 	
 	function mainUploadFiles(files) {
 		if (files.length === 0) return;
@@ -167,8 +158,6 @@ function setUpMainPage(isInvite=false) {
 			}
 		}
 	}
-
-	
 
 	setUpFilePicker(mainUploadFiles);
 
@@ -341,6 +330,14 @@ function setUpMainPage(isInvite=false) {
 	}
 
 	if (!isInvite) {
+		let refreshButton = $('#refreshButton');
+		refreshButton.addEventListener('click', async () => {
+			refreshPageInfo();
+			refreshButton.classList.add('refreshing');
+			await sleep(1000);
+			refreshButton.classList.remove('refreshing');
+		});
+
 		$$('.xButton').forEach(xButton => {
 			xButton.addEventListener('click', function() {
 				$('#darkOverlay').style.display = 'none';
@@ -478,7 +475,6 @@ function setUpFilePicker(uploadFilesFunction) {
 			e.stopPropagation();
 		}, false);
 	});
-
 
 	['dragenter', 'dragover'].forEach(eventName => {
 		filePickerDropArea.addEventListener(eventName, e => {

@@ -6,7 +6,7 @@
 	width: 100vw;
 	display: flex;
 	left: 0; right: 0; /* This makes the navbar span across the whole page */
-	align-items: start; /* Center vertically */
+	align-items: flex-start; /* Center vertically */
 	justify-content: center; /* Hugs the elements together in the center */
 	
 	padding: 5px 0 15px;

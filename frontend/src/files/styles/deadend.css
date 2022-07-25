@@ -14,7 +14,7 @@ html {
 
 html, body {
 	width: 100%;
-	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	overflow-x: hidden;
 	display: flex;
 }
 

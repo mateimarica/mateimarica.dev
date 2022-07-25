@@ -27,10 +27,10 @@ body {
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
 	background-size: 100vw;
+	margin-top: 78px;
 	color: whitesmoke;
 	text-align: center;
 }
-
 
 /* Uncomment this to see borders of all elements */
 /* *{
@@ -44,10 +44,6 @@ body {
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
 	box-sizing: border-box;
-}
-
-.firstSectionCard {
-	margin-top: 65px;
 }
 
 .centerCard {
@@ -459,6 +455,7 @@ button:active {
 	width: 100%;
 	height: 100%;
 	display: none;
+	top: 0;
 }
 
 .xButton {

@@ -18,12 +18,12 @@ html {
 
 html, body {
 	width: 100%;
-	overflow-x: hidden; /* Holy cow, never remove this. Without this, the tooltip will cause horizontal scroll bar and jump downwards on mouseleave */
+	overflow-x: hidden;
 }
 
 body {
 	margin: 0;
-	margin-top: 65px;
+	margin-top: 78px;
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
 	color: whitesmoke;

@@ -20,7 +20,7 @@ html, body {
 
 body {
 	margin: 0;
-	margin-top: 65px;
+	margin-top: 78px;
 	font-family: var(--defaultFont);
 	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
 	color: whitesmoke;
