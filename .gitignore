@@ -3,6 +3,7 @@ backend/.env
 backend/sslcert
 backend/documents
 backend/access.log
+backend/server.log
 backend/node_modules
 backend/subdomains/files/uploads
 frontend/build

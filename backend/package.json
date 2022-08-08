@@ -6,7 +6,7 @@
   "scripts": {
     "build": "cd ../frontend && ((rm -rf build ; cp -r src build) || (del /F /S /Q build | xcopy /E /I /Y /Q src build)) && postcss --no-map --use autoprefixer --replace \"build/**/*.css\" && echo Project built successfully",
     "set-local-urls": "replace-in-file --configFile=replace-in-file.config.js",
-    "prod": "npm run build && screen cross-env NODE_ENV=production node --max-http-header-size=4096 server",
+    "prod": "npm run build && cross-env NODE_ENV=production pm2 start server.js --name mateimarica.dev --log server.log --time --node-args=\"--max-http-header-size=4096\"",
     "debug-prod": "cross-env NODE_ENV=production nodemon",
     "dev": "cross-env NODE_ENV=development nodemon"
   },
@@ -27,6 +27,7 @@
     "multer": "^1.4.4",
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.2",
+    "pm2": "^5.2.0",
     "pool-manager": "file:./util/pool-manager",
     "replace-in-file": "^6.3.5",
     "request-sniffer": "file:./middleware/request-sniffer",
