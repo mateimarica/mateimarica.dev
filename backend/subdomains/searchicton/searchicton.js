@@ -25,7 +25,7 @@ router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 
 router.get('/index.html', (req, res) => res.redirect('/'));
-router.use(express.static(path.join(__dirname, '../../../frontend/build/searchicton')));
+router.use(express.static(path.join(__dirname, '../../frontend/build/searchicton')));
 
 router.get('/landmarks', (req, res) => {
 	const sql = `SELECT * FROM landmarks`;

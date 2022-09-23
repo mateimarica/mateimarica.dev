@@ -81,7 +81,7 @@ function isSessionValid(authorization, permittedRoles) {
 function removeExpiredSessions() {
 	let currentDate = new Date();
 	for (let i = 0; i < sessions.length; i++) {
-		if ((currentDate - sessions[i].creationDate) > 4000) {
+		if ((currentDate - sessions[i].creationDate) > FILES_SESSION_VALIDITY_DURATION_MILLI) {
 			sessions.splice(i, 1); // removes 1 element starting at index i
 		} 
 	}

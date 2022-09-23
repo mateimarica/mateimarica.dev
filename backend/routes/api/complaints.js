@@ -105,7 +105,7 @@ router.get('/approve', (req, res) => {
 
 async function sendComplaintForApproval(complaint, req) {
 	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT || !complaint || !req) {
-		console.log("Complaint couldn't be sent for approval.");
+		console.log(`Complaint couldn't be sent for approval. Info: service=${!!process.env.EMAIL_SERVICE} email=${!!process.env.EMAIL_USERNAME} password=${!!process.env.EMAIL_PASSWORD} recipient=${!!process.env.EMAIL_RECIPIENT} complaint_str=${!!complaint} req_obj=${!!req}`);
 		return;
 	}
 

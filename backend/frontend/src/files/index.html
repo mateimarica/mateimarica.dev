@@ -8,6 +8,7 @@
 		<link rel="stylesheet" type="text/css" href="/styles/main.css">
 		<link rel="stylesheet" type="text/css" href="https://mateimarica.dev/styles/navbar.css">
 		<link rel="stylesheet" type="text/css" href="https://mateimarica.dev/styles/scrollbar.css">
+		<link rel="stylesheet" type="text/css" href="https://mateimarica.dev/styles/hint.css">
 		<link rel="icon" type="image/ico" href="https://mateimarica.dev/favicon.ico">
 	</head>
 
@@ -28,8 +29,14 @@
 		</nav>
 
 		<div id="app">
-			<div class="sectionCard centerCard" >
+			<div class="sectionCard centerCard">
 				<div id="lock"></div>
+				<div id="whats-this-hint" class="hint info-circle">
+					<span class="hint-text">?</span>
+					<span class="hint-popup">
+						<a href="https://github.com/mateimarica/mateimarica.dev#file-storage">What's this?</a>
+					</span>
+				</div>
 				<h1 class="centeredHeader">File Storage</h1>
 				<div class="fieldForm">
 					<input class="formField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus>

@@ -300,6 +300,15 @@ button:active {
 	width: 15px;
 	height: 27px;
 	border-radius: 35px 35px 0 0;
+	transition: .2s ease;
+
+	/* Cuts out part of the shackle to
+	/* left-top, right-top, right-center, center-center, center-bottom, left-bottom */
+	clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 50%, 50% 100%, 0 100%);
+}
+
+#lock:hover::before {
+	top: -20px;
 }
 
 @media screen and (max-width: 333px) {
@@ -552,4 +561,23 @@ button:active {
 
 #buttonDock {
 	margin-bottom: 25px;
+}
+
+#whats-this-hint {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+}
+
+a {
+	color: #8ab4f8;
+    text-decoration: none;
+
+	&:hover, &:active {
+		text-decoration: underline;
+	}
+
+	&:active {
+		color: #6d8ec4;
+	}
 }

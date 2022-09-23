@@ -24,7 +24,7 @@ router.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 router.get('/', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	let downloadInfo = downloads.getDownloadInfo();
 	const html = templateEngine.fillHTML(
-		path.join(__dirname, '../../../frontend/build/qrequest/index.html'),
+		path.join(__dirname, '../../frontend/build/qrequest/index.html'),
 		{
 			windows: downloadInfo.downloads.windows.browser_download_url ?? '/',
 			linux: downloadInfo.downloads.linux.browser_download_url ?? '/',
@@ -37,7 +37,7 @@ router.get('/', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 
 router.use('/', STATIC_PAGE_RATE_LIMITER);
 
-router.use(express.static(path.join(__dirname, '../../../frontend/build/qrequest')));
+router.use(express.static(path.join(__dirname, '../../frontend/build/qrequest')));
 router.use('/api/users', require('./routes/api/users').router);
 router.use('/api/questions', require('./routes/api/questions'));
 router.use('/api/answers', require('./routes/api/answers'));

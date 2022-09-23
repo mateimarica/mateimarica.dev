@@ -1,10 +1,9 @@
 {
-  "name": "backend",
+  "name": "mateimarica.dev",
   "version": "1.0.0",
-  "description": "The backend for mateimarica.dev",
   "main": "server.js",
   "scripts": {
-    "build": "cd ../frontend && ((rm -rf build ; cp -r src build) || (del /F /S /Q build | xcopy /E /I /Y /Q src build)) && postcss --no-map --use autoprefixer --replace \"build/**/*.css\" && echo Project built successfully",
+    "build": "cd frontend && ((rm -rf build ; cp -r src build) || (del /F /S /Q build & xcopy /E /I /Y /Q src build)) && postcss \"build/**/*.css\" --no-map --replace && echo Project built successfully",
     "set-local-urls": "replace-in-file --configFile=replace-in-file.config.js",
     "prod": "npm run build && cross-env NODE_ENV=production pm2 start server.js --name mateimarica.dev --log server.log --time --node-args=\"--max-http-header-size=4096\"",
     "debug-prod": "cross-env NODE_ENV=production nodemon",
@@ -28,14 +27,15 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.2",
     "pm2": "^5.2.0",
+    "postcss": "^8.4.16",
+    "postcss-cli": "^10.0.0",
+    "postcss-nested": "^5.0.6",
     "pool-manager": "file:./util/pool-manager",
     "replace-in-file": "^6.3.5",
-    "request-sniffer": "file:./middleware/request-sniffer",
+    "request-sniffer": "file:./middleware/request-sniffer/",
     "template-engine": "file:./util/template-engine"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15",
-    "postcss": "^8.4.14",
-    "postcss-cli": "^10.0.0"
+    "nodemon": "^2.0.15"
   }
 }

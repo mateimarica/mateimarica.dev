@@ -1,0 +1,81 @@
+/* Pretty much SCSS, compiled using postcss-nesting */
+
+/* Popup hint */
+.hint {
+	position: relative;
+
+	/* This class is for a standalone info circle, rather than latching on to an existing element. */
+	&.info-circle {
+		cursor: default;
+		background-color: dimgray;
+		border-radius: 50%;
+		width: 25px;
+		height: 25px;
+		transition: .2s ease;
+
+		display: inline-flex;
+		text-align: center;
+		justify-content: center;
+		flex-direction: column;
+
+		&:hover {
+			transform: scale(1.05);
+		}
+	}
+
+	/* This is what the user hovers over. Eg: "?" */
+	> .hint-text {
+		margin-top: -2px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		font-size: 20px;
+		color: white;
+		user-select: none;
+	}
+
+	/* This is actually pops up */
+	> .hint-popup {
+		visibility: hidden;
+		width: max-content;
+		background-color: rgba(0, 0, 0, .8);
+		color: white;
+		text-align: center;
+		font-weight: normal;
+		border-radius: 6px;
+		padding: 10px;
+		position: absolute;
+		z-index: 1;
+
+		/* This positions the popup */
+		left: 50%;
+		bottom: 35px;
+		transform: translate(-50%);
+
+		opacity: 0;
+		transition: opacity .3s;
+	}
+
+	&:hover > .hint-popup {
+		visibility: visible;
+		opacity: 1;
+
+		&:before {
+			content: " ";
+			position: absolute;
+			top: 100%; /* At the bottom of the tooltip */
+			left: 0%;
+			width: 100%; /* Span the whole width of the tooltip */
+			height: 30px;
+		}
+
+		&:after {
+			content: " ";
+			position: absolute;
+			top: 100%; /* At the bottom of the tooltip */
+			left: 50%;
+			margin-left: -5px;
+			border-width: 5px;
+			border-style: solid;
+			border-color: rgba(0, 0, 0, .8) transparent transparent transparent;
+		}
+	}
+}
