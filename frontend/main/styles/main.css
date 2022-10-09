@@ -136,6 +136,34 @@ body {
 	}
 }
 
+#socialLinksSection {
+	align-items: center; /* Center vertically */
+	justify-content: center;
+	display: flex;
+	gap: 20px;
+}
+
+.socialLinkIcon {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--defaultBorderRadius);
+	will-change: transform;
+	transition: transform .2s ease;
+}
+
+/* Expands on hover, gets small again on hold-click */
+.socialLinkIcon:hover:not(:active) {
+	transform: scale(1.1);
+}
+
+.divider {
+	height: 2px;
+	background: #999;
+	width: 100%;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
 .tooltip {
 	position: relative;
 	display: inline-block;
@@ -143,7 +171,7 @@ body {
 	cursor: help;
 	overflow: none;
 }
-  
+
 .tooltip span {
 	background-color: var(--mainBackgroundColor);
 	color: #fff;

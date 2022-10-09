@@ -69,7 +69,7 @@ app.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 });
 
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
-app.use(express.static(path.join(__dirname, 'frontend/build/main')));
+app.use(express.static(path.join(__dirname, 'frontend_build/main')));
 app.get('*', (req, res) => { // Send 404 page for any other page
 	res.status(404).sendFile(path.join(__dirname, 'components/404.html'));
 	reqSniffer.recordSuspiciousIP(req);

@@ -6,4 +6,4 @@ backend/access.log
 backend/server.log
 backend/node_modules
 backend/subdomains/files/uploads
-backend/frontend/build
+backend/frontend_build
