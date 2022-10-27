@@ -26,7 +26,7 @@ function authInspector(...permittedRoles) {
 		if (session.role === ROLE.INVITEE) {
 			req.headers['MaxUploadSize'] = session.invite.maxUploadSize;
 			req.headers['ExpirationDate'] = session.invite.expirationDate;
-		} 
+		}
 		
 		next();
 	}

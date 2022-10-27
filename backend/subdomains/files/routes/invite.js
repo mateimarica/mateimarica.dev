@@ -93,6 +93,49 @@ router.get('/', (req, res) => {
 	
 });
 
+router.get('/list', (req, res) => {
+	const id = req.query.id;
+
+	if (!id)
+		return res.sendStatus(400);
+
+
+	const sql = `SELECT id, inviteeName, message, expirationDate, maxUploadSize FROM invites WHERE id=?`,
+	      params = [id];
+
+	pool.execute(sql, params, (err, results) => {
+		if (err) {
+			console.log(err);
+			return res.sendStatus(502);
+		}
+		
+		if (results && results.length === 1) {
+			const currentDate = new Date(),
+			      expirationDate = new Date(results[0].expirationDate);
+			
+			if (currentDate > expirationDate)
+				return res.sendStatus(404);
+
+			res.set('Authorization', createNewSession(results[0].id, ROLE.INVITEE, {
+				inviteeName: results[0].inviteeName,
+				expirationDate: results[0].expirationDate,
+				maxUploadSize: results[0].maxUploadSize
+			}));
+			const html = templateEngine.fillHTML(
+				path.join(__dirname, '..', 'components', 'invite.html'),
+				{
+					name: results[0].inviteeName,
+					message: results[0].message
+				}
+			)
+			res.status(200).send(html);
+		} else {
+			return res.sendStatus(404);
+		}
+	});
+
+	
+});
 
 
 module.exports = router;

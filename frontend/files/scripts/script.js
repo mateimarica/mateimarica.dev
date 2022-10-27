@@ -261,7 +261,8 @@ function setUpMainPage(isInvite=false) {
 	
 					$('#createShareLinkBtn').addEventListener('click', () => {
 						const limit = $('.shareActiveDownloadLimitSelector').value,
-							  validity = $('.shareActiveValidityPeriodSelector').value;
+						      validity = $('.shareActiveValidityPeriodSelector').value,
+						      forceDownload = $('#forceDownloadCheckbox').checked;
 	
 						const options = {
 							headers: {
@@ -271,7 +272,8 @@ function setUpMainPage(isInvite=false) {
 							body: JSON.stringify({
 								name: files[i].baseName,
 								limit: Number(limit), // convert to number b/c they may be strings
-								validity: Number(validity)
+								validity: Number(validity),
+								forceDownload: Boolean(forceDownload)
 							})
 						};
 			

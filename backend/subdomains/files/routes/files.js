@@ -8,6 +8,7 @@ const pool = files.pool;
 
 router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 
+	// Getting the list of files
 	switch (req.headers['Role']) {
 		case ROLE.ADMIN:
 			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files ORDER BY uploadDate DESC`;
@@ -31,6 +32,7 @@ router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 
 		const role = req.headers['Role'];
 
+		// Getting the usedSpace and maximum storage available for that user
 		switch (role) {
 			case ROLE.ADMIN:
 			case ROLE.USER:

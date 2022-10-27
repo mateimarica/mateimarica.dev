@@ -7,6 +7,9 @@
 	--oddComplaintsBackgroundColor: #132638;
 	--evenComplaintsBackgroundColor: #0c1a27;
 
+	--selectedInputColor: #102335;
+	--inputColor: #060a0c;
+
 	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	--descriptionFont: 'Franklin Gothic Medium', Arial, Helvetica, sans-serif;
 	--defaultBorderRadius: 8px;
@@ -235,7 +238,7 @@ body {
 button {
 	font-weight: bold;
 	color: lightgrey;
-	background-color: #060a0c;
+	background-color: var(--inputColor);
 	border: 2px solid #24272b;
 	transition: 0.2s ease;
 	padding: 10px;
@@ -261,7 +264,7 @@ input {
 }
 
 
-input:hover {
+input:not([type='checkbox']):hover {
 	border: 2px solid lightslategray;
 	transition: border 0.2s ease;
 	
@@ -503,12 +506,84 @@ button:active {
 
 .shareActiveDownloadLimitSelector, .shareActiveDownloadLimitSelector:hover,
 .shareActiveValidityPeriodSelector, .shareActiveValidityPeriodSelector:hover, .inviteActiveValidityPeriodSelector, .inviteActiveValidityPeriodSelector:hover, .inviteActiveMaxUploadSizeSelector, .inviteActiveMaxUploadSizeSelector:hover {
-	background-color: #102335;
+	background-color: var(--selectedInputColor);
 	border-color: lightslategray;
 }
 
+.checkboxesContainer {
+	text-align: left;
+	width: 100%;
+	padding-left: 25%;
+	margin-top: 20px;
+	box-sizing: border-box;
+}
+
+.checkboxLabel {
+	vertical-align: middle;
+	user-select: none;
+	font-weight: bold;
+	margin-left: 5px;
+	transition: color .3s ease;
+}
+
+/* Basic styling */
+input[type=checkbox] {
+	width: 25px;
+	height: 25px;
+	vertical-align: middle;
+	appearance: none;
+	background: none;
+	border: 0;
+	outline: 0;
+	flex-grow: 0;
+}
+  
+/* Pseudo element for check styling */
+input[type=checkbox]::before {
+	content: "";
+	display: block;
+	width: inherit;
+	height: inherit;
+	border-radius: var(--defaultBorderRadius);
+	border: 2px solid #24272b;
+	background-color: var(--inputColor);
+	transition: background-color .3s ease, border-color .3s ease;
+}
+
+input[type=checkbox]:checked::before {
+	background-color: var(--selectedInputColor);
+	border-color: lightslategray;
+}
+
+/* Gray out labeled if not checked */
+input[type=checkbox]:not(:checked) ~ .checkboxLabel {
+	color: #757575;
+}
+
+/* Disabled checkbox. Overrides user agent stylesheet trash to make nothing visible */
+input[type=checkbox]:disabled {
+	appearance: none;
+	background: none;
+	border: 0;
+	outline: 0;
+	flex-grow: 0;
+
+	/* Next sibling selector to gray out checkbox */
+	& ~ .checkboxLabel {
+		color: rgb(84, 95, 107);
+		cursor: not-allowed;
+	}
+}
+
+/* Disabled pseudo */
+input[type=checkbox]:disabled::before {
+	background-color:  #111314;
+	border-color: rgb(45, 51, 58);
+	cursor: not-allowed;
+}
+
 #createShareLinkBtn, #createInviteLinkBtn {
-	background-color: #102335;
+	background-color: var(--selectedInputColor);
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
