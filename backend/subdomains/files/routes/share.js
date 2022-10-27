@@ -40,8 +40,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 		}
 
 		if (results && results.affectedRows === 1) {
-			const url = req.protocol + '://' + req.get('host') + '/share' + (forceDownload ? '/dl' : '') + '?id=' + id;
-
+			const url = req.protocol + '://' + req.get('host') + '/share' + (!forceDownload ? '/dl' : '') + '?id=' + id;
 			return res.status(201).send({url: url});
 		} else {
 			return res.sendStatus(409);
@@ -105,10 +104,10 @@ router.get('/dl', (req, res) => {
 			}
 
 			if (results[0].forceDownload) {
+				res.status(200).download(filePath); // download() automatically sets Content-Disposition: attachment; filename=<name>
+			} else {
 				res.set('Content-Disposition', `filename="${results[0].baseName}"`);
 				res.status(200).sendFile(filePath);
-			} else {
-				res.status(200).download(filePath); // download() automatically sets Content-Disposition: attachment; filename=<name>
 			}
 			
 			
