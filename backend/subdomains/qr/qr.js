@@ -24,7 +24,7 @@ router.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 router.get('/', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	let downloadInfo = downloads.getDownloadInfo();
 	const html = templateEngine.fillHTML(
-		path.join(__dirname, '../../frontend/build/qrequest/index.html'),
+		path.join(__dirname, '../../frontend_build/qrequest/index.html'),
 		{
 			windows: downloadInfo.downloads.windows.browser_download_url ?? '/',
 			linux: downloadInfo.downloads.linux.browser_download_url ?? '/',

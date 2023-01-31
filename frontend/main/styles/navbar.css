@@ -47,6 +47,7 @@
 	will-change: transform;
 	transform-origin: top;
 	user-select: none;
+	text-decoration: none; /* remove underline from link text */
 }
 
 .subdomain-container[selected] {
@@ -56,6 +57,7 @@
 .subdomain-container:hover {
 	border: rgb(195, 195, 195) 2px solid;
 	transform: scale(1.1);
+	text-decoration: none;
 }
 
 .subdomain-container:hover:active {
@@ -72,7 +74,6 @@
 	color: lightgray;
 	visibility: hidden;
 	opacity: 0;
-	
 	transition: opacity 0.1s linear, visibility  0.1s  linear;	
 }
 

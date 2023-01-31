@@ -43,17 +43,15 @@ let downloadSessions = [];
 
 router.post('/request', authInspector(ROLE.USER), (req, res) => {
 	let baseName = req.body.baseName,
-	    uploader = req.body.uploader,
-	    isInvited = req.body.isInvited; // isInvited is 0 or 1
+	    uploader = req.body.uploader;
 
-	if (!baseName || !uploader || (isInvited !== 0 && isInvited !== 1))
+	if (!baseName || !uploader)
 		return res.sendStatus(400);
 
-
-	if (req.headers['Role'] === ROLE.USER && req.headers['Username'] !== uploader)
+	if (req.headers['Role'] !== ROLE.ADMIN && req.headers['Username'] !== uploader)
 		return res.status(403).send("Can't download another user's file when role=user");
 
-	const filePath = path.join(UPLOAD_DIR, (isInvited ? 'invited' : 'users'), uploader, baseName);
+	const filePath = path.join(UPLOAD_DIR, uploader, baseName);
 
 	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);

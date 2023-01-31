@@ -2,22 +2,23 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      {authInspector, createNewSession, ROLE} = require('../authManager'),
-	  enoughSpace = require('../sizeVerifier').enoughSpace
+      authManager = require('../authManager'),
+      enoughSpace = require('../sizeVerifier').enoughSpace
       crypto = require('crypto'),
       templateEngine = require('template-engine'),
-      files = require('../files');
+      files = require('../files'),
+	  { nanoid } = require('nanoid');
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
 	  
-router.post('/', authInspector(), (req, res) => {
+router.post('/', authManager.authInspector(), async (req, res) => {
 	const invitee = req.body.name,
 	      message = req.body.message,
 	      maxUploadSize = req.body.maxUploadSize,
 	      validity = req.body.validity; // validity is in hours
 
-	enoughSpace(maxUploadSize, enoughSpaceExists => {
+	enoughSpace(maxUploadSize, async (enoughSpaceExists) => {
 		if (!invitee || invitee.length > 50 ||
 			(message && message.length > 255) || // Message can be blank string
 			!maxUploadSize || !Number.isInteger(maxUploadSize) || maxUploadSize <= 0 || !enoughSpaceExists || 
@@ -25,7 +26,11 @@ router.post('/', authInspector(), (req, res) => {
 			return res.sendStatus(400);
 		}
 	
-		const id = crypto.randomBytes(2).toString('hex');
+		const id = nanoid(4);
+		const validitySeconds = Math.floor(validity * 3600);
+
+		if (!await authManager.createInviteSession(req.headers['Username'], id, validitySeconds, maxUploadSize)) // Turns hours to seconds
+			return res.sendStatus(502);
 	
 		const sql = `INSERT INTO invites (id, inviteeName, message, expirationDate, maxUploadSize, inviter) ` +
 					`VALUES (?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?)`,
@@ -39,7 +44,6 @@ router.post('/', authInspector(), (req, res) => {
 	
 			if (results && results.affectedRows === 1) {
 				const url = req.protocol + '://' + req.get('host') + '/?invite=' + id;
-	
 				return res.status(201).send({url: url});
 			} else {
 				return res.sendStatus(409);
@@ -49,14 +53,15 @@ router.post('/', authInspector(), (req, res) => {
 	
 });
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
 	const id = req.query.id;
 
-	if (!id)
-		return res.sendStatus(400);
+	if (!id) return res.sendStatus(400);
 
+	const inviteAccessToken = await authManager.getInviteAccessToken(id);
+	if (!inviteAccessToken) return res.sendStatus(404);
 
-	const sql = `SELECT id, inviteeName, message, expirationDate, maxUploadSize FROM invites WHERE id=?`,
+	const sql = `SELECT id, inviteeName, message, expirationDate, maxUploadSize FROM invites WHERE BINARY id=?`,
 	      params = [id];
 
 	pool.execute(sql, params, (err, results) => {
@@ -65,18 +70,9 @@ router.get('/', (req, res) => {
 			return res.sendStatus(502);
 		}
 		
-		if (results && results.length === 1) {
-			const currentDate = new Date(),
-			      expirationDate = new Date(results[0].expirationDate);
-			
-			if (currentDate > expirationDate)
-				return res.sendStatus(404);
+		if (results && results.length === 1) {		
+			res.set('Invite-Access-Token', inviteAccessToken);
 
-			res.set('Authorization', createNewSession(results[0].id, ROLE.INVITEE, {
-				inviteeName: results[0].inviteeName,
-				expirationDate: results[0].expirationDate,
-				maxUploadSize: results[0].maxUploadSize
-			}));
 			const html = templateEngine.fillHTML(
 				path.join(__dirname, '..', 'components', 'invite.html'),
 				{
@@ -92,50 +88,5 @@ router.get('/', (req, res) => {
 
 	
 });
-
-router.get('/list', (req, res) => {
-	const id = req.query.id;
-
-	if (!id)
-		return res.sendStatus(400);
-
-
-	const sql = `SELECT id, inviteeName, message, expirationDate, maxUploadSize FROM invites WHERE id=?`,
-	      params = [id];
-
-	pool.execute(sql, params, (err, results) => {
-		if (err) {
-			console.log(err);
-			return res.sendStatus(502);
-		}
-		
-		if (results && results.length === 1) {
-			const currentDate = new Date(),
-			      expirationDate = new Date(results[0].expirationDate);
-			
-			if (currentDate > expirationDate)
-				return res.sendStatus(404);
-
-			res.set('Authorization', createNewSession(results[0].id, ROLE.INVITEE, {
-				inviteeName: results[0].inviteeName,
-				expirationDate: results[0].expirationDate,
-				maxUploadSize: results[0].maxUploadSize
-			}));
-			const html = templateEngine.fillHTML(
-				path.join(__dirname, '..', 'components', 'invite.html'),
-				{
-					name: results[0].inviteeName,
-					message: results[0].message
-				}
-			)
-			res.status(200).send(html);
-		} else {
-			return res.sendStatus(404);
-		}
-	});
-
-	
-});
-
 
 module.exports = router;

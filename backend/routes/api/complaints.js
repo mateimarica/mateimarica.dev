@@ -33,19 +33,17 @@ const COMPLAINT_RATE_LIMITER = rateLimit({
 
 // POST endpoint is called on submission of complaint form
 router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
-	if ((req.body.name && req.body.name.length > 20) || !req.body.complaint || (req.body.complaint.length > 400)) {
+	if (!req.body || (req.body.name && req.body.name.length > 20) || !req.body.complaint || (req.body.complaint.length > 400)) {
 		return res.sendStatus(400);
 	}
 	// Check if the name is truthy. If it's undefined (no name key in the JSON) or empty string (user submitted with empty name field),
 	// then no name will be put into the database and the database automatically sets the name to "Anonymous"
-	let sql;
-	let params;
 	if (req.body.name) {
-		sql = `INSERT INTO complaints (name, complaint) VALUES (?, ?);`;
-		params = [req.body.name, req.body.complaint];
+		var sql = `INSERT INTO complaints (name, complaint) VALUES (?, ?);`;
+		var params = [req.body.name, req.body.complaint];
 	} else {
-		sql = `INSERT INTO complaints (complaint) VALUES (?);`;
-		params = [req.body.complaint];
+		var sql = `INSERT INTO complaints (complaint) VALUES (?);`;
+		var params = [req.body.complaint];
 	}
 
 	pool.execute(sql, params, (err, result) => {

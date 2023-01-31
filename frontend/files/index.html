@@ -39,11 +39,14 @@
 				</div>
 				<h1 class="centeredHeader">File Storage</h1>
 				<div class="fieldForm">
-					<input class="formField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus>
+					<input class="formField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus tabindex="1">
 					<div class="noWrapContainer">
-						<input class="formField" id="passwordField" type="password" placeholder="Password" value ="" spellcheck=false maxlength=50 autocomplete="off">
-						<button id="submitBtn"><span class="arrowIcon"></span></button>
+						<input class="formField" id="passwordField" type="password" placeholder="Password" value ="" spellcheck=false maxlength=50 autocomplete="off" tabindex="2">
+						<button id="submitBtn"><span class="arrowIcon" tabindex="4"></span></button>
 					</div>
+				</div>
+				<div class="checkboxesContainer" id="stayLoggedInCheckboxContainer">
+					<input type="checkbox" id="stayLoggedInCheckbox" ><label class="checkboxLabel" for="stayLoggedInCheckbox" tabindex="3">Remember me</label>
 				</div>
 			</div>
 		</div>

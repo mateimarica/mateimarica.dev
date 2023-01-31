@@ -1,13 +1,16 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-let sessionId = '',
+let accessToken = null,
+    refreshToken = null,
+    inviteAccessToken = null,
+    loggedIn = false; // general boolean for being logged info, regardless of persistency of session
     usedSpace = 0,
     totalSpace = 0;
 
-
 let lastKnownScrollPosition = 0,
     ticking = false;
+
 document.addEventListener('scroll', (e) => {
 	lastKnownScrollPosition = window.scrollY;
 
@@ -42,22 +45,41 @@ const passwordField = $('#passwordField'),
 	});
 });
 
+const stayLoggedInCheckbox = $('#stayLoggedInCheckbox');
+
+$('#stayLoggedInCheckbox + .checkboxLabel').addEventListener('keydown', (e) => {
+	if (e.code === 'Enter') {
+		stayLoggedInCheckbox.checked = !stayLoggedInCheckbox.checked; // toggle checkbox
+	}
+});
+
 submitBtn.addEventListener('click', () => {
 	const username = usernameField.value,
 	      password = passwordField.value;
 
 	if (!username || username === '') return;
 
-	const headers = {
-		'Username': username,
-		'Authorization': btoa(password)
+	const persistentSession = $('#stayLoggedInCheckbox').checked; // boolean
+
+	const options = {
+		headers:  {
+			'Username': username,
+			'Authorization': btoa(password),
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			persistentSession: persistentSession
+		})
 	}
 
-	sendHttpRequest('POST', '/login', {headers: headers}, (http) => {
+	sendHttpRequest('POST', '/login', options, (http) => {
 		// These alerts are placeholders
 		switch (http.status) {
 			case 200:
-				sessionId = http.getResponseHeader('Authorization');
+				if (!persistentSession) {
+					accessToken  = http.getResponseHeader("Access-Token");
+					refreshToken = http.getResponseHeader("Refresh-Token");
+				}
 				$('#app').innerHTML = http.responseText;
 				setUpMainPage();
 				break;
@@ -79,9 +101,32 @@ submitBtn.addEventListener('click', () => {
 	passwordField.value = '';
 });
 
+function logout() {
+	let options = {};
+	if (refreshToken) {
+		options = {headers: {'Refresh-Token': refreshToken}};
+	}
+	sendHttpRequest('DELETE', '/login/refresh', options, (http) => {
+		accessToken = null, refreshToken = null;
+		switch (http.status) {
+			case 204:
+			case 401: // log out even if session not valid
+				window.location.reload();
+				break;
+			case 500:
+			case 502:
+				alert('Server error. Try again later.');
+				break;
+			default:
+				alert('Something went wrong. Status code: ' + http.status);
+		}
+	});
+}
+
 function setUpMainPage(isInvite=false) {
+	loggedIn = true;
 	function refreshPageInfo(onFinishCallback=null) {
-		sendHttpRequest('GET', '/files', {headers: {'Authorization': sessionId}}, (http) => {
+		sendHttpRequest('GET', '/files', {}, (http) => {
 			switch (http.status) {
 				case 200:
 					fillMainPage(JSON.parse(http.responseText));
@@ -119,7 +164,6 @@ function setUpMainPage(isInvite=false) {
 
 		const options = {
 			body: formData,
-			headers: {'Authorization': sessionId},
 			uploadOnProgress: (e) => {
 				const percent = Math.floor(100 * e.loaded / e.total);
 				filePickerDropAreaLabel.innerHTML = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '<br>' + percent + '%';
@@ -218,11 +262,13 @@ function setUpMainPage(isInvite=false) {
 
 				const options = {
 					headers: {
-						'Filename': files[i].baseName,
-						'Uploader': files[i].uploader,
-						'IsInvited': files[i].isInvited,
-						'Authorization': sessionId
-					}
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						baseName: files[i].baseName,
+						uploader: files[i].uploader,
+						inviteId: files[i].inviteId
+					})
 				};
 
 				sendHttpRequest('DELETE', '/delete', options, (http) => {
@@ -266,7 +312,6 @@ function setUpMainPage(isInvite=false) {
 	
 						const options = {
 							headers: {
-								'Authorization': sessionId,
 								'Content-Type': 'application/json'
 							},
 							body: JSON.stringify({
@@ -299,14 +344,12 @@ function setUpMainPage(isInvite=false) {
 					downloadButton.className = 'loadingIcon';
 	
 					const options = {
-						headers: { 
-							'Authorization': sessionId,
+						headers: {
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify({
 							baseName: files[i].baseName,
-							uploader: files[i].uploader,
-							isInvited: files[i].isInvited
+							uploader: files[i].uploader
 						})
 					};
 	
@@ -339,6 +382,9 @@ function setUpMainPage(isInvite=false) {
 			await sleep(1000);
 			refreshButton.classList.remove('refreshing');
 		});
+
+		let logoutButton = $('#logoutButton');
+		logoutButton.addEventListener('click', logout);
 
 		$$('.xButton').forEach(xButton => {
 			xButton.addEventListener('click', function() {
@@ -433,7 +479,6 @@ function setUpMainPage(isInvite=false) {
 
 				const options = {
 					headers: {
-						'Authorization': sessionId,
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
@@ -506,8 +551,41 @@ function setUpFilePicker(uploadFilesFunction) {
 
 /** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', body: 'some data'} */
 function sendHttpRequest(method, url, options, callback) {
+
 	const http = new XMLHttpRequest();
-	http.addEventListener('load', (e) => callback(http, e)); // If ready state is 4, do async callback
+	http.addEventListener('load', async (e) => { // If ready state is 4, do async callback
+		if (http.status === 444) { // 444 means access token invalid, so we try refresh token
+			let refreshOptions = {};
+			if (refreshToken) {
+				refreshOptions = {headers: {'Refresh-Token': refreshToken}};
+			}
+			
+			sendHttpRequest('POST', '/login/refresh', refreshOptions, (http2) => {
+				switch (http2.status) {
+					case 200:
+						if (refreshToken) {
+							accessToken  = http2.getResponseHeader("Access-Token");
+							refreshToken = http2.getResponseHeader("Refresh-Token");
+						}
+						sendHttpRequest(method, url, options, callback);
+						return;
+					default:
+						accessToken = null, refreshToken = null;
+						if (loggedIn) {
+							$('#app').remove(); // delete the app div so sensitive info is not visible
+							setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
+								alert('Your session expired and could not be refreshed.\nYou will redirected to the login page.');
+								window.location.reload();
+							}, 10);
+						} else {
+							callback(http2, e);
+						}
+				}
+			});
+		} else {
+			callback(http, e);
+		}
+	});
 
 	if (options.uploadOnProgress)
 		http.upload.onprogress = options.uploadOnProgress;
@@ -519,12 +597,18 @@ function sendHttpRequest(method, url, options, callback) {
 			http.setRequestHeader(key, options.headers[key]);
 		}
 
+	// If session not persistent, add access token
+	if (accessToken) {
+		http.setRequestHeader("Access-Token", accessToken);
+	} else if (inviteAccessToken) {
+		http.setRequestHeader("Invite-Access-Token", inviteAccessToken);
+	}
+
 	if (options.responseType)
 		http.responseType = options.responseType;
 
 	http.send(options.body ?? null);
 }
-
 
 /** A simple sleep function. Obviously, only call this from async functions. */
 function sleep(milli) {
@@ -537,12 +621,12 @@ function randomInt(floorNum, ceilNum) {
 	return floorNum + Math.floor((Math.random() * (ceilNum - floorNum + 1)));
 }
 
-const MILLI_PER_MIN = 60000;
-const MINS_PER_HOUR = 60;
-const MINS_PER_DAY = 1440;
-const MINS_PER_WEEK = 10080; 
-const MINS_PER_MONTH = 43200;
-const MINS_PER_YEAR = 525600;
+const MILLI_PER_MIN = 60000,
+      MINS_PER_HOUR = 60,
+      MINS_PER_DAY = 1440,
+      MINS_PER_WEEK = 10080,
+      MINS_PER_MONTH = 43200,
+      MINS_PER_YEAR = 525600;
 
 // Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago"
 function getRelativeTime(datetime, currentDate) {
@@ -583,9 +667,9 @@ function getRelativeTime(datetime, currentDate) {
 	}
 }
 
-const KILOBYTE = 1000;
-const MEGABYTE = 1000000;
-const GIGABYTE = 1000000000;
+const KILOBYTE = 1000,
+      MEGABYTE = 1000000,
+      GIGABYTE = 1000000000;
 
 // The parseFloat() removes trailing zeroes (eg: 1.0 -> 1)
 function getFormattedSize(bytes) {
@@ -608,27 +692,42 @@ function getFormattedSize(bytes) {
 document.addEventListener('DOMContentLoaded', (e) => {
 	const urlParams = new URLSearchParams(window.location.search);
 	const inviteCode = urlParams.get('invite');
-	if(inviteCode) {
+	if (inviteCode) {
 		sendHttpRequest('GET', '/invite?id=' + inviteCode, {}, (http) => {
 			switch (http.status) {
 				case 200:
-					sessionId = http.getResponseHeader('Authorization');
+					inviteAccessToken = http.getResponseHeader("Invite-Access-Token");
 					$('#app').innerHTML = http.responseText;
 					setUpMainPage(true);
 					return;
 				case 404:
-					alert('Invitation doesn\'t exist.');
+					var alertMessage = 'Invitation doesn\'t exist.';
 					break;
 				case 500:
 				case 502:
-					alert('Server error. Try again later.');
+					var alertMessage = 'Server error. Try again later.';
 					break;
 				default:
-					alert('Something went wrong. Status code: ' + http.status);
+					var alertMessage = 'Something went wrong. Status code: ' + http.status;
 			}
 
-			// Remove query string from URL so that the error alert doesn't show again on refresh
-			window.history.pushState({}, '', window.location.origin);
+			setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
+				alert(alertMessage);
+
+				// Remove query string from URL so that the error alert doesn't show again on refresh
+				window.history.pushState({}, '', window.location.origin);
+			}, 10);
+		});
+	} else if (location.pathname === '/') { // try to login with cookies
+		sendHttpRequest('GET', '/login/access', {}, (http) => {
+			switch (http.status) {
+				case 200:
+					$('#app').innerHTML = http.responseText;
+					setUpMainPage();
+					return;
+				default:
+					console.info('Unable to log in with cookies (if there are any)');
+			}
 		});
 	}
 });

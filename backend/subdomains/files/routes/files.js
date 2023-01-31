@@ -10,17 +10,14 @@ router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 
 	// Getting the list of files
 	switch (req.headers['Role']) {
-		case ROLE.ADMIN:
-			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files ORDER BY uploadDate DESC`;
-			var params = [];
-			break;
+		case ROLE.ADMIN: // for now, admin only sees their own files
 		case ROLE.USER:
-			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files WHERE uploader=? ORDER BY uploadDate DESC`;
+			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, inviteId FROM files WHERE uploader=? ORDER BY uploadDate DESC`;
 			var params = [req.headers['Username']];
 			break;
 		case ROLE.INVITEE:
-			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, isInvited FROM files WHERE uploader=? AND isInvited=? ORDER BY uploadDate DESC`;
-			var params = [req.headers['Username'], true];
+			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, inviteId FROM files WHERE uploader=? AND BINARY inviteId=? ORDER BY uploadDate DESC`;
+			var params = [req.headers['Username'], req.headers['InviteId']];
 			break;
 	}
 
@@ -40,8 +37,8 @@ router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 				params = [];
 				break;
 			case ROLE.INVITEE:
-				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files WHERE uploader=? AND isInvited=?`;
-				params = [req.headers['Username'], true];
+				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files WHERE uploader=? AND BINARY inviteId=?`;
+				params = [req.headers['Username'], req.headers['InviteId']];
 				break;
 		}
 

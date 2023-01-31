@@ -53,7 +53,7 @@ body {
 	position: absolute;
 	top: 0; bottom: 0; left: 0; right: 0;
 	margin: auto;
-	max-height: 225px;
+	max-height: 260px;
 	max-width: 400px;
 	width: 500px;
 	padding: 15px 5px 15px;
@@ -428,6 +428,20 @@ button:active {
 	filter: invert(95%);
 }
 
+#logoutButton {
+	max-width: 25px;
+	float: left;
+	position: absolute;
+	content: url("../images/arrow-right.svg");
+	filter: invert(95%);
+	transform: rotate(180deg);
+
+	&:hover:not(:active) {
+		transform: rotate(180deg) scale(1.25);
+	}
+}
+
+
 .refreshing {
 	animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
 }
@@ -513,8 +527,7 @@ button:active {
 .checkboxesContainer {
 	text-align: left;
 	width: 100%;
-	padding-left: 25%;
-	margin-top: 20px;
+	padding-left: 20%;
 	box-sizing: border-box;
 }
 
@@ -522,7 +535,6 @@ button:active {
 	vertical-align: middle;
 	user-select: none;
 	font-weight: bold;
-	margin-left: 5px;
 	transition: color .3s ease;
 }
 
@@ -555,10 +567,11 @@ input[type=checkbox]:checked::before {
 	border-color: lightslategray;
 }
 
-/* Gray out labeled if not checked */
+/* Gray out labeled if not checked (if checlox is before) */
 input[type=checkbox]:not(:checked) ~ .checkboxLabel {
 	color: #757575;
 }
+
 
 /* Disabled checkbox. Overrides user agent stylesheet trash to make nothing visible */
 input[type=checkbox]:disabled {
@@ -655,4 +668,17 @@ a {
 	&:active {
 		color: #6d8ec4;
 	}
+}
+
+#stayLoggedInCheckbox::before {
+	margin-left: 145px;
+}
+
+#stayLoggedInCheckboxContainer {
+	margin-left: 15px;
+}
+
+#forceDownloadCheckboxContainer {
+	margin-top: 8px;
+	margin-left: 35px;
 }

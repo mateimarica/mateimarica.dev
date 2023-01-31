@@ -5,7 +5,8 @@ const express = require('express'),
       {authInspector, ROLE} = require('../authManager'),
       crypto = require('crypto'),
       templateEngine = require('template-engine'),
-      files = require('../files');
+      files = require('../files'),
+	  { nanoid } = require('nanoid');
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
@@ -22,12 +23,12 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 	    typeof forceDownload !== 'boolean')
 		return res.sendStatus(400);
 
-	const filePath = path.join(UPLOAD_DIR, 'users', req.headers['Username'], name);
+	const filePath = path.join(UPLOAD_DIR, req.headers['Username'], name);
 
 	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);
 
-	const id = crypto.randomBytes(4).toString('hex');
+	const id = nanoid(4);
 
 	const sql = `INSERT INTO shares (id, baseName, expirationDate, maxDownloads, sharer, forceDownload) ` +
 	            `VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?, ?)`,
@@ -71,7 +72,8 @@ router.get('/dl', (req, res) => {
 	if (!id)
 		return res.sendStatus(400);
 
-	const sql = `SELECT baseName, expirationDate, maxDownloads, downloads, sharer, forceDownload FROM shares WHERE id=?`,
+	// BINARY cast so id comparison is case sensitive
+	const sql = `SELECT baseName, expirationDate, maxDownloads, downloads, sharer, forceDownload FROM shares WHERE BINARY id=?`,
 	     params = [id];
 
 	pool.execute(sql, params, (err, results) => {
@@ -87,17 +89,17 @@ router.get('/dl', (req, res) => {
 			const downloadsAvailable = results[0].maxDownloads - results[0].downloads;
 			if (currentDate > expirationDate || downloadsAvailable < 1) {
 				res.sendStatus(404);
-				pool.execute(`DELETE FROM shares WHERE id=?`, params, (err) => {
+				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
 				});
 				return;
 			}
 
-			const filePath = path.join(UPLOAD_DIR, 'users', results[0].sharer, results[0].baseName);
+			const filePath = path.join(UPLOAD_DIR, results[0].sharer, results[0].baseName);
 
 			if (!fs.existsSync(filePath)) {
 				res.sendStatus(410);
-				pool.execute(`DELETE FROM shares WHERE id=?`, params, (err) => {
+				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
 				});
 				return;
@@ -110,13 +112,12 @@ router.get('/dl', (req, res) => {
 				res.status(200).sendFile(filePath);
 			}
 			
-			
 			if (downloadsAvailable === 1) {
-				pool.execute(`DELETE FROM shares WHERE id=?`, params, (err) => {
+				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
 				});
 			} else {
-				pool.execute(`UPDATE shares SET downloads=downloads+1 WHERE id=?`, params, (err) => {
+				pool.execute(`UPDATE shares SET downloads=downloads+1 WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
 				});
 			}

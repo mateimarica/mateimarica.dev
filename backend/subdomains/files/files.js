@@ -3,7 +3,9 @@ const express = require('express'),
       path = require('path'),
       fs = require('fs'),
       poolManager = require('pool-manager'),
-      rateLimit = require('express-rate-limit');
+      authManager = require('./authManager')
+      rateLimit = require('express-rate-limit'),
+      cookieParser = require('cookie-parser');
 
 const pool = poolManager.getPool('files_db');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -25,8 +27,10 @@ const GENERAL_RATE_LIMITER = rateLimit({
 router.use(GENERAL_RATE_LIMITER);
 router.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 router.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
+router.use(cookieParser(process.env.FILES_SIGNED_COOKIE_SECRET));
 
 router.get('/index.html', (req, res) => res.redirect('/'));
+
 router.use(express.static(path.join(__dirname, '../../frontend_build/files')));
 
 module.exports = { router, pool, UPLOAD_DIR, COMPONENTS_DIR };
