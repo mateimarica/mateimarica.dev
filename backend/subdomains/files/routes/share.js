@@ -59,7 +59,7 @@ router.get('/', (req, res) => {
 	const url = req.protocol + '://' + req.get('host') + '/share/dl?id=' + id;
 
 	const html = templateEngine.fillHTML(
-		path.join(__dirname, '..', 'components', 'download.html'),
+		path.join(__dirname, files.COMPONENTS_DIR, 'download.html'),
 		{ url: url }
 	)
 	res.send(html);

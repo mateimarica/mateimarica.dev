@@ -47,7 +47,7 @@ router.use('/api/messages', require('./routes/api/messages'));
 router.use('/api/downloads', require('./routes/api/downloads').router);
 
 router.get('*', (req, res) => { // Send 404 page for any other page
-	res.status(404).sendFile(path.join(__dirname, '../../components/404.html'));
+	res.status(404).sendFile(path.join(__dirname, files.COMPONENTS_DIR, '404.html'));
 	reqSniffer.recordSuspiciousIP(req);
 });
 

@@ -9,7 +9,7 @@ const express = require('express'),
 
 const pool = poolManager.getPool('files_db');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const COMPONENTS_DIR = path.join(__dirname, 'components');
+const COMPONENTS_DIR = path.join(__dirname, '../../frontend_build/files_components');
 
 if (!fs.existsSync(UPLOAD_DIR))
 	fs.mkdirSync(UPLOAD_DIR);

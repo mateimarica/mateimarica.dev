@@ -89,7 +89,7 @@ router.get('/approve', (req, res) => {
 		let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
 
 		const approvalConfirmationHTML = templateEngine.fillHTML(
-			path.join(__dirname, '../../components/approvalConfirmation.html'),
+			path.join(__dirname, '../../frontend_build/main_components/approvalConfirmation.html'),
 			{
 				header: header,
 				message: message
@@ -128,7 +128,7 @@ async function sendComplaintForApproval(complaint, req) {
 	rejectButtonURL.searchParams.append('approved', 0);
 
 	const emailContents = templateEngine.fillHTML(
-		path.join(__dirname, '../../components/email.html'),
+		path.join(__dirname, '../../frontend_build/main_components/email.html'),
 		{
 			name: complaint.name,
 			complaint: complaint.complaint,

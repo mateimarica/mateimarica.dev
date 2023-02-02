@@ -74,7 +74,7 @@ router.get('/', async (req, res) => {
 			res.set('Invite-Access-Token', inviteAccessToken);
 
 			const html = templateEngine.fillHTML(
-				path.join(__dirname, '..', 'components', 'invite.html'),
+				path.join(__dirname, files.COMPONENTS_DIR, 'invite.html'),
 				{
 					name: results[0].inviteeName,
 					message: results[0].message
