@@ -10,9 +10,10 @@ const express = require('express'),
       reqSniffer = require('request-sniffer'),
       invalidJsonHandler = require('invalid-json-handler'),
       qrequest = require('./subdomains/qr/qr'),
-	  files = require('./subdomains/files/files'),
-	  searchicton = require('./subdomains/searchicton/searchicton'),
-      subdomain = require('express-subdomain');
+      files = require('./subdomains/files/files'),
+      searchicton = require('./subdomains/searchicton/searchicton'),
+      subdomain = require('express-subdomain'),
+      compression = require('compression');
 
 reqSniffer.initializeIpCache();
 
@@ -39,7 +40,8 @@ const API_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-const BASELINE_SRC = ["https://mateimarica.dev", "https://*.mateimarica.dev"],
+const DOMAIN_SRC = "mateimarica.dev",
+      SUBDOMAIN_SRC = "*.mateimarica.dev"
       SELF_SRC = "'self'",
 	  NONE_SRC = "'none'";
 
@@ -47,23 +49,19 @@ const app = express();
 app.use(helmet({
 	contentSecurityPolicy: {
 		useDefaults: false,
-		directives: { // The commented-out directives are because their sources are same as default-src
+		directives: {
 			"default-src": [NONE_SRC],
 			"base-uri": [NONE_SRC],
 			"upgrade-insecure-requests": [],
-			"img-src": BASELINE_SRC,
-			"script-src": BASELINE_SRC,
-			// "script-src-attr": [NONE_SRC], // valid sources for inline script event handlers, like onclick
-			"style-src": [...BASELINE_SRC, "'unsafe-inline'"],
-			// "font-src": [NONE_SRC],
-			// "object-src": [NONE_SRC], // specifies valid sources for the <object>, <embed>, and <applet> elements
-			// "frame-ancestors": [NONE_SRC], // valid sources that may embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>
-			"connect-src": BASELINE_SRC // specifies which URLs can be loaded using APIs like XMLHttpRequest
-
+			"img-src": [SELF_SRC, DOMAIN_SRC],
+			"script-src": [SELF_SRC],
+			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
+			"connect-src": [SELF_SRC] // specifies which URLs can be loaded using APIs like XMLHttpRequest
 		}
 	}
 }));
 
+app.use(compression());
 app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })

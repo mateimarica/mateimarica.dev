@@ -7,7 +7,14 @@ const minify = require('@node-minify/core'),
       svgo = require('svgo'),
       fs = require('fs');
 
-let errors = 0;
+// Exit handler since all function calls are async
+process.on('exit', function(options, exitCode) {
+	if (exitCode === 0 ) {
+		console.log('Minification completed with no errors');
+	} else {
+		console.log('Minification failed');
+	}
+}.bind(null, { cleanup: true }));
 
 // ================== Minifying JS, CSS, HTML ==================
 const COMPRESSORS = [
@@ -35,13 +42,10 @@ COMPRESSORS.forEach(e => {
 		input: `frontend_build/**/*.${e.ext}`,
 		output: `$1.${e.ext}`,
 		replaceInPlace: true,
-		sync: true,
 		...(e.options && {options: e.options}),
 		callback: (err, min) => {
-			if (err) {
-				console.error(`Error minifying ${e.ext.toUpperCase()}: ` + err);
-				errors++;
-			}
+			if (err) failProcess(`Error minifying ${e.ext.toUpperCase()}: ` + err);
+			console.log('Minified ' + e.ext.toUpperCase());
 		}
 	});
 });
@@ -50,8 +54,8 @@ COMPRESSORS.forEach(e => {
 const filepaths = glob.sync("frontend_build/**/*.svg");
 
 filepaths.forEach(filepath => {
-	try {
-		const svgString = fs.readFileSync(filepath, 'utf8');
+	fs.readFile(filepath, (err, svgString) => {
+		if (err) failProcess(`Error reading SVG at ${filepath}: ` + err);
 
 		const svgoResult = svgo.optimize(svgString, {
 			// optional but recommended field
@@ -61,15 +65,13 @@ filepaths.forEach(filepath => {
 		});
 
 		const optimizedSvgString = svgoResult.data;
-		fs.writeFileSync(filepath, optimizedSvgString);
-	} catch (err) {
-		console.error('Error minifying SVG: ' + err);
-		errors++;
-	}
+		fs.writeFile(filepath, optimizedSvgString, (err) => {
+			if (err) failProcess(`Error writing optimized SVG at ${filepath}: ` + err);
+		});
+	});
 });
 
-console.log(`Minification ${errors > 0 ? 'failed' : 'completed'} with ${errors === 0 ? 'no' : errors} error${errors === 1 ? '' : 's'}`);
-
-if (errors > 0) {
+function failProcess(msg) {
+	console.error(msg);
 	process.exit(1);
 }

@@ -11,6 +11,8 @@ let accessToken = null,
 let lastKnownScrollPosition = 0,
     ticking = false;
 
+const app = $('#app');
+
 document.addEventListener('scroll', (e) => {
 	lastKnownScrollPosition = window.scrollY;
 
@@ -80,7 +82,7 @@ submitBtn.addEventListener('click', () => {
 					accessToken  = http.getResponseHeader("Access-Token");
 					refreshToken = http.getResponseHeader("Refresh-Token");
 				}
-				$('#app').innerHTML = http.responseText;
+				app.innerHTML = http.responseText;
 				setUpMainPage();
 				break;
 			case 401:
@@ -572,7 +574,7 @@ function sendHttpRequest(method, url, options, callback) {
 					default:
 						accessToken = null, refreshToken = null;
 						if (loggedIn) {
-							$('#app').remove(); // delete the app div so sensitive info is not visible
+							app.remove(); // delete the app div so sensitive info is not visible
 							setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
 								alert('Your session expired and could not be refreshed.\nYou will redirected to the login page.');
 								window.location.reload();
@@ -697,7 +699,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 			switch (http.status) {
 				case 200:
 					inviteAccessToken = http.getResponseHeader("Invite-Access-Token");
-					$('#app').innerHTML = http.responseText;
+					app.innerHTML = http.responseText;
 					setUpMainPage(true);
 					return;
 				case 404:
@@ -716,18 +718,24 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
 				// Remove query string from URL so that the error alert doesn't show again on refresh
 				window.history.pushState({}, '', window.location.origin);
+				showLoginForm();
 			}, 10);
 		});
 	} else if (location.pathname === '/') { // try to login with cookies
 		sendHttpRequest('GET', '/login/access', {}, (http) => {
 			switch (http.status) {
 				case 200:
-					$('#app').innerHTML = http.responseText;
+					app.innerHTML = http.responseText;
 					setUpMainPage();
 					return;
 				default:
 					console.info('Unable to log in with cookies (if there are any)');
 			}
+			showLoginForm();
 		});
 	}
 });
+
+function showLoginForm() {
+	$('#loginCard').style.display = 'block';
+}
