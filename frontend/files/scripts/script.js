@@ -59,7 +59,14 @@ submitBtn.addEventListener('click', () => {
 	const username = usernameField.value,
 	      password = passwordField.value;
 
-	if (!username || username === '') return;
+	if (!username) {
+		return displayToast('Must enter a username');
+	} else if (!password) {
+		return displayToast('Must enter a password');
+	}
+
+	const arrowIcon = submitBtn.querySelector('.arrowIcon');
+	arrowIcon.classList.add('refreshing');
 
 	const persistentSession = $('#stayLoggedInCheckbox').checked; // boolean
 
@@ -83,7 +90,7 @@ submitBtn.addEventListener('click', () => {
 				}
 				app.innerHTML = http.responseText;
 				setUpMainPage();
-				break;
+				return;
 			case 401:
 				displayToast('Invalid credentials, try again.');
 				break;
@@ -97,6 +104,12 @@ submitBtn.addEventListener('click', () => {
 			default:
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
+
+		// End the rotation animation at the end of an iteration so it doesn't jump. Still not smooth though
+		arrowIcon.onanimationiteration = () => {
+			arrowIcon.classList.remove('refreshing');
+			arrowIcon.onanimationend = onanimationiteration;
+		  };
 	});
 
 	passwordField.value = '';
