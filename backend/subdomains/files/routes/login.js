@@ -32,7 +32,7 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 	if (!username || !password || typeof username !== 'string' || typeof password !== 'string')
 		return res.sendStatus(400);
 
-	if (username.length < 2 || username.length > 15 || /^[a-z0-9]+$/i.test(username) === false || password.length < 6 || username.length > 200)
+	if (username.length < 2 || username.length > 15 || /^[a-z0-9]+$/i.test(username) === false || password.length < 6 || password.length > 200)
 		return res.status(401);
 
 	const persistent = // is session is persistent or not
@@ -61,7 +61,7 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 				
 				if (!isMatch) return res.sendStatus(401);
 
-				const tokens = await authManager.createSession(username, results[0].role, persistent);
+				const tokens = await authManager.createSession(results[0].username, results[0].role, persistent);
 				if (tokens === null) return res.sendStatus(502);
 				
 				if (persistent) {
