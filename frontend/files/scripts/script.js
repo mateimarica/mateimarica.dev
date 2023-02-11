@@ -127,6 +127,7 @@ function registerXButtons() {
 		xButton.addEventListener('click', function() {
 			darkOverlay.style.display = 'none';
 			this.parentElement.style.display = 'none';
+			document.documentElement.style.overflow = ''; // add scrolling back in after popup disables it
 		});
 	});
 }

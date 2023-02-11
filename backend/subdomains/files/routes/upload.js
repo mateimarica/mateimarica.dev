@@ -12,7 +12,7 @@ const UPLOAD_DIR = files.UPLOAD_DIR;
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		let role = req.headers['Role'];
+		//let role = req.headers['Role']; // unused
 		let destinationDir = path.join(UPLOAD_DIR, req.headers['Username']);
 		fs.mkdirSync(destinationDir, { recursive: true }); // Recursive means create parent dirs if not exist. eg: create "uploads" folder
 		cb(null, destinationDir);
@@ -24,9 +24,21 @@ const storage = multer.diskStorage({
 		//let role = req.headers['Role']; // unused
 		let destinationDir = path.join(UPLOAD_DIR, req.headers['Username']);
 		for (let i = 1; fs.existsSync(path.join(destinationDir, filename + suffix + fileExt)); i++) {
-			suffix = '(' + i + ')';
+			suffix = ' (' + i + ')';
 		}
 		cb(null, filename + suffix + fileExt);
+
+		// Register this listener to delete a file if it's aborted before it's done uploading
+		// Thanks to this homie https://github.com/expressjs/multer/issues/259#issuecomment-691748926
+		req.on('aborted', () => {
+			const fullFilePath = path.join(destinationDir, file.originalname);
+			file.stream.on('end', () => {
+				fs.unlink(fullFilePath, (err) => {
+					if (err) console.error(err);
+				});
+			});
+			file.stream.emit('end');
+		});
 	}
 });
 
