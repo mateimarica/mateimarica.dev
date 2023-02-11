@@ -11,8 +11,9 @@ const express = require('express'),
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
+const {authInspector, ROLE} = authManager;
 	  
-router.post('/', authManager.authInspector(), async (req, res) => {
+router.post('/', authInspector(ROLE.USER), async (req, res) => {
 	const invitee = req.body.name,
 	      message = req.body.message,
 	      maxUploadSize = req.body.maxUploadSize,
