@@ -26,7 +26,7 @@ $('#createLandmarkForm').addEventListener('submit', e => {
 		let responseLabel = $('#createResponseLabel');
 		switch (http.status) {
 			case 201:
-				responseLabel.innerHTML = http.status + ' Created \u2713';
+				responseLabel.textContent = http.status + ' Created \u2713';
 				$$('#createLandmarkForm > .resetable').forEach(input => {
 					input.value = "";
 				});
@@ -40,7 +40,7 @@ $('#createLandmarkForm').addEventListener('submit', e => {
 				}
 				break;
 			default:
-				responseLabel.innerHTML = http.status + ' ' + http.responseText;
+				responseLabel.textContent = http.status + ' ' + http.responseText;
 		}
 		responseChange(responseLabel);
 	});
@@ -63,7 +63,7 @@ $('#deleteLandmarkForm').addEventListener('submit', e => {
 		let responseLabel = $('#deleteResponseLabel');
 		switch (http.status) {
 			case 204:
-				responseLabel.innerHTML = http.status + ' Deleted \u2713';
+				responseLabel.textContent = http.status + ' Deleted \u2713';
 
 				$$('#deleteLandmarkForm > .resetable').forEach(input => {
 					input.value = "";
@@ -78,7 +78,7 @@ $('#deleteLandmarkForm').addEventListener('submit', e => {
 				}
 				break;
 			default:
-				responseLabel.innerHTML = http.status + ' ' + http.responseText;
+				responseLabel.textContent = http.status + ' ' + http.responseText;
 		}
 		responseChange(responseLabel);
 	});

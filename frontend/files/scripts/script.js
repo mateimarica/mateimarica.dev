@@ -240,7 +240,7 @@ function setUpMainPage(isInvite=false) {
 		}
 
 		const filePickerDropAreaLabel = $('#filePickerDropAreaLabel'),
-		      formerFilePickerDropAreaLabelText = filePickerDropAreaLabel.innerHTML,
+		      formerFilePickerDropAreaLabelText = filePickerDropAreaLabel.textContent,
 		      filePickerDropArea = $('#filePickerDropArea'),
 		      filePicker = $('#filePicker');
 
@@ -248,7 +248,7 @@ function setUpMainPage(isInvite=false) {
 			body: formData,
 			uploadOnProgress: (e) => {
 				const percent = Math.floor(100 * e.loaded / e.total);
-				filePickerDropAreaLabel.innerHTML = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '<br>' + percent + '%';
+				filePickerDropAreaLabel.textContent = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '\r\n' + percent + '%';
 				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddComplaintsBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
 			}
 		}
@@ -258,7 +258,7 @@ function setUpMainPage(isInvite=false) {
 		filePicker.disabled = true;
 
 		sendHttpRequest('POST', '/upload', options, (http) => {
-			filePickerDropAreaLabel.innerHTML = formerFilePickerDropAreaLabelText;
+			filePickerDropAreaLabel.textContent = formerFilePickerDropAreaLabelText;
 			filePickerDropArea.classList.remove('inProgressFilePickerDropArea');
 			filePicker.classList.remove('inProgressFilePicker');
 			filePicker.disabled = false;
@@ -292,7 +292,7 @@ function setUpMainPage(isInvite=false) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
-		$('#storageBarLabel').innerHTML = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
+		$('#storageBarLabel').textContent = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
 		let usedSpacePercent = (usedSpace / totalSpace * 100).toFixed(1); // Percent with 1 decimal space
 		if (usedSpacePercent < 1 && usedSpace > 0) {
 			usedSpacePercent = 0.05;
@@ -320,15 +320,15 @@ function setUpMainPage(isInvite=false) {
 
 			let filename = document.createElement('span');
 			filename.classList.add('filesListItemComponentLeft');
-			filename.innerHTML = files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '...' + files[i].ext : files[i].baseName;
+			filename.textContent = files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '..' + files[i].ext : files[i].baseName;
 
 			let size = document.createElement('span');
 			size.classList.add('filesListItemTextComponent');
-			size.innerHTML = getFormattedSize(files[i].size);
+			size.textContent = getFormattedSize(files[i].size);
 			
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
-			date.innerHTML = getRelativeTime(files[i].uploadDate, currentDate);
+			date.textContent = getRelativeTime(files[i].uploadDate, currentDate);
 			
 			let deleteButton = document.createElement('span');
 			deleteButton.classList.add('icon', 'deleteIcon');

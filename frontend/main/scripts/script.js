@@ -126,10 +126,10 @@ $('#formSubmit').addEventListener("click", () => {
 	}, newComplaint);
 });
 
-function setMessageBox(className, innerHTML) {
+function setMessageBox(className, text) {
 	let messageBox = $('#messageBox');
 	messageBox.className = className;
-	messageBox.innerHTML = innerHTML;
+	messageBox.textContent = text;
 	window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
 }
 
@@ -163,10 +163,10 @@ window.addEventListener('load', () => {
 			let complaintsListDefaultItem = $('#complaintsList li');
 			switch (http.status) { 
 				case 429: // If too many requests
-					complaintsListDefaultItem.innerHTML = http.responseText;
+					complaintsListDefaultItem.textContent = http.responseText;
 					break;
 				default:
-					complaintsListDefaultItem.innerHTML = 'Something went wrong. Status code: ' + http.status;
+					complaintsListDefaultItem.textContent = 'Something went wrong. Status code: ' + http.status;
 			}
 		}
 	});
@@ -195,7 +195,7 @@ async function fillComplaintsList(complaints) {
 async function simulateTypingComplaints(complaintsListItem, complaint) {
 	let complaintText = complaintsListItem.querySelector('.complaintsListItemText');
 	for (let i = 0; i < complaint.length; i++) {
-		complaintText.innerHTML += complaint.charAt(i);
+		complaintText.textContent += complaint.charAt(i);
 		await sleep(randomInt(20, 40));
 	}
 	

@@ -38,13 +38,16 @@ router.delete('/', authInspector(ROLE.INVITEE, ROLE.USER), (req, res) => {
 			break;
 	}
 
-	if (fs.unlinkSync(filepath)) {
+	try {
+		fs.unlinkSync(filepath);
+	} catch (err) {
+		console.error(err);
 		return res.sendStatus(404);
 	}
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			return res.sendStatus(502);
 		}
 
