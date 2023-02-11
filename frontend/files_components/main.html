@@ -5,19 +5,19 @@
 	<span id="sharePopupUploadDate"></span>
 	<span id=sharePopupSize></span>
 
-	<h3>Download Limit</h3>
+	<h3 title="The max amount of times this file can be downloaded through the link">Download Limit</h3>
 	<button class="shareDownloadLimitSelector shareActiveDownloadLimitSelector" value=1>1</button>
 	<button class="shareDownloadLimitSelector" value=10>10</button>
 	<button class="shareDownloadLimitSelector" value=100>100</button>
 	<input class="shareDownloadLimitSelector formField shareDownloadLimitField" maxlength="4">
 	
-	<h3>Validity Period</h3>
+	<h3 title="How long the download link will be valid for">Validity Period</h3>
 	<button class="shareValidityPeriodSelector shareActiveValidityPeriodSelector" value=0.25>15m</button>
 	<button class="shareValidityPeriodSelector" value=1>1h</button>
 	<button class="shareValidityPeriodSelector" value=24>24h</button>
 	<input class="shareValidityPeriodSelector formField shareValidityPeriodField" maxlength="4" placeholder="h">
 
-	<div class="checkboxesContainer" id="forceDownloadCheckboxContainer">
+	<div class="checkboxesContainer" id="forceDownloadCheckboxContainer" title="If enabled, files like PDFs, images, and text will not opened by the browser. Rather, they will be forcefully downloaded.">
 		<input type="checkbox" id="forceDownloadCheckbox">
 		<label class="checkboxLabel" for="forceDownloadCheckbox">Force download</label>
 	</div>
@@ -30,16 +30,16 @@
 	<button class="xButton">&times;</button>
 	<h2>Create invite</h2>
 
-	<input id="inviteNameField" class="formField" placeholder="Name" title="Name">
-	<textarea id="inviteMessageField" class="formField" placeholder="Message" title="Message"></textarea>
+	<input id="inviteNameField" class="formField" placeholder="Name" title="The invitee's name">
+	<textarea id="inviteMessageField" class="formField" placeholder="Message" title="An optional message"></textarea>
 
-	<h3>Validity Period</h3>
+	<h3 title="How long the invite link will be valid for">Validity Period</h3>
 	<button class="inviteValidityPeriodSelector inviteActiveValidityPeriodSelector" value=0.25>15m</button>
 	<button class="inviteValidityPeriodSelector" value=1>1h</button>
 	<button class="inviteValidityPeriodSelector" value=24>24h</button>
 	<input class="inviteValidityPeriodSelector formField inviteValidityPeriodField" maxlength="4" placeholder="h">
 
-	<h3>Max Upload Size</h3>
+	<h3 title="The max that the invitee can upload">Max Upload Size</h3>
 	<button class="inviteMaxUploadSizeSelector inviteActiveMaxUploadSizeSelector" value=0.025>25MB</button>
 	<button class="inviteMaxUploadSizeSelector" value=0.5>500MB</button>
 	<button class="inviteMaxUploadSizeSelector" value=1>1GB</button>
@@ -49,11 +49,9 @@
 	<input id="inviteLinkField" class="formField" readonly>
 </div>
 
-<div id="darkOverlay"></div>
-
 <div class="sectionCard">
-	<div id="logoutButton" class="icon"></div>
-	<span id="refreshButton" class="icon refreshIcon"></span>
+	<div id="logoutButton" class="icon" title="Sign out"></div>
+	<span id="refreshButton" class="icon refreshIcon" title="Refresh"></span>
 	<br>
 	<div id="storageBarContainer">
 		<label id="storageBarLabel">0 B used / 0 B total</label>
@@ -66,7 +64,7 @@
 	</label>
 
 	<div id="buttonDock">
-		<button id="inviteButton">Invite</button>
+		<button id="inviteButton" title="Invite someone to upload files">Invite</button>
 	</div>
 
 	<ul id="filesList">

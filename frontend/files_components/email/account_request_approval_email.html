@@ -1,0 +1,91 @@
+<html>
+	<head>
+		<style>
+			body {
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+			}
+
+			h2 {
+				text-align: center;
+			}
+		
+			h3 {
+				margin: 0;
+				margin-top: 2px;
+			}
+
+			#container {
+				width: 95%;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 10px;
+				border: 1px lightgray solid;
+				border-radius: 8px;
+				padding: 5px;
+			}
+
+			#container table {
+				margin-left: auto;
+				margin-right: auto;
+				display: flex;
+			}
+
+			.headerTableData {
+				text-align: right;
+				padding: 5px;
+				vertical-align: top;
+				margin-left: 0;
+			}
+
+			.tableData {
+				padding: 10px;
+				padding-left: 15px;
+				text-align: left;
+				word-wrap: break-word;
+				white-space: normal;
+				word-break: break-all;
+			}	
+
+			.button {
+				margin-top: 25px;
+				border-style: none;
+				margin-left: auto;
+				margin-right: auto;
+				padding: 10px;
+				border-radius: 8px;
+				width: 250px;
+				font-size: 20px;
+				font-weight: bold;
+				display: block;
+				text-decoration: none;
+				text-align: center;
+				color: rgb(218, 218, 218) !important;
+			}
+			
+			#startButton {
+				background-color: #00415a;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="max-width: 800px;">
+			<h2>Welcome!</h2>
+			<p>Your request for an account on <b>Files</b> was approved.</p>
+
+			<div id="container">
+				<table>
+					<tr>
+						<td class="headerTableData"><h3>Username:</h3></td>
+						<td class="tableData">${username}</td>
+					</tr>
+					<tr>
+						<td class="headerTableData"><h3>Storage Space:</h3></td>
+						<td class="tableData">${space}</td>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<a id="startButton" class="button" href="${domainURL}">Start uploading</a>
+		</div>
+	</body>
+</html>

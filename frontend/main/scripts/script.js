@@ -116,7 +116,7 @@ $('#formSubmit').addEventListener("click", () => {
 				setMessageBox('successMessageBox', "\u2714  Your complaint has been submitted.<br>It will be displayed once it's approved.");
 				nameField.value = ''; // Clear fields
 				complaintField.value = '';
-				break;	
+				break;
 			case 429:
 				setMessageBox('errorMessageBox', "\u2717 " + http.responseText);
 				break;

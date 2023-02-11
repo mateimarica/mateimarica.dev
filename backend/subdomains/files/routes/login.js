@@ -3,7 +3,7 @@ const express = require('express'),
       authManager = require('../authManager'),
       files = require('../files'),
       path = require('path'),
-      { atob } = require('buffer'),
+      bcrypt = require('bcrypt'),
       rateLimit = require('express-rate-limit');
 
 const pool = files.pool;
@@ -23,42 +23,62 @@ const TOKEN_REFRESHER_RATE_LIMITER = rateLimit({
 });
 
 router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
-	const username = req.get('Username'),
-	      password = atob(req.get('Authorization'));
-
-	if (!username || (!password && password !== '')) {
-		return res.sendStatus(400);
-	}
+	if (!req.body) return res.sendStatus(400);
 	
+	const username = req.body.username;
+	let password = req.body.password;
+	delete req.body.password;
+
+	if (!username || !password || typeof username !== 'string' || typeof password !== 'string')
+		return res.sendStatus(400);
+
+	if (username.length < 2 || username.length > 15 || /^[a-z0-9]+$/i.test(username) === false || password.length < 6 || username.length > 200)
+		return res.status(401);
+
 	const persistent = // is session is persistent or not
 		req.body && req.body.persistentSession && typeof req.body.persistentSession === "boolean" 
 		? req.body.persistentSession
 		: false;
 
-	const sql = `SELECT username, role FROM users where username=? AND password=SHA1(?)`,
-	      params = [username, password];
+	const sql = `SELECT username, password, role, active FROM users where username=?`,
+	      params = [username];
 
-	pool.execute({sql: sql}, params, async (err, results) => {
+	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			console.log(err);
 			return res.sendStatus(502);
 		}
 
 		if (results && results.length === 1) {
-			const tokens = await authManager.createSession(username, results[0].role, persistent);
-			if (tokens === null) return res.sendStatus(502);
-			
-			if (persistent) {
-				res.cookie('accessToken',  tokens.access,  authManager.getAccessTokenCookieOptions());
-				res.cookie('refreshToken', tokens.refresh, authManager.getRefreshTokenCookieOptions());
-			} else {
-				res.set({
-					'Access-Token':  tokens.access,
-					'Refresh-Token': tokens.refresh
-				});
-			}
+			const isActive = results[0].active;
+			if (!isActive) return res.sendStatus(401);
 
-			res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
+			bcrypt.compare(password, results[0].password, async (err, isMatch) => {
+				if (err) {
+					console.log(err);
+					return res.sendStatus(500);
+				}
+				
+				if (!isMatch) return res.sendStatus(401);
+
+				const tokens = await authManager.createSession(username, results[0].role, persistent);
+				if (tokens === null) return res.sendStatus(502);
+				
+				if (persistent) {
+					res.cookie('accessToken',  tokens.access,  authManager.getAccessTokenCookieOptions());
+					res.cookie('refreshToken', tokens.refresh, authManager.getRefreshTokenCookieOptions());
+				} else {
+					res.set({
+						'Access-Token':  tokens.access,
+						'Refresh-Token': tokens.refresh
+					});
+				}
+
+				res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
+			});
+
+			password = null; // null the password so we can't accidently do something with it
+
 		} else {
 			res.sendStatus(401);	
 		}

@@ -3,7 +3,6 @@ const express = require('express'),
       path = require('path'),
       fs = require('fs'),
       {authInspector, ROLE} = require('../authManager'),
-      crypto = require('crypto'),
       templateEngine = require('template-engine'),
       files = require('../files'),
 	  { nanoid } = require('nanoid');
@@ -28,7 +27,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);
 
-	const id = nanoid(4);
+	const id = nanoid(7);
 
 	const sql = `INSERT INTO shares (id, baseName, expirationDate, maxDownloads, sharer, forceDownload) ` +
 	            `VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?, ?)`,
@@ -59,7 +58,7 @@ router.get('/', (req, res) => {
 	const url = req.protocol + '://' + req.get('host') + '/share/dl?id=' + id;
 
 	const html = templateEngine.fillHTML(
-		path.join(__dirname, files.COMPONENTS_DIR, 'download.html'),
+		path.join(files.COMPONENTS_DIR, 'download.html'),
 		{ url: url }
 	)
 	res.send(html);

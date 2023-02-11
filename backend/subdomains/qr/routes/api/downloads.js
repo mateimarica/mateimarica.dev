@@ -87,6 +87,10 @@ function checkReleases() {
 		});
 	});
 
+	req.on('error', (err) => {
+		console.error(err);
+	});
+
 	req.end();
 }
 

@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
-      nodemailer = require('nodemailer'),
+      mailWrapper = require('mail-wrapper'),
       rateLimit = require("express-rate-limit"),
       dateFormatter = require('date-formatter'),
       templateEngine = require('template-engine'),
@@ -66,8 +66,16 @@ router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 	});
 });
 
-router.get('/approve', (req, res) => {
-	if (!req.query.approval_id || !req.query.approved || (req.query.approved != '0' && req.query.approved != '1')) {
+const COMPLAINT_APPROVAL_RATE_LIMITER = rateLimit({
+	windowMs: process.env.COMPLAINT_APPROVAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.COMPLAINT_APPROVAL_LIMITER_MAX_REQUESTS,
+	message: "What are you doing?",
+	headers: false,
+	skipSuccessfulRequests: true
+});
+
+router.get('/approve', COMPLAINT_APPROVAL_RATE_LIMITER, (req, res) => {
+	if (!req.query.approval_id || !req.query.approved || (req.query.approved !== '0' && req.query.approved !== '1')) {
 		res.sendStatus(400);
 		return;
 	}
@@ -102,20 +110,10 @@ router.get('/approve', (req, res) => {
 });
 
 async function sendComplaintForApproval(complaint, req) {
-	if (!process.env.EMAIL_SERVICE || !process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.EMAIL_RECIPIENT || !complaint || !req) {
-		console.log(`Complaint couldn't be sent for approval. Info: service=${!!process.env.EMAIL_SERVICE} email=${!!process.env.EMAIL_USERNAME} password=${!!process.env.EMAIL_PASSWORD} recipient=${!!process.env.EMAIL_RECIPIENT} complaint_str=${!!complaint} req_obj=${!!req}`);
+	if (!complaint || !req) {
+		console.log(`Complaint couldn't be sent for approval. Info: complaint_str=${!!complaint} req_obj=${!!req}`);
 		return;
 	}
-
-	const transporter = nodemailer.createTransport({
-		service: process.env.EMAIL_SERVICE,
-		port: 587,
-		secure: true, // use TLS
-		auth: {
-			user: process.env.EMAIL_USERNAME,
-			pass: process.env.EMAIL_PASSWORD
-		}
-	});
 	
 	const hostURL = `${req.protocol}://${req.get('host') + '/api/complaints/approve'}`;
 
@@ -128,7 +126,7 @@ async function sendComplaintForApproval(complaint, req) {
 	rejectButtonURL.searchParams.append('approved', 0);
 
 	const emailContents = templateEngine.fillHTML(
-		path.join(__dirname, '../../frontend_build/main_components/email.html'),
+		path.join(__dirname, '../../frontend_build/main_components/complaint_review_email'),
 		{
 			name: complaint.name,
 			complaint: complaint.complaint,
@@ -136,22 +134,9 @@ async function sendComplaintForApproval(complaint, req) {
 			approveButtonURL: approveButtonURL.href,
 			rejectButtonURL: rejectButtonURL.href
 		}
-	)
+	);
 
-	const email = {
-		from: process.env.EMAIL_USERNAME,
-		to: process.env.EMAIL_RECIPIENT,
-		subject: 'Complaint reviewal required',
-		html: emailContents
-	};
-
-	transporter.sendMail(email, (err, info) => {
-		if (err) {
-			console.log(err);
-		} else {
-			console.log('Approval email sent: ' + info.response);
-		}
-	});
+	mailWrapper.send(null, 'Complaint reviewal required', emailContents);
 }
 
 

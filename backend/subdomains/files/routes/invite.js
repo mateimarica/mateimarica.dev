@@ -18,15 +18,17 @@ router.post('/', authManager.authInspector(), async (req, res) => {
 	      maxUploadSize = req.body.maxUploadSize,
 	      validity = req.body.validity; // validity is in hours
 
-	enoughSpace(maxUploadSize, async (enoughSpaceExists) => {
-		if (!invitee || invitee.length > 50 ||
-			(message && message.length > 255) || // Message can be blank string
-			!maxUploadSize || !Number.isInteger(maxUploadSize) || maxUploadSize <= 0 || !enoughSpaceExists || 
-			!validity || isNaN(validity) || validity <= 0 || validity > 9999) {
-			return res.sendStatus(400);
-		}
+	if (!invitee || invitee.length > 50 ||
+		(message && message.length > 255) || // Message can be blank string
+		!maxUploadSize || !Number.isInteger(maxUploadSize) || maxUploadSize <= 0 ||
+		!validity || isNaN(validity) || validity <= 0 || validity > 9999) {
+		return res.sendStatus(400);
+	}
+
+	enoughSpace(maxUploadSize, req.headers['Username'], res, async (isEnoughSpace) => {
+		if (!isEnoughSpace) return;
 	
-		const id = nanoid(4);
+		const id = nanoid(7);
 		const validitySeconds = Math.floor(validity * 3600);
 
 		if (!await authManager.createInviteSession(req.headers['Username'], id, validitySeconds, maxUploadSize)) // Turns hours to seconds
@@ -74,7 +76,7 @@ router.get('/', async (req, res) => {
 			res.set('Invite-Access-Token', inviteAccessToken);
 
 			const html = templateEngine.fillHTML(
-				path.join(__dirname, files.COMPONENTS_DIR, 'invite.html'),
+				path.join(files.COMPONENTS_DIR, 'invite.html'),
 				{
 					name: results[0].inviteeName,
 					message: results[0].message

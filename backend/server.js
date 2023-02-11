@@ -13,9 +13,11 @@ const express = require('express'),
       files = require('./subdomains/files/files'),
       searchicton = require('./subdomains/searchicton/searchicton'),
       subdomain = require('express-subdomain'),
-      compression = require('compression');
+      compression = require('compression'),
+      mailWrapper = require('mail-wrapper');
 
 reqSniffer.initializeIpCache();
+mailWrapper.checkConnection();
 
 let credentials;
 if (process.env.NODE_ENV === 'production') {

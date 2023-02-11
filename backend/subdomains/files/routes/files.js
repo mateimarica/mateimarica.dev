@@ -1,23 +1,25 @@
 const express = require('express'),
       router = express.Router(),
       {authInspector, ROLE} = require('../authManager'),
-      sizeVerifier = require('../sizeVerifier')
       files = require('../files');
 
 const pool = files.pool;
 
 router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 
+	const username = req.headers['Username'],
+	      inviteId = req.headers['InviteId'];
+
 	// Getting the list of files
 	switch (req.headers['Role']) {
 		case ROLE.ADMIN: // for now, admin only sees their own files
 		case ROLE.USER:
 			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, inviteId FROM files WHERE uploader=? ORDER BY uploadDate DESC`;
-			var params = [req.headers['Username']];
+			var params = [username];
 			break;
 		case ROLE.INVITEE:
 			var sql = `SELECT baseName, name, ext, size, uploadDate, uploader, inviteId FROM files WHERE uploader=? AND BINARY inviteId=? ORDER BY uploadDate DESC`;
-			var params = [req.headers['Username'], req.headers['InviteId']];
+			var params = [username, inviteId];
 			break;
 	}
 
@@ -33,12 +35,12 @@ router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 		switch (role) {
 			case ROLE.ADMIN:
 			case ROLE.USER:
-				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files`;
-				params = [];
+				sql = `SELECT (SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) FROM files WHERE uploader=?) AS usedSpace, (SELECT space FROM users WHERE username=?) AS totalSpace`;
+				params = [username, username];
 				break;
 			case ROLE.INVITEE:
 				sql = `SELECT COALESCE(CONVERT(SUM(size), SIGNED), 0) AS usedSpace FROM files WHERE uploader=? AND BINARY inviteId=?`;
-				params = [req.headers['Username'], req.headers['InviteId']];
+				params = [username, inviteId];
 				break;
 		}
 
@@ -50,7 +52,7 @@ router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 
 			res.status(200).send({
 				usedSpace: results2[0].usedSpace,
-				totalSpace: (role === ROLE.INVITEE ? req.headers['MaxUploadSize'] : sizeVerifier.FILES_MAX_STORAGE_BYTES),
+				totalSpace: (role === ROLE.INVITEE ? req.headers['MaxUploadSize'] : results2[0].totalSpace),
 				files: results1
 			});
 		});

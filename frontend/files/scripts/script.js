@@ -65,17 +65,16 @@ submitBtn.addEventListener('click', () => {
 
 	const options = {
 		headers:  {
-			'Username': username,
-			'Authorization': btoa(password),
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
+			username: username,
+			password: password,
 			persistentSession: persistentSession
 		})
 	}
 
 	sendHttpRequest('POST', '/login', options, (http) => {
-		// These alerts are placeholders
 		switch (http.status) {
 			case 200:
 				if (!persistentSession) {
@@ -86,21 +85,100 @@ submitBtn.addEventListener('click', () => {
 				setUpMainPage();
 				break;
 			case 401:
-				alert('Invalid credentials, try again.');
+				displayToast('Invalid credentials, try again.');
 				break;
 			case 429:
-				alert('Too many failed attempts. Try again later.');
+				displayToast('Too many failed attempts. Try again later.');
 				break;
 			case 500:
 			case 502:
-				alert('Server error. Try again later.');
+				displayToast('Server error. Try again later.');
 				break;
 			default:
-				alert('Something went wrong. Status code: ' + http.status);
+				displayToast('Something went wrong. Status code: ' + http.status);
 		}
 	});
 
 	passwordField.value = '';
+});
+
+const darkOverlay = $('#darkOverlay');
+
+$('#signupLink').addEventListener('click', () => {
+	showDarkOverlayForPopup();
+	$('#signupPopup').style.display = 'block';
+});
+
+function showDarkOverlayForPopup() {
+	darkOverlay.style.display = 'block';
+	document.documentElement.style.overflow = 'hidden';
+}
+
+// dark overlay persists after html switch
+darkOverlay.addEventListener('click', () => {
+	$$('.xButton').forEach((xButton) => {
+		xButton.click();
+	});
+});
+
+registerXButtons();
+function registerXButtons() {
+	$$('.xButton').forEach(xButton => {
+		xButton.addEventListener('click', function() {
+			darkOverlay.style.display = 'none';
+			this.parentElement.style.display = 'none';
+		});
+	});
+}
+
+$('#signupRequestBtn').addEventListener('click', () => {
+	const username = $('#signupUsernameField').value,
+	      password = $('#signupPasswordField').value,
+	      passwordAgain = $('#signupPasswordField2').value,
+	      email = $('#signupEmailField').value || null,
+		  message = $('#signupMsgField').value || null;
+
+	if (!username) return displayToast('Must enter a username');
+	if (!password) return displayToast('Must enter a password');
+	if (password !== passwordAgain) return displayToast('Passwords must match');
+	if (email && /^\S+@\S+\.\S+$/.test(email) === false) return displayToast('Invalid email');
+	if (!email && !confirm(`If you don't add an email, you won't know when your account gets activated.\n\nContinue anyway?`)) {
+		return;
+	}
+
+	const options = {
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			username: username,
+			password: passwordAgain,
+			email: email,
+			message: message
+		})
+	};
+	sendHttpRequest('POST', '/signup', options, (http) => {
+		accessToken = null, refreshToken = null;
+		switch (http.status) {
+			case 201:
+				displayToast(`Your account request was created. ${email ? 'You will recieve an email when your account is activated.' : ''}`, {type: 'alert', timeout: 8000});
+				const signupPopup = $('#signupPopup');
+				signupPopup.querySelector('.xButton').click();
+				signupPopup.querySelectorAll('input').forEach((e) => {
+					e.value = '';
+				});
+				break;
+			case 400:
+			case 409:
+			case 429:
+				displayToast(http.responseText);
+				break;
+			case 500:
+			case 502:
+				displayToast('Server error. Try again later.');
+				break;
+			default:
+				displayToast('Something went wrong. Status code: ' + http.status);
+		}
+	});
 });
 
 function logout() {
@@ -117,10 +195,10 @@ function logout() {
 				break;
 			case 500:
 			case 502:
-				alert('Server error. Try again later.');
+				displayToast('Server error. Try again later.');
 				break;
 			default:
-				alert('Something went wrong. Status code: ' + http.status);
+				displayToast('Something went wrong. Status code: ' + http.status);
 		}
 	});
 }
@@ -134,6 +212,7 @@ function setUpMainPage(isInvite=false) {
 					fillMainPage(JSON.parse(http.responseText));
 					break;
 				default:
+					displayToast('Something went wrong. Status code: ' + http.status);
 			}
 			if (onFinishCallback !== null) {
 				onFinishCallback();
@@ -155,7 +234,7 @@ function setUpMainPage(isInvite=false) {
    		 }
 
 		if (usedSpace + totalSize > totalSpace) {
-			alert(`You don't have enough space for that.\nYou would need an extra ${getFormattedSize(usedSpace + totalSize - totalSpace)} of space.`);
+			displayToast(`You don't have enough space for that.\nYou would need an extra ${getFormattedSize(usedSpace + totalSize - totalSpace)} of space.`);
 			return;
 		}
 
@@ -188,9 +267,10 @@ function setUpMainPage(isInvite=false) {
 					refreshPageInfo();
 					break;
 				case 413:
-					// File is too large. Shouldn't reach this but w/e if it does
+					displayToast(`You don't have enough free space for that`);
 					break;
 				default:
+					displayToast('Something went wrong. Status code: ' + http.status);
 			}
 		});
 	}
@@ -206,11 +286,6 @@ function setUpMainPage(isInvite=false) {
 	}
 
 	setUpFilePicker(mainUploadFiles);
-
-	function showDarkOverlayForPopup() {
-		$('#darkOverlay').style.display = 'block';
-		document.documentElement.style.overflow = 'hidden';
-	}
 
 	function fillMainPage(filesInfo) {
 		usedSpace = filesInfo.usedSpace;
@@ -279,6 +354,7 @@ function setUpMainPage(isInvite=false) {
 							refreshPageInfo();
 							break;
 						default:
+							displayToast('Something went wrong. Status code: ' + http.status);
 					}
 				});
 			});
@@ -328,12 +404,11 @@ function setUpMainPage(isInvite=false) {
 							switch (http.status) {
 								case 201:
 									const url = JSON.parse(http.responseText).url;
-									navigator.clipboard.writeText(url);
-									const shareLinkField = $('#shareLinkField');
-									shareLinkField.style.display = 'inline-block';
-									shareLinkField.value = url;
+									copyToClipboard(url);
+									$('#shareLinkField').value = url;
 									break;
 								default:
+									displayToast('Something went wrong. Status code: ' + http.status);
 							}
 						});
 					});
@@ -367,6 +442,7 @@ function setUpMainPage(isInvite=false) {
 								downloadButton.classList.add('icon', 'downloadIcon');
 								break;
 							default:
+								displayToast('Something went wrong. Status code: ' + http.status);
 						}
 					});
 				});
@@ -388,26 +464,7 @@ function setUpMainPage(isInvite=false) {
 		let logoutButton = $('#logoutButton');
 		logoutButton.addEventListener('click', logout);
 
-		$$('.xButton').forEach(xButton => {
-			xButton.addEventListener('click', function() {
-				$('#darkOverlay').style.display = 'none';
-				this.parentElement.style.display = 'none';
-				const shareLinkField = $('#shareLinkField');
-				shareLinkField.style.display = 'none';
-				shareLinkField.value = '';
-				document.documentElement.style.overflow = '';
-				const createShareLinkBtn = $('#createShareLinkBtn');
-				createShareLinkBtn.outerHTML = createShareLinkBtn.outerHTML; // remove all event listeners
-				const createInviteLinkBtn = $('#createInviteLinkBtn');
-				createInviteLinkBtn.outerHTML = createInviteLinkBtn.outerHTML; // remove all event listeners
-			});
-		});
-	
-		$("#darkOverlay").addEventListener('click', () => {
-			$$('.xButton').forEach((xButton) => {
-				xButton.click();
-			});
-		});
+		registerXButtons();
 
 		[
 			{
@@ -453,6 +510,15 @@ function setUpMainPage(isInvite=false) {
 		});
 
 		$('#inviteButton').addEventListener('click', () => {
+			const shareLinkField = $('#shareLinkField');
+			shareLinkField.style.display = 'none';
+			shareLinkField.value = '';
+			document.documentElement.style.overflow = '';
+			const createShareLinkBtn = $('#createShareLinkBtn');
+			createShareLinkBtn.outerHTML = createShareLinkBtn.outerHTML; // remove all event listeners
+			const createInviteLinkBtn = $('#createInviteLinkBtn');
+			createInviteLinkBtn.outerHTML = createInviteLinkBtn.outerHTML; // remove all event listeners
+
 			$('#inviteNameField').classList.remove('fieldError');
 			$('.inviteValidityPeriodSelector').click();
 			$('.inviteMaxUploadSizeSelector').click();
@@ -495,12 +561,14 @@ function setUpMainPage(isInvite=false) {
 					switch (http.status) {
 						case 201:
 							const url = JSON.parse(http.responseText).url;
-							navigator.clipboard.writeText(url);
-							const inviteLinkField = $('#inviteLinkField');
-							inviteLinkField.style.display = 'inline-block';
-							inviteLinkField.value = url;
+							copyToClipboard(url);
+							$('#inviteLinkField').value = url;
+							break;
+						case 413:
+							displayToast(`You don't have enough free space for that`);
 							break;
 						default:
+							displayToast('Something went wrong. Status code: ' + http.status);
 					}
 				});
 			});
@@ -713,13 +781,10 @@ document.addEventListener('DOMContentLoaded', (e) => {
 					var alertMessage = 'Something went wrong. Status code: ' + http.status;
 			}
 
-			setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
-				alert(alertMessage);
-
-				// Remove query string from URL so that the error alert doesn't show again on refresh
-				window.history.pushState({}, '', window.location.origin);
-				showLoginForm();
-			}, 10);
+			displayToast(alertMessage, {type: 'alert'});
+			// Remove query string from URL so that the error alert doesn't show again on refresh
+			window.history.pushState({}, '', window.location.origin);
+			showLoginForm();
 		});
 	} else if (location.pathname === '/') { // try to login with cookies
 		sendHttpRequest('GET', '/login/access', {}, (http) => {
@@ -739,3 +804,72 @@ document.addEventListener('DOMContentLoaded', (e) => {
 function showLoginForm() {
 	$('#loginCard').style.display = 'block';
 }
+
+const notification = $('#notification');
+const notificationTimeout = 4000,
+      notificationAfterHoverTimeout = 1000;
+
+async function displayToast(text, options={}) {
+	options.type = options.type || 'error';
+	options.timeout = options.timeout || notificationTimeout;
+
+	const n = notification.cloneNode(true);
+	n.removeAttribute('id');
+	if (options.type === 'error') {
+		n.classList.add('error');
+		text = '\u26A0\xa0\xa0' + text;
+	}
+	const nText = n.querySelector('span');
+	nText.textContent = text;
+	notification.parentNode.insertBefore(n, notification); // Insert new notification before the default one
+	await sleep(50); // Wait for DOM to update so incoming transition animates
+	n.classList.add('shown');
+	
+	let mouseHovering = false,
+	    mouseEnteredRecently = false,
+	    notificationExpired = false,
+	    notificationDeleted = false;
+
+	n.addEventListener('mouseenter', async () => { 
+		mouseHovering = true
+		mouseEnteredRecently = true;
+		await sleep(notificationAfterHoverTimeout);
+		mouseEnteredRecently = false;
+	});
+	n.addEventListener('mouseleave', async () => {
+		mouseHovering = false;
+		await sleep(notificationAfterHoverTimeout);
+		if (!mouseHovering && !mouseEnteredRecently && notificationExpired && !notificationDeleted) {
+			notificationDeleted = true;
+			clearToast(n);
+		}
+	});
+	
+	await sleep(options.timeout);
+	if (!mouseHovering) {
+		clearToast(n);
+	} else {
+		notificationExpired = true;
+	}
+}
+
+async function clearToast(n) {
+	n.classList.remove('shown');
+	await sleep(1000);
+	n.remove();
+}
+
+async function copyToClipboard(text) {
+	navigator.clipboard.writeText(text)
+		.then(() => {
+			displayToast('\uD83D\uDCCB\xa0\xa0Copied to clipboard', {type: 'alert'});
+		})
+		.catch(() => {
+			displayToast('Failed to copy to clipboard. Copy the link manually.');
+		});
+}
+
+$('#signupMsgField').addEventListener('input', function() {
+	this.style.height = "";
+	this.style.height = this.scrollHeight + 5 + "px";
+});

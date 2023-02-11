@@ -1,0 +1,97 @@
+<html>
+	<head>
+		<style>
+			body {
+				text-align: center;
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+				max-width: 800px;
+			}
+		
+			h3 {
+				margin: 0;
+				margin-top: 2px;
+			}
+
+			#container {
+				width: 95%;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 10px;
+				border: 1px lightgray solid;
+				border-radius: 8px;
+				padding: 5px;
+			}
+
+			#container table {
+				margin-left: auto;
+				margin-right: auto;
+				display: flex;
+			}
+
+			.headerTableData {
+				text-align: right;
+				padding: 5px;
+				vertical-align: top;
+				margin-left: 0;
+			}
+
+			.tableData {
+				padding: 10px;
+				padding-left: 15px;
+				text-align: left;
+				word-wrap: break-word;
+				white-space: normal;
+				word-break: break-all;
+			}	
+
+			.button {
+				margin-top: 25px;
+				border-style: none;
+				margin-left: auto;
+				margin-right: auto;
+				padding: 10px;
+				border-radius: 8px;
+				width: 250px;
+				font-size: 20px;
+				font-weight: bold;
+				display: block;
+				text-decoration: none;
+				text-align: center;
+				color: rgb(218, 218, 218) !important;;
+			}
+			
+			#approveButton {
+				background-color: #00415a;
+			}
+
+			#denyButton {
+				background-color: #530000;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="max-width: 800px;">
+			<h2>Someone wants an account!</h2>
+			<div id="container">
+				<table>
+					<tr>
+						<td class="headerTableData"><h3>Username:</h3></td>
+						<td class="tableData">${username}</td>
+					</tr>
+					<tr>
+						<td class="headerTableData"><h3>Email:</h3></td>
+						<td class="tableData">${email}</td>
+						</td>
+					</tr>
+					<tr>
+						<td class="headerTableData"><h3>Message:</h3></td>
+						<td class="tableData">${message}</td>
+					</tr>
+				</table>
+			</div>
+
+			<a id="approveButton" class="button" href="${approvalURL}">Approve request</a>
+			<a id="denyButton" class="button" href="${denialURL}">Deny request</a>
+		</div>
+	</body>
+</html>

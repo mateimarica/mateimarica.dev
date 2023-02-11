@@ -3,7 +3,6 @@ const express = require('express'),
       path = require('path'),
       fs = require('fs'),
       {authInspector, ROLE} = require('../authManager'),
-      { atob } = require('buffer'),
       crypto = require('crypto'),
       files = require('../files'),
       rateLimit = require('express-rate-limit');

@@ -39,17 +39,37 @@
 				</div>
 				<h1 class="centeredHeader">File Storage</h1>
 				<div class="fieldForm">
-					<input class="formField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus tabindex="1">
+					<input class="formField alignedField credField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus tabindex=1>
 					<div class="noWrapContainer">
-						<input class="formField" id="passwordField" type="password" placeholder="Password" value ="" spellcheck=false maxlength=50 autocomplete="off" tabindex="2">
-						<button id="submitBtn"><span class="arrowIcon" tabindex="4"></span></button>
+						<input class="formField alignedField credField" id="passwordField" type="password" placeholder="Password" value ="" spellcheck=false maxlength=200 autocomplete="off" tabindex=2>
+						<button id="submitBtn"><span class="arrowIcon" tabindex=4></span></button>
 					</div>
 				</div>
 				<div class="checkboxesContainer" id="stayLoggedInCheckboxContainer">
-					<input type="checkbox" id="stayLoggedInCheckbox" ><label class="checkboxLabel" for="stayLoggedInCheckbox" tabindex="3">Remember me</label>
+					<input type="checkbox" id="stayLoggedInCheckbox" ><label class="checkboxLabel" for="stayLoggedInCheckbox" tabindex=3>Remember me</label>
+				</div>
+
+				<a id="signupLink">Request access</a>
+			</div>
+
+
+			<div id="signupPopup" class="sectionCard popup">
+				<button class="xButton">&times;</button>
+				<h2>Request Account</h2>
+
+				<div class="fieldForm">
+					<input class="formField centeredField credField" id="signupUsernameField" type="text" placeholder="Username" spellcheck=false maxlength=50 autocomplete="off" tabindex=5>
+					<input class="formField centeredField credField" id="signupPasswordField" type="password" placeholder="Password" spellcheck=false maxlength=200 autocomplete="off" tabindex=6>
+					<input class="formField centeredField credField" id="signupPasswordField2" type="password" placeholder="Password Again" spellcheck=false maxlength=200 autocomplete="off" tabindex=7>
+					<input class="formField centeredField credField" id="signupEmailField" type="text" placeholder="Email (optional)" spellcheck=false maxlength=255 autocomplete="off" tabindex=8>
+					<textarea class="formField centeredField credField" id="signupMsgField" type="text" placeholder="Message (optional)" spellcheck=false maxlength=200 autocomplete="off" tabindex=9></textarea>
+					<button id="signupRequestBtn" tabindex=10>Send Request</button>
 				</div>
 			</div>
+			
 		</div>
+		<div id="darkOverlay"></div>
+		<div id="notification" class="notification"><span></span></div>
 		<script src="/scripts/script.js"></script>
 	</body>
 </html>

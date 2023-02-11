@@ -42,3 +42,4 @@ router.use('/download', require('./routes/download'));
 router.use('/share', require('./routes/share'));
 router.use('/delete', require('./routes/delete'));
 router.use('/invite', require('./routes/invite'));
+router.use('/signup', require('./routes/signup'));
