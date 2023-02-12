@@ -126,7 +126,7 @@ async function sendComplaintForApproval(complaint, req) {
 	rejectButtonURL.searchParams.append('approved', 0);
 
 	const emailContents = templateEngine.fillHTML(
-		path.join(__dirname, '../../frontend_build/main_components/complaint_review_email'),
+		path.join(__dirname, '../../frontend_build/main_components/complaint_review_email.html'),
 		{
 			name: complaint.name,
 			complaint: complaint.complaint,

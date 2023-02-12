@@ -46,9 +46,9 @@
     "renamer": "^4.0.0",
     "replace-in-file": "^6.3.5",
     "request-sniffer": "file:./middleware/request-sniffer/",
+    "size-formatter": "file:./util/size-formatter",
     "svgo": "^3.0.2",
-    "template-engine": "file:./util/template-engine",
-    "size-formatter": "file:./util/size-formatter"
+    "template-engine": "file:./util/template-engine"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

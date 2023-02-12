@@ -57,6 +57,7 @@ app.use(helmet({
 			"upgrade-insecure-requests": [],
 			"img-src": [SELF_SRC, DOMAIN_SRC],
 			"script-src": [SELF_SRC],
+			"manifest-src": [DOMAIN_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC] // specifies which URLs can be loaded using APIs like XMLHttpRequest
 		}
@@ -82,6 +83,12 @@ app.get('/index.html', STATIC_PAGE_RATE_LIMITER);
 
 app.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	res.redirect('/');
+});
+
+// Allow any domain to access the icons
+app.get('/icons/*', (req, res, next) => {
+	res.set('Access-Control-Allow-Origin', '*');
+	next();
 });
 
 app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
