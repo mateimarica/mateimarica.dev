@@ -204,8 +204,10 @@ function logout() {
 		accessToken = null, refreshToken = null;
 		switch (http.status) {
 			case 204:
+				window.location.search += '&signout=user';
+				break;
 			case 401: // log out even if session not valid
-				window.location.reload();
+				window.location.search += '&signout=user_expired';
 				break;
 			case 500:
 			case 502:
@@ -279,6 +281,12 @@ function setUpMainPage(isInvite=false) {
 			switch (http.status) {
 				case 200:
 					refreshPageInfo();
+					if (files.length > 1) {
+						var msg = `Uploaded ${files.length} files`;
+					} else {
+						var msg = 'Uploaded ' + files[0].name;
+					}
+					displayToast(msg, { type: 'alert' });
 					break;
 				case 413:
 					displayToast(`You don't have enough free space for that`);
@@ -366,6 +374,7 @@ function setUpMainPage(isInvite=false) {
 					switch (http.status) {
 						case 204:
 							refreshPageInfo();
+							displayToast(`Deleted ${files[i].baseName}`, { type: 'alert' });
 							break;
 						default:
 							displayToast('Something went wrong. Status code: ' + http.status);
@@ -658,8 +667,7 @@ function sendHttpRequest(method, url, options, callback) {
 						if (loggedIn) {
 							app.remove(); // delete the app div so sensitive info is not visible
 							setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
-								alert('Your session expired and could not be refreshed.\nYou will redirected to the login page.');
-								window.location.reload();
+								window.location.search += '&signout=server';
 							}, 10);
 						} else {
 							callback(http2, e);
@@ -800,7 +808,29 @@ document.addEventListener('DOMContentLoaded', (e) => {
 			window.history.pushState({}, '', window.location.origin);
 			showLoginForm();
 		});
-	} else if (location.pathname === '/') { // try to login with cookies
+		return;
+	}
+
+	const signoutReason = urlParams.get('signout');
+	if (signoutReason) {
+		window.history.pushState({}, '', window.location.origin); // remove query params
+		const options = { type: 'alert', timeout: 6000 }
+		switch (signoutReason) {
+			case 'user':
+				displayToast('Successfully signed out', options);
+				break;
+			case 'user_expired':
+				displayToast(`Logged you out. Your session was expired anyway.`, options);
+				break;
+			case 'server':
+				displayToast(`Your session expired and could not be refreshed. Please try signing in again.`, options);
+				break;
+		}
+		showLoginForm();
+		return;
+	}
+
+	if (location.pathname === '/') { // try to login with cookies
 		sendHttpRequest('GET', '/login/access', {}, (http) => {
 			switch (http.status) {
 				case 200:
@@ -823,6 +853,13 @@ const notification = $('#notification');
 const notificationTimeout = 4000,
       notificationAfterHoverTimeout = 1000;
 
+/**
+@example
+{
+	type: 'error' || 'alert',
+	timeout: milliseconds
+}
+*/
 async function displayToast(text, options={}) {
 	options.type = options.type || 'error';
 	options.timeout = options.timeout || notificationTimeout;

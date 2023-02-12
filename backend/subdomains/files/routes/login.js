@@ -125,7 +125,7 @@ router.post('/refresh', TOKEN_REFRESHER_RATE_LIMITER, async (req, res) => {
 router.delete('/refresh', TOKEN_REFRESHER_RATE_LIMITER, async (req, res) => {
 	const refreshToken = authManager.getTokenFromReq(req, 'refreshToken', 'Refresh-Token');
 
-	if (!refreshToken) return res.sendStatus(400);
+	if (!refreshToken) return res.sendStatus(401); // note: the browser might've already deleted the refreshToken cookie
 
 	const userData = await authManager.invalidateRefreshToken(refreshToken);
 
