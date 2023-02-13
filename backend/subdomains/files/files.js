@@ -33,6 +33,11 @@ router.get('/index.html', (req, res) => res.redirect('/'));
 
 router.use(express.static(path.join(__dirname, '../../frontend_build/files')));
 
+// Redirect to favicon
+router.get('/favicon.ico', (req, res) => {
+	res.redirect(`https://mateimarica.dev/icons/favicon.ico`);
+});
+
 module.exports = { router, pool, UPLOAD_DIR, COMPONENTS_DIR };
 
 router.use('/login', require('./routes/login'));

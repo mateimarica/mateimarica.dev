@@ -2,6 +2,7 @@ const minify = require('@node-minify/core'),
       gcc = require('@node-minify/google-closure-compiler'),
       csso = require('@node-minify/csso'),
       html_minifier = require('@node-minify/html-minifier'),
+      jsonminify = require('@node-minify/jsonminify'),
       path = require('path'),
       glob = require("glob"),
       svgo = require('svgo'),
@@ -9,51 +10,60 @@ const minify = require('@node-minify/core'),
 
 // Exit handler since all function calls are async
 process.on('exit', function(options, exitCode) {
-	if (exitCode === 0 ) {
-		console.log('Minification completed with no errors');
+	if (exitCode === 0) {
+		console.log('\nMinification completed with no errors');
 	} else {
-		console.log('Minification failed');
+		console.log('\nMinification failed');
 	}
 }.bind(null, { cleanup: true }));
 
+process.stdout.write('Minified');
+
 // ================== Minifying JS, CSS, HTML ==================
-const COMPRESSORS = [
+const FORMATS = [
 	{
 		compressor: gcc,
-		ext: 'js'
+		exts: ['js']
 	},
 	{
 		compressor: csso,
-		ext: 'css'
+		exts: ['css']
 	},
 	{
 		compressor: html_minifier,
-		ext: 'html',
+		exts: ['html'],
 		options: {
 			collapseWhitespace: true,
 			conservativeCollapse: true
 		}
+	},
+	{
+		compressor: jsonminify,
+		exts: ['json', 'webmanifest']
 	}
 ];
 
-COMPRESSORS.forEach(e => {
-	minify({
-		compressor: e.compressor,
-		input: `frontend_build/**/*.${e.ext}`,
-		output: `$1.${e.ext}`,
-		replaceInPlace: true,
-		...(e.options && {options: e.options}),
-		callback: (err, min) => {
-			if (err) failProcess(`Error minifying ${e.ext.toUpperCase()}: ` + err);
-			console.log('Minified ' + e.ext.toUpperCase());
-		}
-	});
+FORMATS.forEach(format => {
+	format.exts.forEach(ext => {
+		minify({
+			compressor: format.compressor,
+			input: `frontend_build/**/*.${ext}`,
+			output: `$1.${ext}`,
+			replaceInPlace: true,
+			...(format.options && {options: format.options}),
+			callback: (err, min) => {
+				if (err) failProcess(`Error minifying ${ext.toUpperCase()}: ` + err);
+				process.stdout.write(' ' + ext.toUpperCase());
+			}
+		});
+	})
 });
 
 // ================== Minifying SVG ==================
-const filepaths = glob.sync("frontend_build/**/*.svg");
+const svgFilepaths = glob.sync("frontend_build/**/*.svg");
+let svgsMinified = 0;
 
-filepaths.forEach(filepath => {
+svgFilepaths.forEach(filepath => {
 	fs.readFile(filepath, (err, svgString) => {
 		if (err) failProcess(`Error reading SVG at ${filepath}: ` + err);
 
@@ -67,6 +77,7 @@ filepaths.forEach(filepath => {
 		const optimizedSvgString = svgoResult.data;
 		fs.writeFile(filepath, optimizedSvgString, (err) => {
 			if (err) failProcess(`Error writing optimized SVG at ${filepath}: ` + err);
+			if (++svgsMinified === svgFilepaths.length) process.stdout.write(' SVG'); // This is ugly af
 		});
 	});
 });

@@ -734,6 +734,7 @@ a {
 	position: fixed;
 	padding: 10px;
 	width: 300px;
+	max-width: 85%; /* for super skinny displays like galaxy fold */
 	height: 75px;
 	border-radius: var(--defaultBorderRadius);
 	overflow: hidden;
@@ -741,13 +742,9 @@ a {
 	background-color: var(--sectionCardColor);
 	left: 50%;
 	top: 20px;
-	
 	border: 2px solid gray;
 	box-shadow: 0px 0px 20px 20px rgba(0,0,0, 0.4);
-
 	transition: transform .15s ease-out;
-
-	
 
 	& > span { /* The actual text of the notification */
 		font-size: 16px;
@@ -757,7 +754,6 @@ a {
 		transform: translateY(-50%);
 		cursor: default; /* remove select cursor on text */
 	}
-
 
 	&.shown {
 		transform: translate(-50%, 0);	

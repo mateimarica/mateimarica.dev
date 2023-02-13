@@ -43,7 +43,7 @@ const API_RATE_LIMITER = rateLimit({
 });
 
 const DOMAIN_SRC = "mateimarica.dev",
-      SUBDOMAIN_SRC = "*.mateimarica.dev"
+      SUBDOMAIN_SRC = "*.mateimarica.dev",
       SELF_SRC = "'self'",
 	  NONE_SRC = "'none'";
 
@@ -57,7 +57,7 @@ app.use(helmet({
 			"upgrade-insecure-requests": [],
 			"img-src": [SELF_SRC, DOMAIN_SRC],
 			"script-src": [SELF_SRC],
-			"manifest-src": [DOMAIN_SRC],
+			"manifest-src": [SELF_SRC, DOMAIN_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC] // specifies which URLs can be loaded using APIs like XMLHttpRequest
 		}
@@ -74,12 +74,11 @@ app.use(invalidJsonHandler);
 app.use(subdomain('files', files.router));
 app.use(subdomain('qr', qrequest));
 app.use(subdomain('searchicton', searchicton));
+app.use(STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 
 app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
 app.use(['/about', '/contact'], API_RATE_LIMITER, require('./routes/WIP'));
-
-app.get('/index.html', STATIC_PAGE_RATE_LIMITER);
 
 app.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	res.redirect('/');
@@ -91,12 +90,13 @@ app.get('/icons/*', (req, res, next) => {
 	next();
 });
 
-app.use('/', STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 app.use(express.static(path.join(__dirname, 'frontend_build/main')));
+
 app.get('*', (req, res) => { // Send 404 page for any other page
 	res.status(404).sendFile(path.join(__dirname, 'frontend_build/main_components/404.html'));
 	reqSniffer.recordSuspiciousIP(req);
 });
+
 app.use('*', (req, res) => {
 	res.sendStatus(404);
 	reqSniffer.recordSuspiciousIP(req);
