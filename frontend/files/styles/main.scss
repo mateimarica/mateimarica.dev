@@ -148,12 +148,12 @@ body {
 
 .fileListItemNew:nth-child(odd) {
 	/* @keyframes duration | easing-function | delay | name */
-	animation: 1.5s ease-out 0s newFileGreenFadeOdd;
+	animation: .75s ease-out 0s newFileGreenFadeOdd;
 }
 
 .fileListItemNew:nth-child(even) {
 	/* @keyframes duration | easing-function | delay | name */
-	animation: 1.5s ease-out 0s newFileGreenFadeEven;
+	animation: .75s ease-out 0s newFileGreenFadeEven;
 }
 
 /* HSL color interpolation seems to work better than hex. Less flickering */
