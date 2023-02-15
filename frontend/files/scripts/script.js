@@ -260,7 +260,7 @@ function setUpMainPage(isInvite=false) {
 			uploadOnProgress: (e) => {
 				const percent = Math.floor(100 * e.loaded / e.total);
 				filePickerDropAreaLabel.textContent = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '\r\n' + percent + '%';
-				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddComplaintsBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
+				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddFilesBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
 			}
 		}
 
