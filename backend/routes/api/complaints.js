@@ -3,6 +3,7 @@ const express = require('express'),
       path = require('path'),
       mailWrapper = require('mail-wrapper'),
       rateLimit = require("express-rate-limit"),
+      escape = require('escape-html'),
       dateFormatter = require('date-formatter'),
       templateEngine = require('template-engine'),
       poolManager = require('pool-manager');
@@ -128,8 +129,8 @@ async function sendComplaintForApproval(complaint, req) {
 	const emailContents = templateEngine.fillHTML(
 		path.join(__dirname, '../../frontend_build/main_components/complaint_review_email.html'),
 		{
-			name: complaint.name,
-			complaint: complaint.complaint,
+			name: escape(complaint.name),
+			complaint: escape(complaint.complaint),
 			date: dateFormatter.formatDate(complaint.created_at),
 			approveButtonURL: approveButtonURL.href,
 			rejectButtonURL: rejectButtonURL.href

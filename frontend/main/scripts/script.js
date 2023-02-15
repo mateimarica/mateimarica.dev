@@ -113,7 +113,7 @@ $('#formSubmit').addEventListener("click", () => {
 	sendHttpRequest(http, 'POST', '/api/complaints', () => {
 		switch (http.status) {
 			case 201:
-				setMessageBox('successMessageBox', "\u2714  Your complaint has been submitted.<br>It will be displayed once it's approved.");
+				setMessageBox('successMessageBox', "\u2714  Your complaint has been submitted.\r\nIt will be displayed once it's approved.");
 				nameField.value = ''; // Clear fields
 				complaintField.value = '';
 				break;
@@ -183,7 +183,15 @@ async function fillComplaintsList(complaints) {
 		let complaintsListItem = document.createElement('li');
 		complaintsListItem.classList.add('complaintsListItem', 'complaintsListItemInvisible');
 		complaintsListItem.focus();
-		complaintsListItem.innerHTML = `<span class="complaintsListItemInfo">${relativeTime}, ${complaint.name} wrote:</span><br><span class="complaintsListItemText"></span>`;
+
+		let complaintsListItemInfo = document.createElement('span');
+		complaintsListItemInfo.classList.add('complaintsListItemInfo');
+		complaintsListItemInfo.textContent = `${relativeTime}, ${complaint.name} wrote:`;
+
+		let complaintsListItemText = document.createElement('span');
+		complaintsListItemText.classList.add('complaintsListItemText');
+
+		complaintsListItem.append(complaintsListItemInfo, complaintsListItemText);
 		complaintsList.appendChild(complaintsListItem);
 		simulateTypingComplaints(complaintsListItem, complaint.complaint);
 		complaintsListItem.offsetTop; // Triggers a reflow; needed for transition to trigger

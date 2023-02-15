@@ -66,7 +66,7 @@ submitBtn.addEventListener('click', () => {
 	}
 
 	const arrowIcon = submitBtn.querySelector('.arrowIcon');
-	arrowIcon.classList.add('refreshing');
+	arrowIcon.classList.add('rotatingLogin');
 
 	const persistentSession = $('#stayLoggedInCheckbox').checked; // boolean
 
@@ -105,11 +105,10 @@ submitBtn.addEventListener('click', () => {
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
 
-		// End the rotation animation at the end of an iteration so it doesn't jump. Still not smooth though
+		// End the rotation animation at the end of an iteration so it doesn't jump
 		arrowIcon.onanimationiteration = () => {
-			arrowIcon.classList.remove('refreshing');
-			arrowIcon.onanimationend = onanimationiteration;
-		  };
+			arrowIcon.classList.remove('rotatingLogin');
+		};
 	});
 
 	passwordField.value = '';
@@ -221,24 +220,21 @@ function logout() {
 
 function setUpMainPage(isInvite=false) {
 	loggedIn = true;
-	function refreshPageInfo(onFinishCallback=null) {
+	function refreshPageInfo(uploadedCount=0) {
 		sendHttpRequest('GET', '/files', {}, (http) => {
 			switch (http.status) {
 				case 200:
-					fillMainPage(JSON.parse(http.responseText));
+					fillMainPage(JSON.parse(http.responseText), uploadedCount);
 					break;
 				default:
 					displayToast('Something went wrong. Status code: ' + http.status);
-			}
-			if (onFinishCallback !== null) {
-				onFinishCallback();
 			}
 		});
 	}
 
 	refreshPageInfo();
 	
-	function mainUploadFiles(files) {
+	async function mainUploadFiles(files) {
 		if (files.length === 0) return;
 
 		const formData = new FormData();
@@ -280,7 +276,7 @@ function setUpMainPage(isInvite=false) {
 			filePickerDropArea.style.background = '';
 			switch (http.status) {
 				case 200:
-					refreshPageInfo();
+					refreshPageInfo(files.length);
 					if (files.length > 1) {
 						var msg = `Uploaded ${files.length} files`;
 					} else {
@@ -309,7 +305,7 @@ function setUpMainPage(isInvite=false) {
 
 	setUpFilePicker(mainUploadFiles);
 
-	function fillMainPage(filesInfo) {
+	function fillMainPage(filesInfo, uploadedCount=0) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
@@ -325,10 +321,10 @@ function setUpMainPage(isInvite=false) {
 			$('#storageBarUsed').style.width = usedSpacePercent + '%';
 	 	}, 10);
 
-		let filesList = $('#filesList');
+		const filesList = $('#filesList');
 
 		const currentDate = new Date();
-		let files = filesInfo.files;
+		const files = filesInfo.files;
 
 		if (files.length > 0)
 			filesList.innerHTML = ''; // Removes the default list item
@@ -336,8 +332,14 @@ function setUpMainPage(isInvite=false) {
 		 	filesList.innerHTML = `<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Hmm...</span></li>`;
 
 		for (let i = 0; i < files.length; i++) {
-			let filesListItem = document.createElement('li');
+			const filesListItem = document.createElement('li');
 			filesListItem.classList.add('filesListItem');
+			if (i < uploadedCount) {
+				filesListItem.classList.add('fileListItemNew');
+				filesListItem.onanimationend = () => {
+					filesListItem.classList.remove('fileListItemNew');
+				};
+			}
 
 			let filename = document.createElement('span');
 			filename.classList.add('filesListItemComponentLeft');
@@ -350,6 +352,11 @@ function setUpMainPage(isInvite=false) {
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
 			date.textContent = getRelativeTime(files[i].uploadDate, currentDate);
+			const d = new Date('2023-02-14T23:17:44.000Z');
+			const utcOffset = d.getTimezoneOffset();
+			const utcOffsetHrs = Math.floor(utcOffset / 60);
+			const utcOffsetMins = utcOffset % 60;
+			date.title = `${d.toLocaleString()} UTC${utcOffset<0 ? '+' : '-'}${utcOffsetHrs}${utcOffsetMins>0 ? ':'+utcOffsetMins : '' }`;
 			
 			let deleteButton = document.createElement('span');
 			deleteButton.classList.add('icon', 'deleteIcon');
@@ -479,9 +486,9 @@ function setUpMainPage(isInvite=false) {
 		let refreshButton = $('#refreshButton');
 		refreshButton.addEventListener('click', async () => {
 			refreshPageInfo();
-			refreshButton.classList.add('refreshing');
+			refreshButton.classList.add('rotatingRefresh');
 			await sleep(1000);
-			refreshButton.classList.remove('refreshing');
+			refreshButton.classList.remove('rotatingRefresh');
 		});
 
 		let logoutButton = $('#logoutButton');
@@ -603,6 +610,37 @@ function setUpMainPage(isInvite=false) {
 			this.style.height = this.scrollHeight + "px";
 		});
 	}
+
+	// register paste listener to upload files using CTRL+V
+	let pastedRecently = false;
+	document.onpaste = async (event) => {
+		if (pastedRecently) return; // Don't want users spam-pasting or accidently double-pasting
+
+		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+		if (!items) return;
+
+		const fileList = [];
+
+		// Iterate through all the items in the clipboard, find the files, and put them into the fileList array
+		for (let index in items) {
+			const item = items[index];
+			if (item && item.kind === 'file') {
+				fileList.push(item.getAsFile());
+			}
+		}
+
+		if(fileList.length > 0) {
+			mainUploadFiles(fileList);
+		} else {
+			displayToast('No files found in the clipboard', { type: 'error' });
+		}
+
+		// Set a 1.5 second timeout before the user can paste again
+		pastedRecently = true;
+		await sleep(1500);
+		pastedRecently = false;
+	}
+
 }
 
 function setUpFilePicker(uploadFilesFunction) {
@@ -630,11 +668,13 @@ function setUpFilePicker(uploadFilesFunction) {
 		}, false);
 	});
 
+	// Uploading using drag 'n' drop
 	filePickerDropArea.addEventListener('drop', e => {
 		if (!filePicker.disabled)
 			uploadFilesFunction(e.dataTransfer.files);
 	}, false);
 
+	// Uploading using file explorer
 	filePicker.addEventListener('change', function(e) {
 		if (this.files.length > 0) {
 			uploadFilesFunction(this.files);

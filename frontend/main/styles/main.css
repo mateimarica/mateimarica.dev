@@ -333,13 +333,12 @@ body {
 	font-size: 16px;
 	text-align: center;
 	color: whitesmoke;
-	
 	padding: 3px;
 	margin-bottom: 20px;
 	margin-left: auto;
 	margin-right: auto;
 	width: 80%;
-	
+	white-space: pre-line; /* wrap text when necessary and on linebreaks like \r\n */
 }
 
 .hiddenMessageBox {

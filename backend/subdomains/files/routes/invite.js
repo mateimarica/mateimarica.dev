@@ -7,7 +7,8 @@ const express = require('express'),
       crypto = require('crypto'),
       templateEngine = require('template-engine'),
       files = require('../files'),
-	  { nanoid } = require('nanoid');
+      escape = require('escape-html'),
+      { nanoid } = require('nanoid');
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
@@ -79,8 +80,8 @@ router.get('/', async (req, res) => {
 			const html = templateEngine.fillHTML(
 				path.join(files.COMPONENTS_DIR, 'invite.html'),
 				{
-					name: results[0].inviteeName,
-					message: results[0].message
+					name: escape(results[0].inviteeName), // escape to prevent HTML injection :)
+					message: escape(results[0].message)
 				}
 			)
 			res.status(200).send(html);

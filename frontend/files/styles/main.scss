@@ -4,8 +4,10 @@
 	--sectionCardColor: #11161b;
 	--textFieldmainBackgroundColor: #0b0e11;
 
-	--oddComplaintsBackgroundColor: #132638;
-	--evenComplaintsBackgroundColor: #0c1a27;
+	--oddFilesBackgroundColor: #132638;
+	--oddFilesBackgroundColorHSL: hsl(209, 49%, 15%);
+	--evenFilesBackgroundColor: #0c1a27;
+	--evenFilesBackgroundColorHSL: hsl(209, 53%, 10%);
 
 	--selectedInputColor: #102335;
 	--inputColor: #060a0c;
@@ -87,12 +89,11 @@ body {
 
 #filesList {
 	border: 2px solid gray;
-	border-radius: var(--defaultBorderRadius);
+	border-radius: 10px;
 	list-style: none;
 	padding-left: 0;
 	margin: 0;
 }
-
 
 .filesListItem {
 	color: lightgray;
@@ -104,13 +105,16 @@ body {
 	
 	transition: opacity 1s ease, max-height 5s linear;
 	will-change: opacity, max-height;
-
 	display: flex;
 	flex-wrap: wrap;
 	text-align: left;
   	justify-content: right;
-
 	transition: background-color 0.2s ease;
+
+	&:hover {
+		transition: background-color 0.2s ease;
+		color: whitesmoke;
+	}
 }
 
 .filesListItemInvisible {
@@ -118,12 +122,18 @@ body {
 	max-height: 0;
 }
 
+.filesListItem:hover:not(.fileListItemNew) {
+	transition: background-color 0.2s ease;
+	background-color: #091520;	
+	color: whitesmoke;
+}
+
 .filesListItem:nth-child(odd) {
-	background-color: var(--oddComplaintsBackgroundColor);
+	background-color: var(--oddFilesBackgroundColor);
 }
 
 .filesListItem:nth-child(even) {
-	background-color: var(--evenComplaintsBackgroundColor);
+	background-color: var(--evenFilesBackgroundColor);
 }
 
 .filesListItem:first-child {
@@ -136,12 +146,29 @@ body {
 	border-bottom-right-radius: var(--defaultBorderRadius); 
 }
 
-.filesListItem:hover {
-	transition: background-color 0.2s ease;
-	background-color: #091520;	
-	color: whitesmoke;
+.fileListItemNew:nth-child(odd) {
+	/* @keyframes duration | easing-function | delay | name */
+	animation: 1.5s ease-out 0s newFileGreenFadeOdd;
 }
-/*091520*/
+
+.fileListItemNew:nth-child(even) {
+	/* @keyframes duration | easing-function | delay | name */
+	animation: 1.5s ease-out 0s newFileGreenFadeEven;
+}
+
+/* HSL color interpolation seems to work better than hex. Less flickering */
+@keyframes newFileGreenFadeOdd {
+	0%   {background-color: var(--oddFilesBackgroundColorHSL);}
+	30%   {background-color: hsl(209, 49%, 25%);}
+	100%  {background-color: var(--oddFilesBackgroundColorHSL);}
+}
+
+@keyframes newFileGreenFadeEven {
+	0%   {background-color: var(--evenFilesBackgroundColorHSL);}
+	30%  {background-color: hsl(209, 53%, 20%)}
+	100%  {background-color: var(--evenFilesBackgroundColorHSL);}
+}
+
 .filesListItem > .filesListItemTextComponent {
 	width: 120px;
 	text-align: left;
@@ -459,8 +486,12 @@ button:active {
 }
 
 
-.refreshing {
+.rotatingRefresh {
 	animation: rotating .5s cubic-bezier(.24,.67,.92,.64) infinite;
+}
+
+.rotatingLogin {
+	animation: rotating .5s ease-in-out infinite;
 }
 
 @keyframes rotating {
