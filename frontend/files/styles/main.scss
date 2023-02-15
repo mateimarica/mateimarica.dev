@@ -545,6 +545,7 @@ button:active {
 
 #sharePopupFilename, #sharePopupUploadDate, #sharePopupSize {
 	display: block;
+	overflow-wrap: break-word;
 }
 
 #sharePopupFilename {
@@ -805,7 +806,7 @@ a {
 	font-weight: normal;
 }
 
-@media screen and (max-width: 810px) {
+@media screen and (max-width: 940px) {
 	.filesListItem {
 		gap: 0;
 		column-gap: 10px;

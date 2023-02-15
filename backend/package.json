@@ -5,9 +5,9 @@
   "scripts": {
     "build": "node copy-frontend && postcss \"frontend_build/**/*css\" --no-map --replace && renamer --find .scss --replace .css \"./frontend_build/**\"",
     "set-local-urls": "replace-in-file --configFile=replace-in-file.config.js",
-    "prod": "npm run build && node minifier && echo Project built successfully && cross-env NODE_ENV=production pm2 start server.js --name mateimarica.dev --log server.log --time --node-args=\"--max-http-header-size=4096\"",
-    "staging": "cross-env NODE_ENV=production nodemon",
-    "dev": "cross-env NODE_ENV=development nodemon"
+    "prod": "npm run build && node minifier && echo Project built! && cross-env NODE_ENV=production pm2 start server.js --name mateimarica.dev --log server.log --time --node-args=\"--max-http-header-size=4096\"",
+    "staging": "cross-env NODE_ENV=production nodemon --exec \"npm run build && node minifier && echo Project built! && node server\"",
+    "dev": "cross-env NODE_ENV=development nodemon --exec \"npm run build && echo Project built! && node server\""
   },
   "author": "Matei Marica",
   "license": "MIT",

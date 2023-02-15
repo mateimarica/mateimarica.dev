@@ -37,6 +37,7 @@ const storage = multer.diskStorage({
 			fs.openSync(path.join(destinationDir, fullFileName), 'w');
 		} catch (err) {
 			console.log(`Failed to pre-save ${path.join(destinationDir, fullFileName)}: ${err}`);
+			throw err;
 		}
 		
 		cb(null, fullFileName);

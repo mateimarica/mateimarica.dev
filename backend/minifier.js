@@ -23,7 +23,10 @@ process.stdout.write('Minified');
 const FORMATS = [
 	{
 		compressor: gcc,
-		exts: ['js']
+		exts: ['js'],
+		options: {
+			compilation_level: 'SIMPLE'
+		}
 	},
 	{
 		compressor: csso,

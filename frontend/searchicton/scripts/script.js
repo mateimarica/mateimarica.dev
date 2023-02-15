@@ -106,7 +106,7 @@ function sendHttpRequest(method, url, options, callback) {
 	if (options.uploadOnProgress)
 		http.upload.onprogress = options.uploadOnProgress;
 
-	http.open(method, url, async=true);
+	http.open(method, url, true);
 
 	if (options.headers)
 		for (let key in options.headers) {

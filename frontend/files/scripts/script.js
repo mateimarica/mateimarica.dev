@@ -4,7 +4,7 @@ const $$ = document.querySelectorAll.bind(document);
 let accessToken = null,
     refreshToken = null,
     inviteAccessToken = null,
-    loggedIn = false; // general boolean for being logged info, regardless of persistency of session
+    loggedIn = false, // general boolean for being logged info, regardless of persistency of session
     usedSpace = 0,
     totalSpace = 0;
 
@@ -36,7 +36,7 @@ function setNavbarTransparency(scrollPos) {
 }
 
 const passwordField = $('#passwordField'),
-      usernameField = $('#usernameField');
+      usernameField = $('#usernameField'),
       submitBtn = $('#submitBtn');
 
 [usernameField, passwordField].forEach(field => {
@@ -309,7 +309,10 @@ function setUpMainPage(isInvite=false) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
 
-		$('#storageBarLabel').textContent = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
+		const storageBarLabel = $('#storageBarLabel');
+		storageBarLabel.textContent = getFormattedSize(usedSpace) + " used / " + getFormattedSize(totalSpace) + ' total';
+		storageBarLabel.title = usedSpace + ' B / ' + totalSpace + ' B';
+
 		let usedSpacePercent = (usedSpace / totalSpace * 100).toFixed(1); // Percent with 1 decimal space
 		if (usedSpacePercent < 1 && usedSpace > 0) {
 			usedSpacePercent = 0.05;
@@ -344,15 +347,17 @@ function setUpMainPage(isInvite=false) {
 			let filename = document.createElement('span');
 			filename.classList.add('filesListItemComponentLeft');
 			filename.textContent = files[i].baseName.length > 40 ? files[i].name.substring(0, 40) + '..' + files[i].ext : files[i].baseName;
+			filename.title = files[i].baseName;
 
 			let size = document.createElement('span');
 			size.classList.add('filesListItemTextComponent');
 			size.textContent = getFormattedSize(files[i].size);
+			size.title = files[i].size + ' B';
 			
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
 			date.textContent = getRelativeTime(files[i].uploadDate, currentDate);
-			const d = new Date('2023-02-14T23:17:44.000Z');
+			const d = new Date(files[i].uploadDate);
 			const utcOffset = d.getTimezoneOffset();
 			const utcOffsetHrs = Math.floor(utcOffset / 60);
 			const utcOffsetMins = utcOffset % 60;
@@ -360,6 +365,7 @@ function setUpMainPage(isInvite=false) {
 			
 			let deleteButton = document.createElement('span');
 			deleteButton.classList.add('icon', 'deleteIcon');
+			deleteButton.title = 'Delete';
 			deleteButton.addEventListener('click', () => {
 
 				if (!confirm('Are you sure you want to delete ' + files[i].baseName + '?')) {
@@ -394,6 +400,7 @@ function setUpMainPage(isInvite=false) {
 			if (!isInvite) {
 				let shareButton = document.createElement('span');
 				shareButton.classList.add('icon', 'shareIcon');
+				shareButton.title = 'Share';
 				shareButton.addEventListener('click', () => {
 					
 					// Selects the first selector by default
@@ -447,6 +454,7 @@ function setUpMainPage(isInvite=false) {
 	
 				let downloadButton = document.createElement('span');
 				downloadButton.classList.add('icon', 'downloadIcon');
+				downloadButton.title = 'Download';
 				downloadButton.addEventListener('click', () => {
 					downloadButton.className = 'loadingIcon';
 	
@@ -455,8 +463,7 @@ function setUpMainPage(isInvite=false) {
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify({
-							baseName: files[i].baseName,
-							uploader: files[i].uploader
+							baseName: files[i].baseName
 						})
 					};
 	
@@ -722,7 +729,7 @@ function sendHttpRequest(method, url, options, callback) {
 	if (options.uploadOnProgress)
 		http.upload.onprogress = options.uploadOnProgress;
 
-	http.open(method, url, async=true);
+	http.open(method, url, true);
 
 	if (options.headers)
 		for (let key in options.headers) {
@@ -762,7 +769,7 @@ const MILLI_PER_MIN = 60000,
 
 // Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago"
 function getRelativeTime(datetime, currentDate) {
-	let date = new Date(Date.parse(datetime));
+	let date = new Date(datetime);
 
 	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - date)) / MILLI_PER_MIN); 
 

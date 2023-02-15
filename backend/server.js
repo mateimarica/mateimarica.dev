@@ -19,14 +19,6 @@ const express = require('express'),
 reqSniffer.initializeIpCache();
 mailWrapper.checkConnection();
 
-let credentials;
-if (process.env.NODE_ENV === 'production') {
-	credentials = {
-		key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
-		cert: fs.readFileSync(process.env.SSL_CERT)
-	}
-}
-
 const STATIC_PAGE_RATE_LIMITER = rateLimit({
 	windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.STATIC_LIMITER_MAX_REQUESTS * process.env.NUM_OF_STATIC_FILES, // Max num of requests per time window * the rough num of static files
@@ -57,9 +49,10 @@ app.use(helmet({
 			"upgrade-insecure-requests": [],
 			"img-src": [SELF_SRC, DOMAIN_SRC],
 			"script-src": [SELF_SRC],
-			"manifest-src": [SELF_SRC, DOMAIN_SRC],
+			"manifest-src": [SELF_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
-			"connect-src": [SELF_SRC] // specifies which URLs can be loaded using APIs like XMLHttpRequest
+			"connect-src": [SELF_SRC], // specifies which URLs can be loaded using APIs like XMLHttpRequest,
+			"media-src": [SELF_SRC] // allow stuff like mp3s and mp4s to be loaded in the browser
 		}
 	}
 }));
@@ -102,11 +95,10 @@ app.use('*', (req, res) => {
 	reqSniffer.recordSuspiciousIP(req);
 });
 
-let server;
-if (process.env.NODE_ENV === 'production') {
-	server = https.createServer(credentials, app);
-} else {
-	server = http.createServer(app);
+const CREDENTIALS = {
+	key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
+	cert: fs.readFileSync(process.env.SSL_CERT)
 }
 
-server.listen(process.env.PORT, () => console.log(`Server started on port ${process.env.PORT}`));
+const SERVER = https.createServer(CREDENTIALS, app);
+SERVER.listen(process.env.PORT, () => console.log(`Server started on port ${process.env.PORT}`));

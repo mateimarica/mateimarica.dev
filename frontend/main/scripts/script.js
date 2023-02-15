@@ -136,7 +136,7 @@ function setMessageBox(className, text) {
 function sendHttpRequest(http, method, suburl, callback=null, data=null) {
 	const url = `${window.location.protocol}//${window.location.host + suburl}`;
 	http.addEventListener('load', callback); // If ready state is 4, do async callback
-	http.open(method, url, async=true);
+	http.open(method, url, true);
 	http.setRequestHeader("Content-Type", "application/json");
 	http.send(data);
 }

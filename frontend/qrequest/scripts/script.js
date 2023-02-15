@@ -37,9 +37,10 @@ const SLIDE_DURATION = 6000,
       TRANSITION_DURATION = 1400,
       QUICK_TRANSITION_DURATION = 450;
 
-let slides = $$('.slide'),
-    pauseIcon = $('#pauseIcon')
-    pauseSlides = false,
+const slides = $$('.slide'),
+      pauseIcon = $('#pauseIcon');
+
+let pauseSlides = false,
     currentSlide = 0, // Used to save the index of current slide when slideslow is paused.
     isRunning = false; // Whether the doSlideshow() function is running. Used to ensure only 1 instance of the method runs at a time.
 
