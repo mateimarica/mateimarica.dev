@@ -95,10 +95,12 @@ app.use('*', (req, res) => {
 	reqSniffer.recordSuspiciousIP(req);
 });
 
-const CREDENTIALS = {
+const OPTIONS = {
 	key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),
-	cert: fs.readFileSync(process.env.SSL_CERT)
+	cert: fs.readFileSync(process.env.SSL_CERT),
+	requestTimeout: process.env.REQUEST_TIMEOUT_MINS * 60 * 1000,
+	connectionsCheckingInterval: process.env.CONNECTIONS_CHECKING_INTERVAL_MINS * 60 * 1000,
 }
 
-const SERVER = https.createServer(CREDENTIALS, app);
+const SERVER = https.createServer(OPTIONS, app);
 SERVER.listen(process.env.PORT, () => console.log(`Server started on port ${process.env.PORT}`));

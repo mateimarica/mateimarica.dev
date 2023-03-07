@@ -305,6 +305,8 @@ function setUpMainPage(isInvite=false) {
 
 	setUpFilePicker(mainUploadFiles);
 
+	let shiftKeyDown = false; // if true, user will not be warned when deleting
+
 	function fillMainPage(filesInfo, uploadedCount=0) {
 		usedSpace = filesInfo.usedSpace;
 		totalSpace = filesInfo.totalSpace;
@@ -368,7 +370,7 @@ function setUpMainPage(isInvite=false) {
 			deleteButton.title = 'Delete';
 			deleteButton.addEventListener('click', () => {
 
-				if (!confirm('Are you sure you want to delete ' + files[i].baseName + '?')) {
+				if (!shiftKeyDown && !confirm('Are you sure you want to delete ' + files[i].baseName + '?')) {
 					return;
 				}
 
@@ -648,6 +650,8 @@ function setUpMainPage(isInvite=false) {
 		pastedRecently = false;
 	}
 
+	document.addEventListener('keydown', (event) => shiftKeyDown = event.shiftKey);
+	document.addEventListener('keyup', (event) => shiftKeyDown = event.shiftKey);
 }
 
 function setUpFilePicker(uploadFilesFunction) {
@@ -767,7 +771,7 @@ const MILLI_PER_MIN = 60000,
       MINS_PER_MONTH = 43200,
       MINS_PER_YEAR = 525600;
 
-// Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago"
+/** Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago" */
 function getRelativeTime(datetime, currentDate) {
 	let date = new Date(datetime);
 
@@ -810,7 +814,7 @@ const KILOBYTE = 1000,
       MEGABYTE = 1000000,
       GIGABYTE = 1000000000;
 
-// The parseFloat() removes trailing zeroes (eg: 1.0 -> 1)
+/** The parseFloat() removes trailing zeroes (eg: 1.0 -> 1) */
 function getFormattedSize(bytes) {
 	if(bytes < KILOBYTE) {
 		return bytes + ' B';
