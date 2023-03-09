@@ -148,22 +148,22 @@ body {
 
 .fileListItemNew:nth-child(odd) {
 	/* @keyframes duration | easing-function | delay | name */
-	animation: .75s ease-out 0s newFileGreenFadeOdd;
+	animation: .75s ease-out 0s newFileFadeOdd;
 }
 
-.fileListItemNew:nth-child(even) {
+.fileListItemNew:nth-child(even), .syncedNotesArea {
 	/* @keyframes duration | easing-function | delay | name */
-	animation: .75s ease-out 0s newFileGreenFadeEven;
+	animation: .75s ease-out 0s newFileFadeEven;
 }
 
 /* HSL color interpolation seems to work better than hex. Less flickering */
-@keyframes newFileGreenFadeOdd {
+@keyframes newFileFadeOdd {
 	0%   {background-color: var(--oddFilesBackgroundColorHSL);}
 	30%   {background-color: hsl(209, 49%, 25%);}
 	100%  {background-color: var(--oddFilesBackgroundColorHSL);}
 }
 
-@keyframes newFileGreenFadeEven {
+@keyframes newFileFadeEven {
 	0%   {background-color: var(--evenFilesBackgroundColorHSL);}
 	30%  {background-color: hsl(209, 53%, 20%)}
 	100%  {background-color: var(--evenFilesBackgroundColorHSL);}
@@ -699,10 +699,6 @@ input[type=checkbox]:disabled::before {
 
 .fieldError {
 	border: 2px solid darkred;
-}
-
-#inviteButton {
-	
 }
 
 #buttonDock {

@@ -364,10 +364,10 @@ function setUpMainPage(isInvite=false) {
 			const filesListItem = document.createElement('li');
 			filesListItem.classList.add('filesListItem');
 			if (i < uploadedCount) {
-				filesListItem.classList.add('fileListItemNew');
 				filesListItem.onanimationend = () => {
 					filesListItem.classList.remove('fileListItemNew');
 				};
+				filesListItem.classList.add('fileListItemNew');
 			}
 
 			let filename = document.createElement('span');
@@ -639,27 +639,40 @@ function setUpMainPage(isInvite=false) {
 	}
 
 	const notesArea = $('#notesArea'), notesDate = $('#notesDate'), notesCharCount = $('#notesCharCount'), notesStatus = $('#notesStatus');
+	notesArea.onanimationend = () => notesArea.classList.remove('syncedNotesArea');
 	const nonEditInputEvent = new Event('input');
-	let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true;
+	const loadingAnimation = ['/', '—', '\\', '|']
+	let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId;
 	dynamicTextArea.call(notesArea);
 
 	async function notesStatusSavingAnimation() {
-		while (saving) {
-			notesStatus.textContent = '/';
-			await sleep(50);
-			notesStatus.textContent = '—';
-			await sleep(50);
-			notesStatus.textContent = '\\';
-			await sleep(50);
-			notesStatus.textContent = '|';
-			await sleep(50);
+		const len = loadingAnimation.length;
+		const frameLength = 200 / len;
+		for (let i = 0; saving; i = (i+1) % len) { // i goes 0, 1, 2, 3, 0, 1, 2, 3 ... looping through the animation frames
+			notesStatus.textContent = loadingAnimation[i];
+			await sleep(frameLength);
 		}
+
 		if (saveSuccessful) {
 			notesStatus.textContent = 'Saved';
 		} else {
-			notesStatus.textContent = 'Failed to save';
+			notesStatus.textContent = 'Save failed';
+		}
+	}
+
+	async function notesStatusSyncingAnimation(syncSuccessful) {
+		const len = loadingAnimation.length;
+		const frameLength = 200 / len;
+		for (let i = 0; i < len; i++) { 
+			notesStatus.textContent = loadingAnimation[i];
+			await sleep(frameLength);
 		}
 
+		if (saveSuccessful) {
+			notesStatus.textContent = 'Synced';
+		} else {
+			notesStatus.textContent = 'Sync failed';
+		}
 	}
 
 	const beforeUnloadFuncNotes = (e) => {
@@ -690,7 +703,10 @@ function setUpMainPage(isInvite=false) {
 
 		const options = {
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ text: notesArea.value })
+			body: JSON.stringify({
+				text: notesArea.value,
+				pollerId: pollerId
+			})
 		};
 		sendHttpRequest('PATCH', '/notes', options, {
 			load: (http) => {
@@ -700,7 +716,7 @@ function setUpMainPage(isInvite=false) {
 						saveSuccessful = true;
 						saving = false;
 						notesDate.textContent = 'Edited just now';
-						notesDate.title = getUtcOffsetTime(new Date);
+						notesDate.title = getUtcOffsetTime(new Date());
 						break;
 					default:
 						displayToast(`Couldn't save your notes :(\n Status code: ` + http.status);
@@ -724,23 +740,62 @@ function setUpMainPage(isInvite=false) {
 	});
 	notesArea.addEventListener('paste', (e) => e.stopPropagation()); // prevent paste event from bubbling up to document
 
-	function getNotes() {
+	async function getNotes() {
 		sendHttpRequest('GET', '/notes', {}, { load: (http) => {
 			switch (http.status) {
 				case 200:
 					const notes = JSON.parse(http.responseText);
 					notesArea.value = notes.text;
-					notesMaxLength = notes.textColLength;
+					notesMaxLength = notes.textMaxLength;
 					notesArea.setAttribute('maxlength', notesMaxLength);
 					notesArea.dispatchEvent(nonEditInputEvent);
 					const lastEditDate = new Date(notes.lastEdit);
 					notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
 					notesDate.title = getUtcOffsetTime(lastEditDate);
+					pollerId = notes.pollerId;
+					pollNotes();
 					break;
 				default:
 					displayToast(`Couldn't retrieve notes. Status code: ` + http.status);
 			}
 		}});
+	}
+
+	async function pollNotes() {
+		const options = {
+			headers: {'Content-Type': 'application/json'}, 
+			body: JSON.stringify({
+				pollerId: pollerId
+			})
+		}
+		sendHttpRequest('POST', '/notes/poll', options, { 
+			load: async (http) => {
+				switch (http.status) {
+					case 200:
+						notesStatusSyncingAnimation(true);
+						const notes = JSON.parse(http.responseText);
+						notesArea.value = notes.text;
+						notesArea.dispatchEvent(nonEditInputEvent);
+						notesDate.textContent = 'Edited just now';
+						notesDate.title = getUtcOffsetTime(new Date());
+						notesStatus.textContent = '\xa0';
+						notesArea.classList.add('syncedNotesArea')
+						pollNotes();
+						break;
+					default:
+						notesStatusSyncingAnimation(false);
+						displayToast(`Notes polling failed. Status code: ` + http.status + `\nTrying again in 30 seconds.`);
+						await sleep(30000);
+						pollNotes();
+				}
+			},
+			error: async(e) => {
+				notesStatusSyncingAnimation(false);
+				displayToast(`Notes polling connection failed.\nTrying again in 30 seconds.`);
+				await sleep(30000);
+				pollNotes();
+			}
+		});
 	}
 
 	// recalculate textarea height upon window resize
