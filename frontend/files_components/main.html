@@ -22,7 +22,7 @@
 		<label class="checkboxLabel" for="forceDownloadCheckbox">Force download</label>
 	</div>
 	
-	<button id="createShareLinkBtn">Copy link</button>
+	<button id="createShareLinkBtn" class="niceButton">Copy link</button>
 	<input id="shareLinkField" class="formField" readonly>
 </div>
 
@@ -45,7 +45,7 @@
 	<button class="inviteMaxUploadSizeSelector" value=1>1GB</button>
 	<input class="inviteMaxUploadSizeSelector formField inviteMaxUploadSizeField" maxlength="4" placeholder="GB">
 
-	<button id="createInviteLinkBtn">Copy link</button>
+	<button id="createInviteLinkBtn" class="niceButton">Copy link</button>
 	<input id="inviteLinkField" class="formField" readonly>
 </div>
 
@@ -69,5 +69,21 @@
 
 	<ul id="filesList">
 		<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Hmm...</span></li>
-	</ul>	
+	</ul>
+
+	<div id="notesContainer">
+		<div id="notesHeader">
+			<span id="notesTitleContainer">
+				<span id="notesTitle">Notes</span>
+			</span>
+			<span id="notesDateContainer">
+				<span id="notesDate">Last edited just now</span>
+			</span>
+			<span id="notesStatusContainer">
+				<span id="notesStatus">&nbsp;</span> <!-- set it to nbsp so the container doesn't collapse -->
+			</span>
+		</div>
+		<span id="notesCharCount">0 / 0</span>
+		<textarea id="notesArea" placeholder="Anything you write here will be saved. ♥"></textarea>
+	</div>
 </div>

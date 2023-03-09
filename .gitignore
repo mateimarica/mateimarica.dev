@@ -7,3 +7,4 @@ backend/server.log
 backend/node_modules
 backend/subdomains/files/uploads
 backend/frontend_build
+*.log

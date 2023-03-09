@@ -40,7 +40,7 @@ const DOMAIN_SRC = "mateimarica.dev",
 	  NONE_SRC = "'none'";
 
 const app = express();
-app.use(helmet({
+const helmetFunc = helmet({
 	contentSecurityPolicy: {
 		useDefaults: false,
 		directives: {
@@ -52,10 +52,27 @@ app.use(helmet({
 			"manifest-src": [SELF_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC], // specifies which URLs can be loaded using APIs like XMLHttpRequest,
-			"media-src": [SELF_SRC] // allow stuff like mp3s and mp4s to be loaded in the browser
+			"media-src": [SELF_SRC], // allow stuff like mp3s and mp4s to be loaded in the browser
+			"frame-ancestors": [NONE_SRC]
 		}
+	},
+	// these headers are redundant or deprecated on modern browsers
+	xssFilter: false,
+	ieNoOpen: false,
+	dnsPrefetchControl: false,
+	expectCt: false
+});
+
+// Add CSP header only if user requests HTML. This reduces data use by ~25%.
+// Is this secure? Probably not, but I can't latch on to the response for static pages to target the Content-Type header
+app.use((req, res, next) => {
+	const accept = req.get('accept');
+	if (accept && accept.indexOf('text/html') === 0) {
+		helmetFunc(req, res, next);
+	} else {
+		next();
 	}
-}));
+});
 
 app.use(compression());
 app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));

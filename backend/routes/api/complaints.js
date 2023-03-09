@@ -54,7 +54,6 @@ router.post('/', COMPLAINT_RATE_LIMITER, (req, res) => {
 		}
 
 		res.sendStatus(201); // New resource created
-		console.log('Inserted complaint into database: ' + JSON.stringify(req.body));
 
 		let sql2 = `SELECT name, complaint, temp_approval_id, created_at FROM complaints WHERE id=(SELECT MAX(id) FROM complaints WHERE is_approved=0) LIMIT 1;`
 		pool.execute(sql2, (err2, result2) => {
@@ -91,8 +90,6 @@ router.get('/approve', COMPLAINT_APPROVAL_RATE_LIMITER, (req, res) => {
 		} else if (result.affectedRows === 0) {
 			return res.sendStatus(404);
 		}
-			
-		console.log("A complaint's approval was changed");
 
 		let header = '\u2714'; // Check-mark symbol
 		let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";

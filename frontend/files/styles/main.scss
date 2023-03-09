@@ -185,6 +185,7 @@ body {
 	transition: .2s ease;
 	filter: invert(75%);
 	cursor: pointer;
+	user-select: none;
 }
 
 .icon:hover {
@@ -234,20 +235,15 @@ body {
 	background-color: #070a0c;
 }
 
+.formField:not([type='checkbox']):not(:focus):hover {
+	border: 2px solid lightslategray;
+	transition: border 0.2s ease;
+}
+
 .alignedField {
 	padding: 16px;
 	margin: 0 auto 5px;
 	margin-left: 20%;
-}
-
-@media screen and (max-width: 400px) {
-	.alignedField {
-		margin-left: 10%;
-	}
-
-	#passwordField {
-		margin-right: 0;
-	}
 }
 
 /* credential fields */
@@ -290,7 +286,6 @@ button {
 	border-radius: var(--defaultBorderRadius);
 }
 
-
 button:hover {
 	color: whitesmoke;
 	border: 2px solid lightslategray;
@@ -304,11 +299,7 @@ input, textarea {
 	outline: none;
 }
 
-input:not([type='checkbox']):hover, textarea:hover {
-	border: 2px solid lightslategray;
-	transition: border 0.2s ease;
-	
-}
+
 
 button:active {
 	background-color: #12171d;
@@ -360,7 +351,7 @@ button:active {
 		display: flex;
 	}
 
-	#lock, #whats-this-hint {
+	#lock, #whats-this-hint, #notesDate {
 		display: none;
 	}
 
@@ -580,7 +571,15 @@ button:active {
 	box-sizing: border-box;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 375px) {
+	.alignedField {
+		margin-left: 10%;
+	}
+
+	#passwordField {
+		margin-right: 0;
+	}
+
 	.checkboxesContainer {
 		padding-left: 5%;
 	}
@@ -650,20 +649,24 @@ input[type=checkbox]:disabled::before {
 	cursor: not-allowed;
 }
 
-#createShareLinkBtn, #createInviteLinkBtn {
+.niceButton {
 	background-color: var(--selectedInputColor);
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 25px;
-}
+	transition: .1s ease;
 
-#createShareLinkBtn:hover, #createInviteLinkBtn:hover {
-	transform: scale(1.05);
-}
+	&:hover {
+		background-color: var(--selectedInputColor);
+		&:not(:active) {
+			transform: scale(1.03);
+		}
+	}
 
-#createShareLinkBtn:active, #createInviteLinkBtn:active {
-	background-color: #0f202f;
+	&:focus {
+		background-color: var(--selectedInputColor);
+	}
 }
 
 #shareLinkField, #inviteLinkField {
@@ -764,7 +767,7 @@ a {
 .notification {
 	transform: translate(-50%, -200%);
 	position: fixed;
-	padding: 10px;
+	padding: 25px;
 	width: 300px;
 	max-width: 85%; /* for super skinny displays like galaxy fold */
 	height: 75px;
@@ -844,4 +847,101 @@ a {
 		margin-left: 10px;
 		margin-top: -10px;
 	}
+}
+
+#notesContainer {
+	position: relative;
+	margin-top: 20px;
+	font-family: monospace;
+}
+
+#notesHeader {
+	display: flex;
+	align-items: center; /* Center vertically */
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	border: 2px solid #34383e;
+	border-top-left-radius: var(--defaultBorderRadius);
+	border-top-right-radius: var(--defaultBorderRadius);
+	box-sizing: border-box;
+	height: 30px;
+	background-color: #08121b;
+	text-align: left;
+	padding: 0 20px;
+}
+
+#notesTitle {
+	color: rgb(180, 180, 180);
+	font-size: 16px;
+	font-weight: bold;	margin-left: auto;
+	margin-right: auto;
+}
+
+#notesDate {
+	color: rgb(136, 136, 136);
+	font-size: 14px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+@media screen and (max-width: 430px) {
+	.sectionCard {
+		width: 95%;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+}
+
+#notesStatus {
+	width: max-content;
+	float: right;
+	font-size: 14px;
+	color: rgb(136, 136, 136);	margin-left: auto;
+	margin-right: auto;
+}
+
+#notesArea {
+	background-color: var(--evenFilesBackgroundColor);
+	color: lightgray;
+	font-size: 15px;
+	resize: none;
+	width: 100%;
+	padding: 50px 20px 35px; /* top left&right bottom */
+	min-height: 50px;
+	box-sizing: border-box;
+	border-color: #34383e;
+	border-radius: var(--defaultBorderRadius);
+	overflow: hidden;
+	tab-size: 4;
+}
+
+#notesCharCount {
+	position: absolute;
+	bottom: 12px;
+	right: 12px;
+	color: rgb(136, 136, 136);
+}
+
+#notesTitleContainer {
+	display: block;
+	width: 50%;
+	text-align: left;
+}
+
+#notesDateContainer {
+	display: block;
+	width: 100%;
+	text-align: center;
+}
+
+#notesStatusContainer {
+	display: block;
+	width: 50%;
+	text-align: right;
+}
+
+#notesTitle, #notesDate, #notesStatus, #notesCharCount {
+	user-select: none;
 }

@@ -81,7 +81,7 @@ submitBtn.addEventListener('click', () => {
 		})
 	}
 
-	sendHttpRequest('POST', '/login', options, (http) => {
+	sendHttpRequest('POST', '/login', options, { load: (http) => {
 		switch (http.status) {
 			case 200:
 				if (!persistentSession) {
@@ -109,7 +109,7 @@ submitBtn.addEventListener('click', () => {
 		arrowIcon.onanimationiteration = () => {
 			arrowIcon.classList.remove('rotatingLogin');
 		};
-	});
+	}});
 
 	passwordField.value = '';
 });
@@ -120,6 +120,13 @@ $('#signupLink').addEventListener('click', () => {
 	showDarkOverlayForPopup();
 	$('#signupPopup').style.display = 'block';
 });
+
+const dynamicTextArea = async function() {
+	let y = window.scrollY; // record last scroll position
+	this.style.height = "";
+	this.style.height = this.scrollHeight + "px";
+	window.scrollTo(0, y); // jump to last scroll position
+};
 
 function showDarkOverlayForPopup() {
 	darkOverlay.style.display = 'block';
@@ -168,7 +175,7 @@ $('#signupRequestBtn').addEventListener('click', () => {
 			message: message
 		})
 	};
-	sendHttpRequest('POST', '/signup', options, (http) => {
+	sendHttpRequest('POST', '/signup', options, { load: (http) => {
 		accessToken = null, refreshToken = null;
 		switch (http.status) {
 			case 201:
@@ -191,7 +198,7 @@ $('#signupRequestBtn').addEventListener('click', () => {
 			default:
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
-	});
+	}});
 });
 
 function logout() {
@@ -199,7 +206,7 @@ function logout() {
 	if (refreshToken) {
 		options = {headers: {'Refresh-Token': refreshToken}};
 	}
-	sendHttpRequest('DELETE', '/login/refresh', options, (http) => {
+	sendHttpRequest('DELETE', '/login/refresh', options, { load: (http) => {
 		accessToken = null, refreshToken = null;
 		switch (http.status) {
 			case 204:
@@ -215,13 +222,13 @@ function logout() {
 			default:
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
-	});
+	}});
 }
 
 function setUpMainPage(isInvite=false) {
 	loggedIn = true;
 	function refreshPageInfo(uploadedCount=0) {
-		sendHttpRequest('GET', '/files', {}, (http) => {
+		sendHttpRequest('GET', '/files', {}, { load: (http) => {
 			switch (http.status) {
 				case 200:
 					fillMainPage(JSON.parse(http.responseText), uploadedCount);
@@ -229,11 +236,12 @@ function setUpMainPage(isInvite=false) {
 				default:
 					displayToast('Something went wrong. Status code: ' + http.status);
 			}
-		});
+		}});
+		getNotes();
 	}
 
 	refreshPageInfo();
-	
+
 	async function mainUploadFiles(files) {
 		if (files.length === 0) return;
 
@@ -256,39 +264,57 @@ function setUpMainPage(isInvite=false) {
 		      filePicker = $('#filePicker');
 
 		const options = {
-			body: formData,
-			uploadOnProgress: (e) => {
-				const percent = Math.floor(100 * e.loaded / e.total);
-				filePickerDropAreaLabel.textContent = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '\r\n' + percent + '%';
-				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddFilesBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
-			}
+			body: formData
 		}
 
 		filePickerDropArea.classList.add('inProgressFilePickerDropArea');
 		filePicker.classList.add('inProgressFilePicker');
 		filePicker.disabled = true;
 
-		sendHttpRequest('POST', '/upload', options, (http) => {
+		const beforeUnloadFuncUpload = (e) => {
+			e.returnValue = ''; // for chrome
+			return ''; // for firefox
+		}
+
+		window.addEventListener('beforeunload', beforeUnloadFuncUpload);
+	
+		const afterUploadCleanupFunc = () => {
+			window.removeEventListener('beforeunload', beforeUnloadFuncUpload);
 			filePickerDropAreaLabel.textContent = formerFilePickerDropAreaLabelText;
 			filePickerDropArea.classList.remove('inProgressFilePickerDropArea');
 			filePicker.classList.remove('inProgressFilePicker');
 			filePicker.disabled = false;
 			filePickerDropArea.style.background = '';
-			switch (http.status) {
-				case 200:
-					refreshPageInfo(files.length);
-					if (files.length > 1) {
-						var msg = `Uploaded ${files.length} files`;
-					} else {
-						var msg = 'Uploaded ' + files[0].name;
-					}
-					displayToast(msg, { type: 'alert' });
-					break;
-				case 413:
-					displayToast(`You don't have enough free space for that`);
-					break;
-				default:
-					displayToast('Something went wrong. Status code: ' + http.status);
+		};
+
+		sendHttpRequest('POST', '/upload', options, { 
+			load: (http) => {
+				afterUploadCleanupFunc();
+				switch (http.status) {
+					case 200:
+						refreshPageInfo(files.length);
+						if (files.length > 1) {
+							var msg = `Uploaded ${files.length} files`;
+						} else {
+							var msg = 'Uploaded ' + files[0].name;
+						}
+						displayToast(msg, { type: 'alert' });
+						break;
+					case 413:
+						displayToast(`You don't have enough free space for that`);
+						break;
+					default:
+						displayToast('Something went wrong. Status code: ' + http.status);
+				}
+			},
+			error: (e) => {
+				afterUploadCleanupFunc();
+				alert('The upload failed, maybe the connection timed out or the server crashed.\n\nTry again.');
+			},
+			progress: (e) => {
+				const percent = Math.floor(100 * e.loaded / e.total);
+				filePickerDropAreaLabel.textContent = getFormattedSize(e.loaded) + ' / ' + getFormattedSize(e.total) + '\r\n' + percent + '%';
+				filePickerDropArea.style.background = 'linear-gradient(90deg, var(--oddFilesBackgroundColor) ' + percent + '%, rgba(0,0,0,0)' + percent + '%)';
 			}
 		});
 	}
@@ -327,8 +353,6 @@ function setUpMainPage(isInvite=false) {
 	 	}, 10);
 
 		const filesList = $('#filesList');
-
-		const currentDate = new Date();
 		const files = filesInfo.files;
 
 		if (files.length > 0)
@@ -358,12 +382,9 @@ function setUpMainPage(isInvite=false) {
 			
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
-			date.textContent = getRelativeTime(files[i].uploadDate, currentDate);
 			const d = new Date(files[i].uploadDate);
-			const utcOffset = d.getTimezoneOffset();
-			const utcOffsetHrs = Math.floor(utcOffset / 60);
-			const utcOffsetMins = utcOffset % 60;
-			date.title = `${d.toLocaleString()} UTC${utcOffset<0 ? '+' : '-'}${utcOffsetHrs}${utcOffsetMins>0 ? ':'+utcOffsetMins : '' }`;
+			date.textContent = getRelativeTime(d, new Date());
+			date.title = getUtcOffsetTime(d);
 			
 			let deleteButton = document.createElement('span');
 			deleteButton.classList.add('icon', 'deleteIcon');
@@ -385,7 +406,7 @@ function setUpMainPage(isInvite=false) {
 					})
 				};
 
-				sendHttpRequest('DELETE', '/delete', options, (http) => {
+				sendHttpRequest('DELETE', '/delete', options, { load: (http) => {
 					switch (http.status) {
 						case 204:
 							refreshPageInfo();
@@ -394,7 +415,7 @@ function setUpMainPage(isInvite=false) {
 						default:
 							displayToast('Something went wrong. Status code: ' + http.status);
 					}
-				});
+				}});
 			});
 
 			filesListItem.append(filename, size, date, deleteButton);
@@ -439,7 +460,7 @@ function setUpMainPage(isInvite=false) {
 							})
 						};
 			
-						sendHttpRequest('POST', '/share', options, (http) => {
+						sendHttpRequest('POST', '/share', options, { load: (http) => {
 							switch (http.status) {
 								case 201:
 									const url = JSON.parse(http.responseText).url;
@@ -449,7 +470,7 @@ function setUpMainPage(isInvite=false) {
 								default:
 									displayToast('Something went wrong. Status code: ' + http.status);
 							}
-						});
+						}});
 					});
 				});
 	
@@ -469,7 +490,7 @@ function setUpMainPage(isInvite=false) {
 						})
 					};
 	
-					sendHttpRequest('POST', '/download/request', options, async (http) => {
+					sendHttpRequest('POST', '/download/request', options, { load: async (http) => {
 						switch (http.status) {
 							case 200:
 								let a = document.createElement('a');
@@ -483,7 +504,7 @@ function setUpMainPage(isInvite=false) {
 							default:
 								displayToast('Something went wrong. Status code: ' + http.status);
 						}
-					});
+					}});
 				});
 				filesListItem.append(shareButton, downloadButton);
 			}
@@ -596,7 +617,7 @@ function setUpMainPage(isInvite=false) {
 					})
 				};
 	
-				sendHttpRequest('POST', '/invite', options, (http) => {
+				sendHttpRequest('POST', '/invite', options, { load: (http) => {
 					switch (http.status) {
 						case 201:
 							const url = JSON.parse(http.responseText).url;
@@ -609,21 +630,127 @@ function setUpMainPage(isInvite=false) {
 						default:
 							displayToast('Something went wrong. Status code: ' + http.status);
 					}
-				});
+				}});
 			});
 		});
 
 		// Makes the complaintField expand to accommodate its input text.
-		$('#inviteMessageField').addEventListener('input', function() {
-			this.style.height = "";
-			this.style.height = this.scrollHeight + "px";
-		});
+		$('#inviteMessageField').addEventListener('input', dynamicTextArea);
 	}
+
+	const notesArea = $('#notesArea'), notesDate = $('#notesDate'), notesCharCount = $('#notesCharCount'), notesStatus = $('#notesStatus');
+	const nonEditInputEvent = new Event('input');
+	let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true;
+	dynamicTextArea.call(notesArea);
+
+	async function notesStatusSavingAnimation() {
+		while (saving) {
+			notesStatus.textContent = '/';
+			await sleep(50);
+			notesStatus.textContent = '—';
+			await sleep(50);
+			notesStatus.textContent = '\\';
+			await sleep(50);
+			notesStatus.textContent = '|';
+			await sleep(50);
+		}
+		if (saveSuccessful) {
+			notesStatus.textContent = 'Saved';
+		} else {
+			notesStatus.textContent = 'Failed to save';
+		}
+
+	}
+
+	const beforeUnloadFuncNotes = (e) => {
+		e.returnValue = ''; // for chrome
+		return ''; // for firefox
+	}
+
+	notesArea.addEventListener('input', async (e) => {
+		let len = notesArea.value.length;
+		if (len > notesMaxLength) { // firefox allows pasting paste maxlength, so we gotta do this
+			notesArea.value = notesArea.value.substring(0, notesMaxLength); // crop text
+			len = notesArea.value.length; // recalculate length
+		}
+		dynamicTextArea.call(notesArea);
+		notesCharCount.textContent = len + ' / ' + notesMaxLength;
+		if (!e.inputType) return; // if no input type, means that this function was called without the need to save
+		notesStatus.textContent = '\xa0'; // set it to &nbsp; so the container doesn't collapse
+		lastEditTime = new Date();
+
+		let milli = 750;
+		await sleep(milli);
+		if (new Date() - lastEditTime < milli) return;
+
+		saving = true;
+		notesStatusSavingAnimation();
+
+		window.addEventListener('beforeunload', beforeUnloadFuncNotes);
+
+		const options = {
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ text: notesArea.value })
+		};
+		sendHttpRequest('PATCH', '/notes', options, {
+			load: (http) => {
+				switch (http.status) {
+					case 204:
+						window.removeEventListener('beforeunload', beforeUnloadFuncNotes);
+						saveSuccessful = true;
+						saving = false;
+						notesDate.textContent = 'Edited just now';
+						notesDate.title = getUtcOffsetTime(new Date);
+						break;
+					default:
+						displayToast(`Couldn't save your notes :(\n Status code: ` + http.status);
+				}
+			},
+			error: () => {
+				window.removeEventListener('beforeunload', beforeUnloadFuncNotes);
+				displayToast(`Couldn't save your notes!\nServer might be down...`);
+				saveSuccessful = false;
+				saving = false;
+			}
+		});
+	});
+	notesArea.addEventListener('keydown', function(event) {
+		if(event.keyCode === 9) {
+			event.preventDefault();
+			const v = this.value, s = this.selectionStart, e = this.selectionEnd;
+			this.value = v.substring(0, s) + '\t' + v.substring(e);
+			this.selectionStart = this.selectionEnd = s + 1;
+		}
+	});
+	notesArea.addEventListener('paste', (e) => e.stopPropagation()); // prevent paste event from bubbling up to document
+
+	function getNotes() {
+		sendHttpRequest('GET', '/notes', {}, { load: (http) => {
+			switch (http.status) {
+				case 200:
+					const notes = JSON.parse(http.responseText);
+					notesArea.value = notes.text;
+					notesMaxLength = notes.textColLength;
+					notesArea.setAttribute('maxlength', notesMaxLength);
+					notesArea.dispatchEvent(nonEditInputEvent);
+					const lastEditDate = new Date(notes.lastEdit);
+					notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
+					notesDate.title = getUtcOffsetTime(lastEditDate);
+					break;
+				default:
+					displayToast(`Couldn't retrieve notes. Status code: ` + http.status);
+			}
+		}});
+	}
+
+	// recalculate textarea height upon window resize
+	window.addEventListener("resize", () => notesArea.dispatchEvent(nonEditInputEvent));
 
 	// register paste listener to upload files using CTRL+V
 	let pastedRecently = false;
-	document.onpaste = async (event) => {
-		if (pastedRecently) return; // Don't want users spam-pasting or accidently double-pasting
+	document.addEventListener('paste', async (event) => {
+		// Don't want users spam-pasting or accidently double-pasting
+		if (pastedRecently) return;
 
 		const items = (event.clipboardData || event.originalEvent.clipboardData).items;
 		if (!items) return;
@@ -648,7 +775,7 @@ function setUpMainPage(isInvite=false) {
 		pastedRecently = true;
 		await sleep(1500);
 		pastedRecently = false;
-	}
+	});
 
 	document.addEventListener('keydown', (event) => shiftKeyDown = event.shiftKey);
 	document.addEventListener('keyup', (event) => shiftKeyDown = event.shiftKey);
@@ -694,9 +821,18 @@ function setUpFilePicker(uploadFilesFunction) {
 }
 
 /** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', body: 'some data'} */
-function sendHttpRequest(method, url, options, callback) {
-
+function sendHttpRequest(method, url, options, callbacks) {
 	const http = new XMLHttpRequest();
+
+	for (const event in callbacks) {
+		if (event === 'load') continue; // use the load event listener below instead
+		if (event === 'progress') {
+			http.upload.onprogress = callbacks[event]; // progress events are fired on xhr.upload
+			continue;
+		}
+		http.addEventListener(event, callbacks[event]);
+	}
+
 	http.addEventListener('load', async (e) => { // If ready state is 4, do async callback
 		if (http.status === 444) { // 444 means access token invalid, so we try refresh token
 			let refreshOptions = {};
@@ -704,14 +840,14 @@ function sendHttpRequest(method, url, options, callback) {
 				refreshOptions = {headers: {'Refresh-Token': refreshToken}};
 			}
 			
-			sendHttpRequest('POST', '/login/refresh', refreshOptions, (http2) => {
+			sendHttpRequest('POST', '/login/refresh', refreshOptions, { load: (http2) => {
 				switch (http2.status) {
 					case 200:
 						if (refreshToken) {
 							accessToken  = http2.getResponseHeader("Access-Token");
 							refreshToken = http2.getResponseHeader("Refresh-Token");
 						}
-						sendHttpRequest(method, url, options, callback);
+						sendHttpRequest(method, url, options, callbacks);
 						return;
 					default:
 						accessToken = null, refreshToken = null;
@@ -721,17 +857,14 @@ function sendHttpRequest(method, url, options, callback) {
 								window.location.search += '&signout=server';
 							}, 10);
 						} else {
-							callback(http2, e);
+							callbacks.load(http2, e);
 						}
 				}
-			});
+			}});
 		} else {
-			callback(http, e);
+			callbacks.load(http, e);
 		}
 	});
-
-	if (options.uploadOnProgress)
-		http.upload.onprogress = options.uploadOnProgress;
 
 	http.open(method, url, true);
 
@@ -772,13 +905,12 @@ const MILLI_PER_MIN = 60000,
       MINS_PER_YEAR = 525600;
 
 /** Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago" */
-function getRelativeTime(datetime, currentDate) {
-	let date = new Date(datetime);
+function getRelativeTime(oldDate, currentDate) {
 
-	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - date)) / MILLI_PER_MIN); 
+	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - oldDate)) / MILLI_PER_MIN); 
 
 	if (MINUTES_PASSED === 0)
-		return 'Just now';
+		return 'just now';
 
 	// If less than an hour has passed, print minutes
 	if(MINUTES_PASSED < MINS_PER_HOUR) {
@@ -810,6 +942,13 @@ function getRelativeTime(datetime, currentDate) {
 	}
 }
 
+function getUtcOffsetTime(date) {
+	const utcOffset = date.getTimezoneOffset();
+	const utcOffsetHrs = Math.floor(utcOffset / 60);
+	const utcOffsetMins = utcOffset % 60;
+	return `${date.toLocaleString()} UTC${utcOffset<0 ? '+' : '-'}${utcOffsetHrs}${utcOffsetMins>0 ? ':'+utcOffsetMins : ''}`;
+}
+
 const KILOBYTE = 1000,
       MEGABYTE = 1000000,
       GIGABYTE = 1000000000;
@@ -836,7 +975,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 	const urlParams = new URLSearchParams(window.location.search);
 	const inviteCode = urlParams.get('invite');
 	if (inviteCode) {
-		sendHttpRequest('GET', '/invite?id=' + inviteCode, {}, (http) => {
+		sendHttpRequest('GET', '/invite?id=' + inviteCode, {}, { load: (http) => {
 			switch (http.status) {
 				case 200:
 					inviteAccessToken = http.getResponseHeader("Invite-Access-Token");
@@ -858,7 +997,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 			// Remove query string from URL so that the error alert doesn't show again on refresh
 			window.history.pushState({}, '', window.location.origin);
 			showLoginForm();
-		});
+		}});
 		return;
 	}
 
@@ -882,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 	}
 
 	if (location.pathname === '/') { // try to login with cookies
-		sendHttpRequest('GET', '/login/access', {}, (http) => {
+		sendHttpRequest('GET', '/login/access', {}, { load: (http) => {
 			switch (http.status) {
 				case 200:
 					app.innerHTML = http.responseText;
@@ -892,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', (e) => {
 					console.info('Unable to log in with cookies (if there are any)');
 			}
 			showLoginForm();
-		});
+		}});
 	}
 });
 
@@ -971,7 +1110,4 @@ async function copyToClipboard(text) {
 		});
 }
 
-$('#signupMsgField').addEventListener('input', function() {
-	this.style.height = "";
-	this.style.height = this.scrollHeight + 5 + "px";
-});
+$('#signupMsgField').addEventListener('input', dynamicTextArea);
