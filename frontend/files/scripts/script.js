@@ -642,7 +642,8 @@ function setUpMainPage(isInvite=false) {
 	notesArea.onanimationend = () => notesArea.classList.remove('syncedNotesArea');
 	const nonEditInputEvent = new Event('input');
 	const loadingAnimation = ['/', '—', '\\', '|']
-	let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId;
+	const MAX_FAILED_RETRIES = 5;
+	let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, failedRetries = 0;
 	dynamicTextArea.call(notesArea);
 
 	async function notesStatusSavingAnimation() {
@@ -668,7 +669,7 @@ function setUpMainPage(isInvite=false) {
 			await sleep(frameLength);
 		}
 
-		if (saveSuccessful) {
+		if (syncSuccessful) {
 			notesStatus.textContent = 'Synced';
 		} else {
 			notesStatus.textContent = 'Sync failed';
@@ -689,13 +690,17 @@ function setUpMainPage(isInvite=false) {
 		dynamicTextArea.call(notesArea);
 		notesCharCount.textContent = len + ' / ' + notesMaxLength;
 		if (!e.inputType) return; // if no input type, means that this function was called without the need to save
+		unsavedChanges = true;
 		notesStatus.textContent = '\xa0'; // set it to &nbsp; so the container doesn't collapse
 		lastEditTime = new Date();
 
 		let milli = 750;
 		await sleep(milli);
 		if (new Date() - lastEditTime < milli) return;
+		updateNotes();
+	});
 
+	async function updateNotes() {
 		saving = true;
 		notesStatusSavingAnimation();
 
@@ -709,27 +714,37 @@ function setUpMainPage(isInvite=false) {
 			})
 		};
 		sendHttpRequest('PATCH', '/notes', options, {
-			load: (http) => {
+			load: async (http) => {
 				switch (http.status) {
 					case 204:
 						window.removeEventListener('beforeunload', beforeUnloadFuncNotes);
+						unsavedChanges = false;
 						saveSuccessful = true;
 						saving = false;
 						notesDate.textContent = 'Edited just now';
 						notesDate.title = getUtcOffsetTime(new Date());
 						break;
 					default:
-						displayToast(`Couldn't save your notes :(\n Status code: ` + http.status);
+						displayToast(`Couldn't save your notes :( Status code: ${http.status}\nTrying again in 15 seconds...`);
+						saveSuccessful = false;
+						saving = false;
+						await sleep(15000);
+						updateNotes();
 				}
 			},
-			error: () => {
-				window.removeEventListener('beforeunload', beforeUnloadFuncNotes);
-				displayToast(`Couldn't save your notes!\nServer might be down...`);
+			error: async () => {
 				saveSuccessful = false;
 				saving = false;
+				if (failedRetries < MAX_FAILED_RETRIES) {
+					failedRetries++;
+					displayToast(`Couldn't save your notes! Trying again in 1 second...`);
+					await sleep(1000);
+					updateNotes();
+				}
 			}
 		});
-	});
+	}
+
 	notesArea.addEventListener('keydown', function(event) {
 		if(event.keyCode === 9) {
 			event.preventDefault();
@@ -740,25 +755,8 @@ function setUpMainPage(isInvite=false) {
 	});
 	notesArea.addEventListener('paste', (e) => e.stopPropagation()); // prevent paste event from bubbling up to document
 
-	async function getNotes() {
-		sendHttpRequest('GET', '/notes', {}, { load: (http) => {
-			switch (http.status) {
-				case 200:
-					const notes = JSON.parse(http.responseText);
-					notesArea.value = notes.text;
-					notesMaxLength = notes.textMaxLength;
-					notesArea.setAttribute('maxlength', notesMaxLength);
-					notesArea.dispatchEvent(nonEditInputEvent);
-					const lastEditDate = new Date(notes.lastEdit);
-					notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
-					notesDate.title = getUtcOffsetTime(lastEditDate);
-					pollerId = notes.pollerId;
-					pollNotes();
-					break;
-				default:
-					displayToast(`Couldn't retrieve notes. Status code: ` + http.status);
-			}
-		}});
+	async function getNotes(isPoll=false) {
+		sendHttpRequest('GET', '/notes', {}, getNotesCallback(isPoll));
 	}
 
 	async function pollNotes() {
@@ -768,38 +766,77 @@ function setUpMainPage(isInvite=false) {
 				pollerId: pollerId
 			})
 		}
-		sendHttpRequest('POST', '/notes/poll', options, { 
+		sendHttpRequest('POST', '/notes/poll', options, getNotesCallback(true));
+	}
+
+	function getNotesCallback(isPoll=false) {
+		return { 
 			load: async (http) => {
 				switch (http.status) {
 					case 200:
+						failedRetries = 0;
 						notesStatusSyncingAnimation(true);
 						const notes = JSON.parse(http.responseText);
 						notesArea.value = notes.text;
+						
+						
+						if (isPoll) {
+							notesStatus.textContent = '\xa0';
+							notesDate.textContent = 'Edited just now';
+							notesDate.title = getUtcOffsetTime(new Date());
+							notesArea.classList.add('syncedNotesArea');
+						} else {
+							const lastEditDate = new Date(notes.lastEdit);
+							notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
+							notesDate.title = getUtcOffsetTime(lastEditDate);
+							notesMaxLength = notes.textMaxLength;
+							notesArea.setAttribute('maxlength', notesMaxLength);
+							pollerId = notes.pollerId;
+						}
+
 						notesArea.dispatchEvent(nonEditInputEvent);
-						notesDate.textContent = 'Edited just now';
-						notesDate.title = getUtcOffsetTime(new Date());
-						notesStatus.textContent = '\xa0';
-						notesArea.classList.add('syncedNotesArea')
+
 						pollNotes();
 						break;
+					case 408: // on timeout, retry after 1 second
+						if (isPoll) {
+							notesStatusSyncingAnimation(false);
+							console.error('Failed to sync notes. Trying again in 1 second...');
+							await sleep(1000);
+							pollNotes();
+							if (!unsavedChanges) getNotes();
+							break;
+						}
+						// if not poll, go to default vv
 					default:
 						notesStatusSyncingAnimation(false);
-						displayToast(`Notes polling failed. Status code: ` + http.status + `\nTrying again in 30 seconds.`);
-						await sleep(30000);
-						pollNotes();
+						displayToast(`Failed to sync notes. Status code: ` + http.status + `\nTrying again in 15 seconds.`);
+						await sleep(15000);
+						isPoll ? pollNotes() : getNotes()
 				}
 			},
-			error: async(e) => {
+			error: async (e) => {
 				notesStatusSyncingAnimation(false);
-				displayToast(`Notes polling connection failed.\nTrying again in 30 seconds.`);
-				await sleep(30000);
-				pollNotes();
+				if (failedRetries < MAX_FAILED_RETRIES) {
+					failedRetries++;
+					console.error('Failed to sync notes. Trying again in 1 second...');
+					await sleep(1000);
+					isPoll ? pollNotes() : getNotes()
+				}
 			}
-		});
+		};
 	}
 
 	// recalculate textarea height upon window resize
-	window.addEventListener("resize", () => notesArea.dispatchEvent(nonEditInputEvent));
+	window.addEventListener('resize', () => notesArea.dispatchEvent(nonEditInputEvent));
+	window.addEventListener('online', (e) => {
+		failedRetries = 0;
+		if (unsavedChanges) {
+			updateNotes();
+		} else if (!saving) {
+			getNotes(true);
+		}
+	});
 
 	// register paste listener to upload files using CTRL+V
 	let pastedRecently = false;
