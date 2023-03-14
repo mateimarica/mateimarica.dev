@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
 const COMPLAINT_RATE_LIMITER = rateLimit({
 	windowMs: process.env.COMPLAINT_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.COMPLAINT_LIMITER_MAX_REQUESTS,
-	message: "You already submitted a complaint recently.<br>Surely I'm not that awful.",
+	message: "You already submitted a complaint recently.\r\nSurely I'm not that awful.",
 	headers: false
 });
 
@@ -134,7 +134,7 @@ async function sendComplaintForApproval(complaint, req) {
 		}
 	);
 
-	mailWrapper.send(null, 'Complaint reviewal required', emailContents);
+	mailWrapper.sendToAdmin('Complaint reviewal required', emailContents);
 }
 
 

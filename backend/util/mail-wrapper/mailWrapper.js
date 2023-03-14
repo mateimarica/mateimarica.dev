@@ -5,6 +5,10 @@ const EMAIL_SERVICE = process.env.EMAIL_SERVICE,
       EMAIL_PASSWORD = process.env.EMAIL_PASSWORD,
       ADMIN_RECIPIENT = process.env.EMAIL_RECIPIENT;
 
+if (!EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME || !ADMIN_RECIPIENT) {
+	console.error('Not all email environment vars set. Emails likely will not work.');
+}
+
 const TRANSPORTER = nodemailer.createTransport({
 	service: EMAIL_SERVICE,
 	port: 587,
@@ -15,13 +19,13 @@ const TRANSPORTER = nodemailer.createTransport({
 	}
 });
 
-// Pass in null for recipient to use ADMIN_RECIPIENT
-function send(recipient, subject, contents) {
-	recipient = recipient || ADMIN_RECIPIENT;
+function sendToAdmin(subject, contents) {
+	send(ADMIN_RECIPIENT, subject, contents);
+}
 
-	if (!EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME || !subject || !contents) {
-		console.error(`Complaint couldn't be sent for approval. Info: service=${!!EMAIL_SERVICE} email=${!!EMAIL_USERNAME} password=${!!EMAIL_PASSWORD} recipient=${!!recipient} subject=${!!subject} contents=${!!contents}`);
-		return;
+function send(recipient, subject, contents) {
+	if (!recipient || !subject || !contents || !EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME) {
+		return false;
 	}
 
 	const email = {
@@ -50,4 +54,4 @@ function checkConnection() {
 	});
 }
 
-module.exports = { send, checkConnection };
+module.exports = { sendToAdmin, send, checkConnection };

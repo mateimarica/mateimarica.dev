@@ -96,7 +96,7 @@ router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 					}
 				);
 
-				mailWrapper.send(null, 'Files Account Request', emailContents);
+				mailWrapper.sendToAdmin('Files Account Request', emailContents);
 				return;
 			} else {
 				console.log('Unable to sign user up.')
@@ -174,7 +174,7 @@ router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 					{
 						username: escape(results[0].username),
 						space: sizeFormatter.getFormattedSize(results[0].space),
-						domainWithProtocol: `${req.protocol}://${req.get('host')}`
+						domainURL: `${req.protocol}://${req.get('host')}`
 					}
 				);
 			} else {
