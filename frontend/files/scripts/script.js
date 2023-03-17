@@ -975,7 +975,7 @@ function sendHttpRequest(method, url, options, callbacks) {
 	if (options.responseType)
 		http.responseType = options.responseType;
 
-	http.send(options.body ?? null);
+	http.send(options.body || null);
 }
 
 /** A simple sleep function. Obviously, only call this from async functions. */
