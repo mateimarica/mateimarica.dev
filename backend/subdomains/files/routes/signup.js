@@ -8,9 +8,10 @@ const express = require('express'),
       rateLimit = require('express-rate-limit'),
       escape = require('escape-html'),
       mailWrapper = require('mail-wrapper'),
-      templateEngine = require('template-engine'),
       emailValidator = require('email-validator'),
       sizeFormatter = require('size-formatter');
+
+require('@marko/compiler/register');
 
 const pool = files.pool;
 
@@ -24,6 +25,7 @@ const SIGNUP_RATE_LIMITER = rateLimit({
 
 const DEFAULT_USER_SPACE_BYTES = process.env.FILE_DEFAULT_USER_SPACE_GBS * 1000000000;
 
+const accountRequestEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_review_email')).default;
 router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 
 	if (!req.body) return res.sendStatus(400);
@@ -85,18 +87,15 @@ router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 				denialURL.searchParams.append('approval_id', tempApprovalId);
 				denialURL.searchParams.append('approved', 0);
 
-				const emailContents = templateEngine.fillHTML(
-					path.join(files.COMPONENTS_DIR, 'email', 'account_request_review_email.html'),
-					{
-						username: escape(username),
-						email: escape(email),
-						message: escape(message),
-						approvalURL: approvalURL.href,
-						denialURL: denialURL.href
-					}
-				);
+				const html = accountRequestEmailTemplate.renderToString({
+					username: escape(username),
+					email: escape(email),
+					message: escape(message),
+					approvalURL: approvalURL.href,
+					denialURL: denialURL.href
+				});
 
-				mailWrapper.sendToAdmin('Files Account Request', emailContents);
+				mailWrapper.sendToAdmin('Files Account Request', html);
 				return;
 			} else {
 				console.log('Unable to sign user up.')
@@ -114,6 +113,9 @@ const SIGNUP_REVIEWAL_RATE_LIMITER = rateLimit({
 	skipSuccessfulRequests: true
 });
 
+const approvalConfirmationPageTemplate = require(path.join(files.COMPONENTS_DIR, '../main_components/approvalConfirmation')).default,
+      accountApprovalEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_approval_email')).default,
+      accountDenialEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_denial_email')).default;
 router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 	if (!req.query) return res.sendStatus(400);
 
@@ -156,36 +158,27 @@ router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 			let header = '\u2714'; // Check-mark symbol
 			let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
 
-			const approvalConfirmationHTML = templateEngine.fillHTML(
-				path.join(files.COMPONENTS_DIR, '../main_components/approvalConfirmation.html'),
-				{
-					header: header,
-					message: message
-				}
-			);
+			const approvalConfirmationHTML = approvalConfirmationPageTemplate.renderToString({
+				header: header,
+				message: message
+			});
 
 			res.set('Content-Type', 'text/html');
 			res.status(200).send(approvalConfirmationHTML);
 	
 			if (approvedBool) {
 				var subject = 'Welcome to Files!';
-				var emailContents = templateEngine.fillHTML(
-					path.join(files.COMPONENTS_DIR, 'email', 'account_request_approval_email.html'),
-					{
-						username: escape(results[0].username),
-						space: sizeFormatter.getFormattedSize(results[0].space),
-						domainURL: `${req.protocol}://${req.get('host')}`
-					}
-				);
+				var emailContents = accountApprovalEmailTemplate.renderToString({
+					username: escape(results[0].username),
+					space: sizeFormatter.getFormattedSize(results[0].space),
+					domainURL: `${req.protocol}://${req.get('host')}`
+				});
 			} else {
 				var subject = 'Account Request Denied';
-				var emailContents = templateEngine.fillHTML(
-					path.join(files.COMPONENTS_DIR, 'email', 'account_request_denial_email.html'),
-					{
-						username: escape(results[0].username),
-						domain: req.get('host')
-					}
-				);
+				var emailContents = accountDenialEmailTemplate.renderToString({
+					username: escape(results[0].username),
+					domain: req.get('host')
+				});
 			}
 
 			mailWrapper.send(results[0].email, subject, emailContents);

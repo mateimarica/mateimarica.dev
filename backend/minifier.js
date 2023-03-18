@@ -86,6 +86,6 @@ svgFilepaths.forEach(filepath => {
 });
 
 function failProcess(msg) {
-	console.error(msg);
+	console.error('\n' + msg);
 	process.exit(1);
 }

@@ -5,8 +5,9 @@ const express = require('express'),
       rateLimit = require("express-rate-limit"),
       escape = require('escape-html'),
       dateFormatter = require('date-formatter'),
-      templateEngine = require('template-engine'),
       poolManager = require('pool-manager');
+
+require('@marko/compiler/register');
 
 const pool = poolManager.getPool(process.env.DB_NAME);
 
@@ -74,6 +75,7 @@ const COMPLAINT_APPROVAL_RATE_LIMITER = rateLimit({
 	skipSuccessfulRequests: true
 });
 
+const approvalConfirmationTemplate = require('../../frontend_build/main_components/approvalConfirmation').default;
 router.get('/approve', COMPLAINT_APPROVAL_RATE_LIMITER, (req, res) => {
 	if (!req.query.approval_id || !req.query.approved || (req.query.approved !== '0' && req.query.approved !== '1')) {
 		res.sendStatus(400);
@@ -94,19 +96,17 @@ router.get('/approve', COMPLAINT_APPROVAL_RATE_LIMITER, (req, res) => {
 		let header = '\u2714'; // Check-mark symbol
 		let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
 
-		const approvalConfirmationHTML = templateEngine.fillHTML(
-			path.join(__dirname, '../../frontend_build/main_components/approvalConfirmation.html'),
-			{
-				header: header,
-				message: message
-			}
-		);
+		const html = approvalConfirmationTemplate.renderToString({
+			header: header,
+			message: message
+		});
 	
 		res.set('Content-Type', 'text/html');
-		res.status(200).send(approvalConfirmationHTML);
+		res.status(200).send(html);
 	});
 });
 
+const complaintReviewTemplate = require('../../frontend_build/main_components/complaint_review_email').default;
 async function sendComplaintForApproval(complaint, req) {
 	if (!complaint || !req) {
 		console.log(`Complaint couldn't be sent for approval. Info: complaint_str=${!!complaint} req_obj=${!!req}`);
@@ -123,18 +123,15 @@ async function sendComplaintForApproval(complaint, req) {
 	rejectButtonURL.searchParams.append('approval_id', complaint.temp_approval_id);
 	rejectButtonURL.searchParams.append('approved', 0);
 
-	const emailContents = templateEngine.fillHTML(
-		path.join(__dirname, '../../frontend_build/main_components/complaint_review_email.html'),
-		{
-			name: escape(complaint.name),
-			complaint: escape(complaint.complaint),
-			date: dateFormatter.formatDate(complaint.created_at),
-			approveButtonURL: approveButtonURL.href,
-			rejectButtonURL: rejectButtonURL.href
-		}
-	);
+	const html = complaintReviewTemplate.renderToString({
+		name: escape(complaint.name),
+		complaint: escape(complaint.complaint),
+		date: dateFormatter.formatDate(complaint.created_at),
+		approveButtonURL: approveButtonURL.href,
+		rejectButtonURL: rejectButtonURL.href
+	});
 
-	mailWrapper.sendToAdmin('Complaint reviewal required', emailContents);
+	mailWrapper.sendToAdmin('Complaint reviewal required', html);
 }
 
 

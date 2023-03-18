@@ -13,7 +13,7 @@ async function setTextMaxLength() {
 	pool.execute({sql: sql, rowsAsArray: true}, (err, results) => {
 		if (err) {
 			console.log(err);
-			return res.sendStatus(502);
+			return;
 		}
 
 		if (results && results.length === 1) {

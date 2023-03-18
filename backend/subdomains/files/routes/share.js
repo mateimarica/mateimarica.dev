@@ -3,9 +3,10 @@ const express = require('express'),
       path = require('path'),
       fs = require('fs'),
       {authInspector, ROLE} = require('../authManager'),
-      templateEngine = require('template-engine'),
       files = require('../files'),
 	  { nanoid } = require('nanoid');
+
+require('@marko/compiler/register');
 
 const UPLOAD_DIR = files.UPLOAD_DIR;
 const pool = files.pool;
@@ -48,6 +49,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 	});
 });
 
+const downloadPageTemplate = require(path.join(files.COMPONENTS_DIR, 'download')).default;
 // Sends a download page that redirects to the download URL
 router.get('/', (req, res) => {
 	const id = req.query.id;
@@ -56,11 +58,7 @@ router.get('/', (req, res) => {
 		return res.sendStatus(400);
 
 	const url = req.protocol + '://' + req.get('host') + '/share/dl?id=' + id;
-
-	const html = templateEngine.fillHTML(
-		path.join(files.COMPONENTS_DIR, 'download.html'),
-		{ url: url }
-	)
+	const html = downloadPageTemplate.renderToString({ url: url });
 	res.send(html);
 });
 

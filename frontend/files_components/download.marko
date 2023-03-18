@@ -6,12 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="icon" type="image/ico" href="https://mateimarica.dev/icons/favicon.ico">
 		<meta name="color-scheme" content="light only">
-		<meta http-equiv="refresh" content="0;url=${url}" />
+		<meta http-equiv="refresh" content=`0;url=${input.url}` />
 	</head>
 	<body>
 		<div class="sectionCard centerCard">
 			<label>If the download didn't start automatically,</label>
-			<a href="${url}">click here</a>
+			<a href=`${input.url}`>click here</a>
 		</div>
 		<script src="/scripts/download.js"></script>
 	</body>

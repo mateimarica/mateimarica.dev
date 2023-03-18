@@ -55,9 +55,9 @@
 			<div class="sectionCard sideBySide" style="max-width: 600px;">
 				<h1 class="centeredHeader">Downloads</h1>
 				<div id="downloadButtons">
-					<a href="${windows}" class="downloadButton windows">Windows<img src="./images/windows.png"></a>
-					<a href="${linux}" class="downloadButton linux">Linux<img src="./images/linux.png"></a>
-					<a href="${macos}" class="downloadButton macos">macOS<img src="./images/macos.png"></a>
+					<a href=`${input.windows}` class="downloadButton windows">Windows<img src="./images/windows.png"></a>
+					<a href=`${input.linux}` class="downloadButton linux">Linux<img src="./images/linux.png"></a>
+					<a href=`${input.macos}` class="downloadButton macos">macOS<img src="./images/macos.png"></a>
 				</div>
 	
 				<h2 class="centeredHeader claustrophobicHeader">Minimum Requirements</h2>
@@ -68,7 +68,7 @@
 				OpenJDK 11
 		
 				<h2 class="centeredHeader claustrophobicHeader">Running .jar files</h2>
-				<code>java -jar ./QRequest-${version}.jar</code>
+				<code>java -jar ./QRequest-${input.version}.jar</code>
 			</div>
 		</div>
 		<script src="/scripts/script.js"></script>

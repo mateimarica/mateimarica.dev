@@ -3,9 +3,10 @@ const express = require('express'),
       path = require('path'),
       mysql = require('mysql2'),
       rateLimit = require('express-rate-limit'),
-      templateEngine = require('template-engine'),
       reqSniffer = require('request-sniffer'),
       downloads = require('./routes/api/downloads');	
+
+require('@marko/compiler/register');
 
 const STATIC_PAGE_RATE_LIMITER = rateLimit({
 		windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
@@ -21,17 +22,15 @@ router.get('/index.html', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	res.redirect('/');
 });
 
+const indexTemplate = require(path.join(__dirname, '../../frontend_build/qrequest/index')).default;
 router.get('/', STATIC_PAGE_RATE_LIMITER, (req, res) => {
 	let downloadInfo = downloads.getDownloadInfo();
-	const html = templateEngine.fillHTML(
-		path.join(__dirname, '../../frontend_build/qrequest/index.html'),
-		{
-			windows: downloadInfo.downloads.windows.browser_download_url ?? '/',
-			linux: downloadInfo.downloads.linux.browser_download_url ?? '/',
-			macos: downloadInfo.downloads.macos.browser_download_url ?? '/',
-			version: downloadInfo.version ?? 'v1.0'
-		}
-	)
+	const html = indexTemplate.renderToString({
+		windows: downloadInfo.downloads.windows.browser_download_url ?? '/',
+		linux: downloadInfo.downloads.linux.browser_download_url ?? '/',
+		macos: downloadInfo.downloads.macos.browser_download_url ?? '/',
+		version: downloadInfo.version ?? 'v1.0'
+	});
 	res.send(html);
 });
 

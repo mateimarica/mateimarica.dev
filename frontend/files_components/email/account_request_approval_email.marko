@@ -76,16 +76,15 @@
 				<table>
 					<tr>
 						<td class="headerTableData"><h3>Username:</h3></td>
-						<td class="tableData">${username}</td>
+						<td class="tableData">${input.username}</td>
 					</tr>
 					<tr>
 						<td class="headerTableData"><h3>Storage Space:</h3></td>
-						<td class="tableData">${space}</td>
-						</td>
+						<td class="tableData">${input.space}</td>
 					</tr>
 				</table>
 			</div>
-			<a id="startButton" class="button" href="${domainURL}">Start uploading</a>
+			<a id="startButton" class="button" href=`${input.domainURL}`>Start uploading</a>
 		</div>
 	</body>
 </html>

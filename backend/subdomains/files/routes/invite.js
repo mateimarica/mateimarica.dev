@@ -5,12 +5,12 @@ const express = require('express'),
       authManager = require('../authManager'),
       enoughSpace = require('../sizeVerifier').enoughSpace
       crypto = require('crypto'),
-      templateEngine = require('template-engine'),
       files = require('../files'),
       escape = require('escape-html'),
       { nanoid } = require('nanoid');
 
-const UPLOAD_DIR = files.UPLOAD_DIR;
+require('@marko/compiler/register');
+
 const pool = files.pool;
 const {authInspector, ROLE} = authManager;
 	  
@@ -57,6 +57,7 @@ router.post('/', authInspector(ROLE.USER), async (req, res) => {
 	
 });
 
+const inviteTemplate = require(path.join(files.COMPONENTS_DIR, 'invite')).default;
 router.get('/', async (req, res) => {
 	const id = req.query.id;
 
@@ -77,13 +78,11 @@ router.get('/', async (req, res) => {
 		if (results && results.length === 1) {		
 			res.set('Invite-Access-Token', inviteAccessToken);
 
-			const html = templateEngine.fillHTML(
-				path.join(files.COMPONENTS_DIR, 'invite.html'),
-				{
-					name: escape(results[0].inviteeName), // escape to prevent HTML injection :)
-					message: escape(results[0].message)
-				}
-			)
+			const html = inviteTemplate.renderToString({
+				name: escape(results[0].inviteeName), // escape to prevent HTML injection :)
+				message: escape(results[0].message)
+			});
+
 			res.status(200).send(html);
 		} else {
 			return res.sendStatus(404);

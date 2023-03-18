@@ -12,7 +12,7 @@
 				margin-top: 2px;
 			}
 
-			#container {
+			#complaintContainer {
 				width: 95%;
 				margin-left: auto;
 				margin-right: auto;
@@ -22,7 +22,7 @@
 				padding: 5px;
 			}
 
-			#container table {
+			#complaintContainer table {
 				margin-left: auto;
 				margin-right: auto;
 				display: flex;
@@ -57,41 +57,41 @@
 				display: block;
 				text-decoration: none;
 				text-align: center;
-				color: rgb(218, 218, 218) !important;;
 			}
 			
 			#approveButton {
-				background-color: #00415a;
+				background-color:rgb(0, 82, 0);
+				
 			}
 
-			#denyButton {
-				background-color: #530000;
+			#rejectButton {
+				background-color:rgb(105, 0, 26);
 			}
 		</style>
+		<link rel="icon" type="image/ico" href="/favicon.ico">
 	</head>
 	<body>
-		<div style="max-width: 800px;">
-			<h2>Someone wants an account!</h2>
-			<div id="container">
-				<table>
-					<tr>
-						<td class="headerTableData"><h3>Username:</h3></td>
-						<td class="tableData">${username}</td>
-					</tr>
-					<tr>
-						<td class="headerTableData"><h3>Email:</h3></td>
-						<td class="tableData">${email}</td>
-						</td>
-					</tr>
-					<tr>
-						<td class="headerTableData"><h3>Message:</h3></td>
-						<td class="tableData">${message}</td>
-					</tr>
-				</table>
-			</div>
+		<h2 style="text-align: center;">Someone submitted a complaint!</h2>
+		<p style="text-align: center;">Review the complaint and select the appropriate action.</p>
 
-			<a id="approveButton" class="button" href="${approvalURL}">Approve request</a>
-			<a id="denyButton" class="button" href="${denialURL}">Deny request</a>
+		<div id="complaintContainer">
+			<table>
+				<tr>
+					<td class="headerTableData"><h3>Name:</h3></td>
+					<td class="tableData">${input.name}</td>
+				</tr>
+				<tr>
+					<td class="headerTableData"><h3>Complaint:</h3></td>
+					<td class="tableData">${input.complaint}</td>
+				</tr>
+				<tr>
+					<td class="headerTableData"><h3>Time:</h3></td>
+					<td class="tableData">${input.date}</td>
+				</tr>
+			</table>
 		</div>
+
+		<a id="approveButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.approveButtonURL}`>Approve complaint</a>
+		<a id="rejectButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.rejectButtonURL}`>Reject complaint</a>
 	</body>
 </html>

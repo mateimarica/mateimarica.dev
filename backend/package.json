@@ -34,6 +34,7 @@
     "helmet": "^4.6.0",
     "invalid-json-handler": "file:./middleware/invalid-json-handler",
     "mail-wrapper": "file:./util/mail-wrapper",
+    "marko": "^5.25.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "mysql2": "^2.3.3",
@@ -49,8 +50,7 @@
     "replace-in-file": "^6.3.5",
     "request-sniffer": "file:./middleware/request-sniffer/",
     "size-formatter": "file:./util/size-formatter",
-    "svgo": "^3.0.2",
-    "template-engine": "file:./util/template-engine"
+    "svgo": "^3.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

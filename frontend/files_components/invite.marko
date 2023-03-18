@@ -1,13 +1,14 @@
 <div class="sectionCard">
-	<h1>Hey ${name}. I've invited you to upload something.</h1>
-	<h4>${message}</h4>
+	<h1>Hey ${input.name}. I've invited you to upload something.</h1>
+	<h4>${input.message}</h4>
 	<div id="storageBarContainer">
 		<label id="storageBarLabel">0 B used / 0 B max</label>
 		<div id="storageBarBackground" class="storageBar"></div>
 		<div id="storageBarUsed" class="storageBar"></div>
 	</div>
 	<label id="filePickerDropArea">
-		<input id="filePicker" type="file" multiple><label id="filePickerDropAreaLabel">Click or drag files here</label></input>
+		<input id="filePicker" type="file" multiple>
+		<label id="filePickerDropAreaLabel">Click or drag files here</label>
 	</label>
 	<ul id="filesList">
 		<li class="filesListItem"><span class="filesListItemComponentLeft">No files uploaded yet.</span></li>
