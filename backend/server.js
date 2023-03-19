@@ -82,6 +82,7 @@ app.use(morganLogger('common', { stream: accessLogStream }));
 app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
 app.use(subdomain('files', files.router));
+app.use(subdomain('f', (req, res, next) => res.redirect('https://files.mateimarica.dev') ));
 app.use(subdomain('qr', qrequest));
 app.use(subdomain('searchicton', searchicton));
 app.use(STATIC_PAGE_RATE_LIMITER); // Limit static page requests
