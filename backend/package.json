@@ -13,9 +13,9 @@
   "dependencies": {
     "@node-minify/core": "^7.1.0",
     "@node-minify/csso": "^7.1.0",
-    "@node-minify/google-closure-compiler": "^7.1.0",
     "@node-minify/html-minifier": "^7.1.0",
     "@node-minify/jsonminify": "^7.1.0",
+    "@node-minify/terser": "^8.0.5",
     "autoprefixer": "^10.4.7",
     "bcrypt": "^5.1.0",
     "binary-search": "file:./util/binary-search",

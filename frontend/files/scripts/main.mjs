@@ -1,13 +1,15 @@
-const $ = document.querySelector.bind(document);
-const $$ = document.querySelectorAll.bind(document);
+import { sendHttpRequest, setAccessToken, setRefreshToken, setInviteAccessToken, setLoggedIn, isInviteSession, logout} from './req-manager.mjs';
+import { dynamicTextArea, sleep, getRelativeTime, getUtcOffsetTime, getFormattedSize } from './util.mjs';
+import { displayToast } from './toasts.mjs';
 
-let accessToken = null,
-    refreshToken = null,
-    inviteAccessToken = null,
-    loggedIn = false, // general boolean for being logged info, regardless of persistency of session
-    usedSpace = 0,
+// jquery-like shortcut for document-level queries
+const $ = document.querySelector.bind(document),
+      $$ = document.querySelectorAll.bind(document);
+
+let usedSpace = 0,
     totalSpace = 0;
 
+// navbar vars
 let lastKnownScrollPosition = 0,
     ticking = false;
 
@@ -26,7 +28,7 @@ document.addEventListener('scroll', (e) => {
 	}
 });
 
-let navigationBar = $('#navigationBar');
+const navigationBar = $('#navigationBar');
 function setNavbarTransparency(scrollPos) {
 	if(scrollPos > 0) {
 		navigationBar.className = 'navigationBarOnScroll';
@@ -85,8 +87,8 @@ submitBtn.addEventListener('click', () => {
 		switch (http.status) {
 			case 200:
 				if (!persistentSession) {
-					accessToken  = http.getResponseHeader("Access-Token");
-					refreshToken = http.getResponseHeader("Refresh-Token");
+					setAccessToken(http.getResponseHeader("Access-Token"));
+					setRefreshToken(http.getResponseHeader("Refresh-Token"));
 				}
 				app.innerHTML = http.responseText;
 				setUpMainPage();
@@ -120,13 +122,6 @@ $('#signupLink').addEventListener('click', () => {
 	showDarkOverlayForPopup();
 	$('#signupPopup').style.display = 'block';
 });
-
-const dynamicTextArea = async function() {
-	let y = window.scrollY; // record last scroll position
-	this.style.height = "";
-	this.style.height = this.scrollHeight + "px";
-	window.scrollTo(0, y); // jump to last scroll position
-};
 
 function showDarkOverlayForPopup() {
 	darkOverlay.style.display = 'block';
@@ -176,7 +171,6 @@ $('#signupRequestBtn').addEventListener('click', () => {
 		})
 	};
 	sendHttpRequest('POST', '/signup', options, { load: (http) => {
-		accessToken = null, refreshToken = null;
 		switch (http.status) {
 			case 201:
 				displayToast(`Your account request was created. ${email ? 'You will recieve an email when your account is activated.' : ''}`, {type: 'alert', timeout: 8000});
@@ -201,32 +195,9 @@ $('#signupRequestBtn').addEventListener('click', () => {
 	}});
 });
 
-function logout() {
-	let options = {};
-	if (refreshToken) {
-		options = {headers: {'Refresh-Token': refreshToken}};
-	}
-	sendHttpRequest('DELETE', '/login/refresh', options, { load: (http) => {
-		accessToken = null, refreshToken = null;
-		switch (http.status) {
-			case 204:
-				window.location.search = '&signout=user';
-				break;
-			case 401: // log out even if session not valid
-				window.location.search = '&signout=user_expired';
-				break;
-			case 500:
-			case 502:
-				displayToast('Server error. Try again later.');
-				break;
-			default:
-				displayToast('Something went wrong. Status code: ' + http.status);
-		}
-	}});
-}
-
-function setUpMainPage(isInvite=false) {
-	loggedIn = true;
+let notesModule;
+function setUpMainPage() {
+	setLoggedIn();
 	function refreshPageInfo(uploadedCount=0) {
 		sendHttpRequest('GET', '/files', {}, { load: (http) => {
 			switch (http.status) {
@@ -237,13 +208,21 @@ function setUpMainPage(isInvite=false) {
 					displayToast('Something went wrong. Status code: ' + http.status);
 			}
 		}});
-
-		if (!isInvite) {
-			getNotes();
-		}
 	}
 
 	refreshPageInfo();
+
+	if (!isInviteSession()) {
+		import('./notes.mjs')
+			.then(notes => {
+				notes.getNotes();
+				notesModule = notes;
+			})
+			.catch(err => {
+				displayToast('Failed to get notes script.');
+				console.error(err);
+			});
+	}
 
 	async function mainUploadFiles(files) {
 		if (files.length === 0) return;
@@ -423,7 +402,7 @@ function setUpMainPage(isInvite=false) {
 
 			filesListItem.append(filename, size, date, deleteButton);
 
-			if (!isInvite) {
+			if (!isInviteSession()) {
 				let shareButton = document.createElement('span');
 				shareButton.classList.add('icon', 'shareIcon');
 				shareButton.title = 'Share';
@@ -515,7 +494,7 @@ function setUpMainPage(isInvite=false) {
 		}
 	}
 
-	if (!isInvite) {
+	if (!isInviteSession()) {
 		let refreshButton = $('#refreshButton');
 		refreshButton.addEventListener('click', async () => {
 			refreshPageInfo();
@@ -639,208 +618,6 @@ function setUpMainPage(isInvite=false) {
 
 		// Makes the complaintField expand to accommodate its input text.
 		$('#inviteMessageField').addEventListener('input', dynamicTextArea);
-
-		// ============================ NOTES AREA ===================================== //
-		const notesArea = $('#notesArea'), notesDate = $('#notesDate'), notesCharCount = $('#notesCharCount'), notesStatus = $('#notesStatus');
-		notesArea.onanimationend = () => notesArea.classList.remove('syncedNotesArea');
-		const nonEditInputEvent = new Event('input');
-		const loadingAnimation = ['/', '—', '\\', '|']
-		const MAX_FAILED_RETRIES = 5;
-		let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, failedRetries = 0;
-		dynamicTextArea.call(notesArea);
-
-		async function notesStatusSavingAnimation() {
-			const len = loadingAnimation.length;
-			const frameLength = 200 / len;
-			for (let i = 0; saving; i = (i+1) % len) { // i goes 0, 1, 2, 3, 0, 1, 2, 3 ... looping through the animation frames
-				notesStatus.textContent = loadingAnimation[i];
-				await sleep(frameLength);
-			}
-
-			if (saveSuccessful) {
-				notesStatus.textContent = 'Saved';
-			} else {
-				notesStatus.textContent = 'Save failed';
-			}
-		}
-
-		async function notesStatusSyncingAnimation(syncSuccessful) {
-			const len = loadingAnimation.length;
-			const frameLength = 200 / len;
-			for (let i = 0; i < len; i++) { 
-				notesStatus.textContent = loadingAnimation[i];
-				await sleep(frameLength);
-			}
-
-			if (syncSuccessful) {
-				notesStatus.textContent = 'Synced';
-			} else {
-				notesStatus.textContent = 'Sync failed';
-			}
-		}
-
-		const beforeUnloadFuncNotes = (e) => {
-			e.returnValue = ''; // for chrome
-			return ''; // for firefox
-		}
-
-		notesArea.addEventListener('input', async (e) => {
-			let len = notesArea.value.length;
-			if (len > notesMaxLength) { // firefox allows pasting paste maxlength, so we gotta do this
-				notesArea.value = notesArea.value.substring(0, notesMaxLength); // crop text
-				len = notesArea.value.length; // recalculate length
-			}
-			dynamicTextArea.call(notesArea);
-			notesCharCount.textContent = len + ' / ' + notesMaxLength;
-			if (!e.inputType) return; // if no input type, means that this function was called without the need to save
-			unsavedChanges = true;
-			notesStatus.textContent = '\xa0'; // set it to &nbsp; so the container doesn't collapse
-			lastEditTime = new Date();
-
-			let milli = 750;
-			await sleep(milli);
-			if (new Date() - lastEditTime < milli) return;
-			updateNotes();
-		});
-
-		async function updateNotes() {
-			saving = true;
-			notesStatusSavingAnimation();
-
-			window.addEventListener('beforeunload', beforeUnloadFuncNotes);
-
-			const options = {
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					text: notesArea.value,
-					pollerId: pollerId
-				})
-			};
-			sendHttpRequest('PATCH', '/notes', options, {
-				load: async (http) => {
-					switch (http.status) {
-						case 204:
-							window.removeEventListener('beforeunload', beforeUnloadFuncNotes);
-							unsavedChanges = false;
-							saveSuccessful = true;
-							saving = false;
-							notesDate.textContent = 'Edited just now';
-							notesDate.title = getUtcOffsetTime(new Date());
-							break;
-						default:
-							displayToast(`Couldn't save your notes :( Status code: ${http.status}\nTrying again in 15 seconds...`);
-							saveSuccessful = false;
-							saving = false;
-							await sleep(15000);
-							updateNotes();
-					}
-				},
-				error: async () => {
-					saveSuccessful = false;
-					saving = false;
-					if (failedRetries < MAX_FAILED_RETRIES) {
-						failedRetries++;
-						displayToast(`Couldn't save your notes! Trying again in 1 second...`);
-						await sleep(1000);
-						updateNotes();
-					}
-				}
-			});
-		}
-
-		notesArea.addEventListener('keydown', function(event) {
-			if(event.keyCode === 9) {
-				event.preventDefault();
-				const v = this.value, s = this.selectionStart, e = this.selectionEnd;
-				this.value = v.substring(0, s) + '\t' + v.substring(e);
-				this.selectionStart = this.selectionEnd = s + 1;
-			}
-		});
-		notesArea.addEventListener('paste', (e) => e.stopPropagation()); // prevent paste event from bubbling up to document
-
-		async function getNotes(isPoll=false) {
-			sendHttpRequest('GET', '/notes', {}, getNotesCallback(isPoll));
-		}
-
-		async function pollNotes() {
-			const options = {
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					pollerId: pollerId
-				})
-			}
-			sendHttpRequest('POST', '/notes/poll', options, getNotesCallback(true));
-		}
-
-		function getNotesCallback(isPoll=false) {
-			return { 
-				load: async (http) => {
-					switch (http.status) {
-						case 200:
-							failedRetries = 0;
-							notesStatusSyncingAnimation(true);
-							const notes = JSON.parse(http.responseText);
-							notesArea.value = notes.text;
-
-
-							if (isPoll) {
-								notesStatus.textContent = '\xa0';
-								notesDate.textContent = 'Edited just now';
-								notesDate.title = getUtcOffsetTime(new Date());
-								notesArea.classList.add('syncedNotesArea');
-							} else {
-								const lastEditDate = new Date(notes.lastEdit);
-								notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
-								notesDate.title = getUtcOffsetTime(lastEditDate);
-								notesMaxLength = notes.textMaxLength;
-								notesArea.setAttribute('maxlength', notesMaxLength);
-								pollerId = notes.pollerId;
-							}
-
-							notesArea.dispatchEvent(nonEditInputEvent);
-
-							pollNotes();
-							break;
-						case 408: // on timeout, retry after 1 second
-							if (isPoll) {
-								notesStatusSyncingAnimation(false);
-								console.error('Failed to sync notes. Trying again in 1 second...');
-								await sleep(1000);
-								pollNotes();
-								if (!unsavedChanges) getNotes();
-								break;
-							}
-							// if not poll, go to default vv
-						default:
-							notesStatusSyncingAnimation(false);
-							displayToast(`Failed to sync notes. Status code: ` + http.status + `\nTrying again in 15 seconds.`);
-							await sleep(15000);
-							isPoll ? pollNotes() : getNotes()
-					}
-				},
-				error: async (e) => {
-					notesStatusSyncingAnimation(false);
-					if (failedRetries < MAX_FAILED_RETRIES) {
-						failedRetries++;
-						console.error('Failed to sync notes. Trying again in 1 second...');
-						await sleep(1000);
-						isPoll ? pollNotes() : getNotes()
-					}
-				}
-			};
-		}
-
-		// recalculate textarea height upon window resize
-		window.addEventListener('resize', () => notesArea.dispatchEvent(nonEditInputEvent));
-		window.addEventListener('online', (e) => {
-			failedRetries = 0;
-			if (unsavedChanges) {
-				updateNotes();
-			} else if (!saving) {
-				getNotes(true);
-			}
-		});
-
 	}
 
 	// register paste listener to upload files using CTRL+V
@@ -917,160 +694,6 @@ function setUpFilePicker(uploadFilesFunction) {
 	});
 }
 
-/** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', body: 'some data'} */
-function sendHttpRequest(method, url, options, callbacks) {
-	const http = new XMLHttpRequest();
-
-	for (const event in callbacks) {
-		if (event === 'load') continue; // use the load event listener below instead
-		if (event === 'progress') {
-			http.upload.onprogress = callbacks[event]; // progress events are fired on xhr.upload
-			continue;
-		}
-		http.addEventListener(event, callbacks[event]);
-	}
-
-	http.addEventListener('load', async (e) => { // If ready state is 4, do async callback
-		if (http.status === 444) { // 444 means access token invalid, so we try refresh token
-			if (inviteAccessToken) { // if this is an invite session, nothing else we can do. log 'em out
-				window.location.search = '&signout=server';
-			}
-
-			let refreshOptions = {};
-			if (refreshToken) {
-				refreshOptions = {headers: {'Refresh-Token': refreshToken}};
-			}
-			
-			sendHttpRequest('POST', '/login/refresh', refreshOptions, { load: (http2) => {
-				switch (http2.status) {
-					case 200:
-						if (refreshToken) {
-							accessToken  = http2.getResponseHeader("Access-Token");
-							refreshToken = http2.getResponseHeader("Refresh-Token");
-						}
-						sendHttpRequest(method, url, options, callbacks);
-						return;
-					default:
-						accessToken = null, refreshToken = null;
-						if (loggedIn) {
-							app.remove(); // delete the app div so sensitive info is not visible
-							setTimeout(() => { // 10 milli delay so DOM can update before native alert freezes everything
-								window.location.search = '&signout=server';
-							}, 10);
-						} else {
-							callbacks.load(http2, e);
-						}
-				}
-			}});
-		} else {
-			callbacks.load(http, e);
-		}
-	});
-
-	http.open(method, url, true);
-
-	if (options.headers)
-		for (let key in options.headers) {
-			http.setRequestHeader(key, options.headers[key]);
-		}
-
-	// If session not persistent, add access token
-	if (accessToken) {
-		http.setRequestHeader("Access-Token", accessToken);
-	} else if (inviteAccessToken) {
-		http.setRequestHeader("Invite-Access-Token", inviteAccessToken);
-	}
-
-	if (options.responseType)
-		http.responseType = options.responseType;
-
-	http.send(options.body || null);
-}
-
-/** A simple sleep function. Obviously, only call this from async functions. */
-function sleep(milli) {
-	return new Promise(resolve => {
-		setTimeout(() => { resolve() }, milli);
-	});
-}
-
-function randomInt(floorNum, ceilNum) {
-	return floorNum + Math.floor((Math.random() * (ceilNum - floorNum + 1)));
-}
-
-const MILLI_PER_MIN = 60000,
-      MINS_PER_HOUR = 60,
-      MINS_PER_DAY = 1440,
-      MINS_PER_WEEK = 10080,
-      MINS_PER_MONTH = 43200,
-      MINS_PER_YEAR = 525600;
-
-/** Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago" */
-function getRelativeTime(oldDate, currentDate) {
-
-	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - oldDate)) / MILLI_PER_MIN); 
-
-	if (MINUTES_PASSED === 0)
-		return 'just now';
-
-	// If less than an hour has passed, print minutes
-	if(MINUTES_PASSED < MINS_PER_HOUR) {
-		return MINUTES_PASSED + ((MINUTES_PASSED === 1) ? ' minute ago' : ' minutes ago');
-	}
-
-	// If less than an day has passed, print hours
-	if(MINUTES_PASSED < MINS_PER_DAY) {
-		let hoursPassed = Math.floor(MINUTES_PASSED / MINS_PER_HOUR);
-		return hoursPassed + ((hoursPassed === 1) ? ' hour ago' : ' hours ago');
-	}
-
-	// If less than an week has passed, print days
-	if(MINUTES_PASSED < MINS_PER_WEEK) {
-		let daysPassed = Math.floor(MINUTES_PASSED / MINS_PER_DAY);
-		return daysPassed + (daysPassed === 1 ? ' day ago' : ' days ago');
-	}
-
-	// If less than an month has passed, print weeks
-	if(MINUTES_PASSED < MINS_PER_MONTH) {
-		let weeksPassed = Math.floor(MINUTES_PASSED / MINS_PER_WEEK);
-		return weeksPassed + (weeksPassed === 1 ? ' week ago' : ' weeks ago');
-	}
-
-	// If less than an year has passed, print months
-	if(MINUTES_PASSED < MINS_PER_YEAR) {
-		let monthsPassed = Math.floor(MINUTES_PASSED / MINS_PER_MONTH);
-		return monthsPassed + (monthsPassed === 1 ? ' month ago' : ' months ago');
-	}
-}
-
-function getUtcOffsetTime(date) {
-	const utcOffset = date.getTimezoneOffset();
-	const utcOffsetHrs = Math.floor(utcOffset / 60);
-	const utcOffsetMins = utcOffset % 60;
-	return `${date.toLocaleString()} UTC${utcOffset<0 ? '+' : '-'}${utcOffsetHrs}${utcOffsetMins>0 ? ':'+utcOffsetMins : ''}`;
-}
-
-const KILOBYTE = 1000,
-      MEGABYTE = 1000000,
-      GIGABYTE = 1000000000;
-
-/** The parseFloat() removes trailing zeroes (eg: 1.0 -> 1) */
-function getFormattedSize(bytes) {
-	if(bytes < KILOBYTE) {
-		return bytes + ' B';
-	}
-
-	if(bytes < MEGABYTE) {
-		return parseFloat((bytes / KILOBYTE).toFixed(1)) + ' KB';
-	}
-
-	if(bytes < GIGABYTE) {
-		return parseFloat((bytes / MEGABYTE).toFixed(1)) + ' MB';
-	}
-
-	return parseFloat((bytes / GIGABYTE).toFixed(1)) + ' GB';
-}
-
 // Check for invite after DOM loads
 document.addEventListener('DOMContentLoaded', (e) => {
 	const urlParams = new URLSearchParams(window.location.search);
@@ -1079,9 +702,9 @@ document.addEventListener('DOMContentLoaded', (e) => {
 		sendHttpRequest('GET', '/invite?id=' + inviteCode, {}, { load: (http) => {
 			switch (http.status) {
 				case 200:
-					inviteAccessToken = http.getResponseHeader("Invite-Access-Token");
+					setInviteAccessToken(http.getResponseHeader("Invite-Access-Token"));
 					app.innerHTML = http.responseText;
-					setUpMainPage(true);
+					setUpMainPage();
 					return;
 				case 404:
 					var alertMessage = 'Invitation doesn\'t exist.';
@@ -1138,67 +761,6 @@ document.addEventListener('DOMContentLoaded', (e) => {
 
 function showLoginForm() {
 	$('#loginCard').style.display = 'block';
-}
-
-const notification = $('#notification');
-const notificationTimeout = 4000,
-      notificationAfterHoverTimeout = 1000;
-
-/**
-@example
-{
-	type: 'error' || 'alert',
-	timeout: milliseconds
-}
-*/
-async function displayToast(text, options={}) {
-	options.type = options.type || 'error';
-	options.timeout = options.timeout || notificationTimeout;
-
-	const n = notification.cloneNode(true);
-	n.removeAttribute('id');
-	if (options.type === 'error') {
-		n.classList.add('error');
-		text = '\u26A0\xa0\xa0' + text;
-	}
-	const nText = n.querySelector('span');
-	nText.textContent = text;
-	notification.parentNode.insertBefore(n, notification); // Insert new notification before the default one
-	await sleep(50); // Wait for DOM to update so incoming transition animates
-	n.classList.add('shown');
-	
-	let mouseHovering = false,
-	    mouseEnteredRecently = false,
-	    notificationExpired = false,
-	    notificationDeleted = false;
-
-	n.addEventListener('mouseenter', async () => { 
-		mouseHovering = true
-		mouseEnteredRecently = true;
-		await sleep(notificationAfterHoverTimeout);
-		mouseEnteredRecently = false;
-	});
-	n.addEventListener('mouseleave', async () => {
-		mouseHovering = false;
-		await sleep(notificationAfterHoverTimeout);
-		if (!mouseHovering && !mouseEnteredRecently && notificationExpired && !notificationDeleted) {
-			notificationDeleted = true;
-			clearToast(n);
-		}
-	});
-	
-	await sleep(options.timeout);
-	if (!mouseHovering) {
-		clearToast(n);
-	} else {
-		notificationExpired = true;
-	}
-}
-
-async function clearToast(n) {
-	n.classList.remove('shown');
-	await sleep(1000);
-	n.remove();
 }
 
 async function copyToClipboard(text) {

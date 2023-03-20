@@ -1,9 +1,8 @@
 const minify = require('@node-minify/core'),
-      gcc = require('@node-minify/google-closure-compiler'),
       csso = require('@node-minify/csso'),
       html_minifier = require('@node-minify/html-minifier'),
       jsonminify = require('@node-minify/jsonminify'),
-      path = require('path'),
+	  terser = require('@node-minify/terser'),
       glob = require("glob"),
       svgo = require('svgo'),
       fs = require('fs');
@@ -22,10 +21,10 @@ process.stdout.write('Minified');
 // ================== Minifying JS, CSS, HTML ==================
 const FORMATS = [
 	{
-		compressor: gcc,
-		exts: ['js'],
+		compressor: terser,
+		exts: ['js', 'mjs'],
 		options: {
-			compilation_level: 'SIMPLE'
+			toplevel: true /// mangle top-level functions & variable names
 		}
 	},
 	{

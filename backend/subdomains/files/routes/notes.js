@@ -168,7 +168,7 @@ router.patch('/', authInspector(ROLE.USER), (req, res) => {
 	}
 
 	if (!pollerId || pollerId.length !== 7) {
-		return res.sendStatus(400);
+		return res.status(400).send('Missing pollerId in request body. Call GET /notes first to get one');;
 	}
 
 	const username = req.headers['Username'];
