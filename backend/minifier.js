@@ -2,17 +2,17 @@ const minify = require('@node-minify/core'),
       csso = require('@node-minify/csso'),
       html_minifier = require('@node-minify/html-minifier'),
       jsonminify = require('@node-minify/jsonminify'),
-	  terser = require('@node-minify/terser'),
-      glob = require("glob"),
+      terser = require('@node-minify/terser'),
+      glob = require('glob'),
       svgo = require('svgo'),
       fs = require('fs');
 
 // Exit handler since all function calls are async
 process.on('exit', function(options, exitCode) {
 	if (exitCode === 0) {
-		console.log('\nMinification completed with no errors');
+		console.log(' -- Done!');
 	} else {
-		console.log('\nMinification failed');
+		console.log('\nMinification failed...');
 	}
 }.bind(null, { cleanup: true }));
 
