@@ -3,12 +3,9 @@ const express = require('express'),
       path = require('path'),
       multer  = require('multer'),
       fs = require('fs'),
-      {authInspector, ROLE} = require('../authManager'),
+      { authInspector, ROLE } = require('../authManager'),
       sizeVerifier = require('../sizeVerifier').sizeVerifier,
-	  files = require('../files');
-
-const pool = files.pool;
-const UPLOAD_DIR = files.UPLOAD_DIR;
+	  { pool, UPLOAD_DIR } = require('../files');
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {

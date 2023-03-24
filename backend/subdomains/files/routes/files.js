@@ -1,9 +1,7 @@
 const express = require('express'),
       router = express.Router(),
-      {authInspector, ROLE} = require('../authManager'),
-      files = require('../files');
-
-const pool = files.pool;
+      { authInspector, ROLE } = require('../authManager'),
+      { pool } = require('../files');
 
 router.get('/', authInspector(ROLE.USER, ROLE.INVITEE), (req, res) => {
 

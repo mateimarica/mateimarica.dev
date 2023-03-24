@@ -2,12 +2,10 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      {authInspector, ROLE} = require('../authManager'),
+      { authInspector, ROLE } = require('../authManager'),
       crypto = require('crypto'),
-      files = require('../files'),
+      { UPLOAD_DIR } = require('../files'),
       rateLimit = require('express-rate-limit');
-
-const UPLOAD_DIR = files.UPLOAD_DIR;
 
 const DOWNLOADS_RATE_LIMITER = rateLimit({
 	windowMs: process.env.GENERAL_LIMITER_TIME_WINDOW_MINS * 60 * 1000,

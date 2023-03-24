@@ -2,14 +2,11 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      {authInspector, ROLE} = require('../authManager'),
-      files = require('../files'),
+      { authInspector, ROLE } = require('../authManager'),
+      { pool, UPLOAD_DIR, COMPONENTS_DIR } = require('../files'),
 	  { nanoid } = require('nanoid');
 
 require('@marko/compiler/register');
-
-const UPLOAD_DIR = files.UPLOAD_DIR;
-const pool = files.pool;
 	  
 router.post('/', authInspector(ROLE.USER), (req, res) => {
 	const name = req.body.name,
@@ -49,7 +46,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 	});
 });
 
-const downloadPageTemplate = require(path.join(files.COMPONENTS_DIR, 'download')).default;
+const downloadPageTemplate = require(path.join(COMPONENTS_DIR, 'download')).default;
 // Sends a download page that redirects to the download URL
 router.get('/', (req, res) => {
 	const id = req.query.id;

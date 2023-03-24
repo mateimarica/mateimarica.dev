@@ -1,18 +1,13 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
-      fs = require('fs'),
-      authManager = require('../authManager'),
-      enoughSpace = require('../sizeVerifier').enoughSpace
-      crypto = require('crypto'),
-      files = require('../files'),
+      { authInspector, ROLE } = require('../authManager'),
+      enoughSpace = require('../sizeVerifier').enoughSpace,
+      { pool, COMPONENTS_DIR } = require('../files'),
       escape = require('escape-html'),
       { nanoid } = require('nanoid');
 
 require('@marko/compiler/register');
-
-const pool = files.pool;
-const {authInspector, ROLE} = authManager;
 	  
 router.post('/', authInspector(ROLE.USER), async (req, res) => {
 	const invitee = req.body.name,
@@ -57,7 +52,7 @@ router.post('/', authInspector(ROLE.USER), async (req, res) => {
 	
 });
 
-const inviteTemplate = require(path.join(files.COMPONENTS_DIR, 'invite')).default;
+const inviteTemplate = require(path.join(COMPONENTS_DIR, 'invite')).default;
 router.get('/', async (req, res) => {
 	const id = req.query.id;
 

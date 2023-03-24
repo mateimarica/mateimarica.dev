@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
-      authManager = require('../authManager'),
-      files = require('../files'),
+      { ROLE } = require('../authManager'),
+      { pool, COMPONENTS_DIR } = require('../files'),
       bcrypt = require('bcrypt'),
       { nanoid } = require('nanoid'),
       path = require('path'),
@@ -13,8 +13,6 @@ const express = require('express'),
 
 require('@marko/compiler/register');
 
-const pool = files.pool;
-
 const SIGNUP_RATE_LIMITER = rateLimit({
 	windowMs: process.env.FILES_SIGNUP_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.FILES_SIGNUP_LIMITER_MAX_REQUESTS,
@@ -25,7 +23,7 @@ const SIGNUP_RATE_LIMITER = rateLimit({
 
 const DEFAULT_USER_SPACE_BYTES = process.env.FILE_DEFAULT_USER_SPACE_GBS * 1000000000;
 
-const accountRequestEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_review_email')).default;
+const accountRequestEmailTemplate = require(path.join(COMPONENTS_DIR, 'email', 'account_request_review_email')).default;
 router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 
 	if (!req.body) return res.sendStatus(400);
@@ -42,7 +40,7 @@ router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 	if (/^[a-z0-9]+$/i.test(username) === false)
 		return res.status(400).send('Username must be alphanumeric');
 
-	if (password.length < 6 || username.length > 200)
+	if (password.length < 6 || password.length > 200)
 		return res.status(400).send('Password length must be between 6 and 200');
 
 	const email = req.body.email || null; // set email to null instead of undefined
@@ -63,12 +61,12 @@ router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 
 		const sql = `INSERT INTO users (username, password, role, active, space, email, message, tempApprovalId) ` +
 		`VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-		params = [username, hash, authManager.ROLE.USER, false, DEFAULT_USER_SPACE_BYTES, email, message, tempApprovalId];
+		params = [username, hash, ROLE.USER, false, DEFAULT_USER_SPACE_BYTES, email, message, tempApprovalId];
 
 		pool.execute(sql, params, (err, results) => {
 			if (err) {
 				if (err.code === 'ER_DUP_ENTRY') {
-					return res.status(409).send('That username is already in use');
+					return res.status(409).send('That username or email is already in use');
 				}
 				console.log(err);
 				return res.sendStatus(502);
@@ -113,9 +111,9 @@ const SIGNUP_REVIEWAL_RATE_LIMITER = rateLimit({
 	skipSuccessfulRequests: true
 });
 
-const approvalConfirmationPageTemplate = require(path.join(files.COMPONENTS_DIR, '../main_components/approvalConfirmation')).default,
-      accountApprovalEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_approval_email')).default,
-      accountDenialEmailTemplate = require(path.join(files.COMPONENTS_DIR, 'email', 'account_request_denial_email')).default;
+const approvalConfirmationPageTemplate = require(path.join(COMPONENTS_DIR, '../main_components/approvalConfirmation')).default,
+      accountApprovalEmailTemplate = require(path.join(COMPONENTS_DIR, 'email', 'account_request_approval_email')).default,
+      accountDenialEmailTemplate = require(path.join(COMPONENTS_DIR, 'email', 'account_request_denial_email')).default;
 router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 	if (!req.query) return res.sendStatus(400);
 

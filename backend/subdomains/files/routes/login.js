@@ -1,12 +1,10 @@
 const express = require('express'),
       router = express.Router(),
       authManager = require('../authManager'),
-      files = require('../files'),
+      { pool, COMPONENTS_DIR } = require('../files'),
       path = require('path'),
       bcrypt = require('bcrypt'),
       rateLimit = require('express-rate-limit');
-
-const pool = files.pool;
 
 const FAILED_LOGIN_RATE_LIMITER = rateLimit({
 	windowMs: process.env.FILES_LOGIN_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
@@ -74,7 +72,7 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 					});
 				}
 
-				res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
+				res.status(200).sendFile(path.join(COMPONENTS_DIR, 'main.html'));
 			});
 
 			password = null; // null the password so we can't accidently do something with it
@@ -89,7 +87,7 @@ router.get('/access', FAILED_LOGIN_RATE_LIMITER, async (req, res) => {
 	const accessToken = authManager.getTokenFromReq(req, 'accessToken', 'Access-Token');
 	
 	if (accessToken && authManager.validateAccessToken(accessToken, authManager.ROLE.USER)) {
-		return res.status(200).sendFile(path.join(files.COMPONENTS_DIR, 'main.html'));
+		return res.status(200).sendFile(path.join(COMPONENTS_DIR, 'main.html'));
 	}
 
 	return res.status(444).send("Invalid access token");

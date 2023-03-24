@@ -2,11 +2,8 @@ const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
-      {authInspector, ROLE} = require('../authManager'),
-      files = require('../files');
-
-const UPLOAD_DIR = files.UPLOAD_DIR;
-const pool = files.pool;
+      { authInspector, ROLE } = require('../authManager'),
+      { pool, UPLOAD_DIR } = require('../files');
 
 router.delete('/', authInspector(ROLE.INVITEE, ROLE.USER), (req, res) => {
 	let baseName = req.body.baseName,

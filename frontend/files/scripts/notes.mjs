@@ -6,9 +6,9 @@ const $ = document.querySelector.bind(document);
 const notesArea = $('#notesArea'), notesDate = $('#notesDate'), notesCharCount = $('#notesCharCount'), notesStatus = $('#notesStatus');
 notesArea.onanimationend = () => notesArea.classList.remove('syncedNotesArea');
 const nonEditInputEvent = new Event('input');
-const loadingAnimation = ['/', '—', '\\', '|']
+const loadingAnimation = ['/', '—', '\\', '|'];
 const MAX_FAILED_RETRIES = 5;
-let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, failedRetries = 0;
+let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, failedRetries = 0, currentPoll = null, lastDataId = null;
 dynamicTextArea.call(notesArea);
 
 async function notesStatusSavingAnimation() {
@@ -65,7 +65,7 @@ notesArea.addEventListener('input', async (e) => {
 	updateNotes();
 });
 
-async function updateNotes() {
+async function updateNotes(callback=null) {
 	saving = true;
 	notesStatusSavingAnimation();
 
@@ -88,9 +88,10 @@ async function updateNotes() {
 					saving = false;
 					notesDate.textContent = 'Edited just now';
 					notesDate.title = getUtcOffsetTime(new Date());
+					callback && callback();
 					break;
 				default:
-					displayToast(`Couldn't save your notes :( Status code: ${http.status}\nTrying again in 15 seconds...`);
+					console.error(`Couldn't save your notes :( Status code: ${http.status}\nTrying again in 15 seconds...`);
 					saveSuccessful = false;
 					saving = false;
 					await sleep(15000);
@@ -100,12 +101,10 @@ async function updateNotes() {
 		error: async () => {
 			saveSuccessful = false;
 			saving = false;
-			if (failedRetries < MAX_FAILED_RETRIES) {
-				failedRetries++;
-				displayToast(`Couldn't save your notes! Trying again in 1 second...`);
-				await sleep(1000);
-				updateNotes();
-			}
+			failedRetries++;
+			console.error(`Couldn't save your notes! Trying again in 3 seconds...`);
+			await sleep(1000);
+			updateNotes();
 		}
 	});
 }
@@ -128,28 +127,39 @@ async function pollNotes() {
 	const options = {
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({
-			pollerId: pollerId
+			pollerId: pollerId,
+			...lastDataId && { lastDataId: lastDataId }
 		})
 	}
+
+	// If there already is a polling request, abort it so we don't end up with multiple
+	if (currentPoll) {
+		currentPoll.abort();
+		currentPoll = null;
+	}
+
 	sendHttpRequest('POST', '/notes/poll', options, getNotesCallback(true));
 }
 
 function getNotesCallback(isPoll=false) {
-	return { 
+	return {
+		created: (http) => {
+			if (isPoll) currentPoll = http; // save the http object
+		},
 		load: async (http) => {
 			switch (http.status) {
 				case 200:
 					failedRetries = 0;
 					notesStatusSyncingAnimation(true);
 					const notes = JSON.parse(http.responseText);
-					notesArea.value = notes.text;
-
+					notesArea.value = notes.notes;
 
 					if (isPoll) {
 						notesStatus.textContent = '\xa0';
 						notesDate.textContent = 'Edited just now';
 						notesDate.title = getUtcOffsetTime(new Date());
 						notesArea.classList.add('syncedNotesArea');
+						lastDataId = notes.lastDataId;
 					} else {
 						const lastEditDate = new Date(notes.lastEdit);
 						notesDate.textContent = notes.lastEdit ? 'Edited ' + getRelativeTime(lastEditDate, new Date()) : '';
@@ -166,8 +176,8 @@ function getNotesCallback(isPoll=false) {
 				case 408: // on timeout, retry after 1 second
 					if (isPoll) {
 						notesStatusSyncingAnimation(false);
-						console.error('Failed to sync notes. Trying again in 1 second...');
-						await sleep(1000);
+						console.error('Failed to sync notes. Trying again in 3 seconds...');
+						await sleep(3000);
 						pollNotes();
 						if (!unsavedChanges) getNotes();
 						break;
@@ -175,31 +185,37 @@ function getNotesCallback(isPoll=false) {
 					// if not poll, go to default vv
 				default:
 					notesStatusSyncingAnimation(false);
-					displayToast(`Failed to sync notes. Status code: ` + http.status + `\nTrying again in 15 seconds.`);
-					await sleep(15000);
-					isPoll ? pollNotes() : getNotes()
+					console.error(`Failed to sync notes. Status code: ` + http.status + `\nTrying again in 3 seconds.`);
+					await sleep(3000);
+					
 			}
 		},
 		error: async (e) => {
-			notesStatusSyncingAnimation(false);
-			if (failedRetries < MAX_FAILED_RETRIES) {
-				failedRetries++;
-				console.error('Failed to sync notes. Trying again in 1 second...');
-				await sleep(1000);
-				isPoll ? pollNotes() : getNotes()
-			}
+			if (isPoll && !navigator.onLine) return; // wait for online event instead
+
+			failedRetries++;
+			console.error('Failed to sync notes. Trying again in 3 second...');
+			await sleep(1000);
+			isPoll ? pollNotes() : getNotes();
 		}
 	};
 }
 
 // recalculate textarea height upon window resize
 window.addEventListener('resize', () => notesArea.dispatchEvent(nonEditInputEvent));
-window.addEventListener('online', (e) => {
+window.addEventListener('online', () => {
 	failedRetries = 0;
 	if (unsavedChanges) {
-		updateNotes();
-	} else if (!saving) {
-		getNotes(true);
+		updateNotes(() => pollNotes()); // update, then poll because
+	} else {
+		pollNotes();
+	}
+});
+
+window.addEventListener('offline', () => {
+	if (currentPoll) {
+		currentPoll.abort();
+		currentPoll = null;
 	}
 });
 

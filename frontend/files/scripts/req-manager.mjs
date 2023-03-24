@@ -6,11 +6,12 @@ let accessToken = null,
     loggedIn = false; // general boolean for being logged info, regardless of persistency of session
 
 /** {headers: {'Content-Type': 'application/json', 'Header1':'value'}, responseType: 'type', body: 'some data'} */
-function sendHttpRequest(method, url, options, callbacks) {
+function sendHttpRequest(method, url, options, callbacks={}) {
 	const http = new XMLHttpRequest();
 
 	for (const event in callbacks) {
 		if (event === 'load') continue; // use the load event listener below instead
+		if (event === 'created') continue; // created isn't an actual event, it's just a callback for the xhr object
 		if (event === 'progress') {
 			http.upload.onprogress = callbacks[event]; // progress events are fired on xhr.upload
 			continue;
@@ -73,6 +74,8 @@ function sendHttpRequest(method, url, options, callbacks) {
 		http.responseType = options.responseType;
 
 	http.send(options.body || null);
+
+	callbacks.created && callbacks.created(http);
 }
 
 function logout() {
