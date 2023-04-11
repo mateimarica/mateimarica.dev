@@ -71,27 +71,29 @@
 		<link rel="icon" type="image/ico" href="/favicon.ico">
 	</head>
 	<body>
-		<h2 style="text-align: center;">Someone submitted a complaint!</h2>
-		<p style="text-align: center;">Review the complaint and select the appropriate action.</p>
-
-		<div id="complaintContainer">
-			<table>
-				<tr>
-					<td class="headerTableData"><h3>Name:</h3></td>
-					<td class="tableData">${input.name}</td>
-				</tr>
-				<tr>
-					<td class="headerTableData"><h3>Complaint:</h3></td>
-					<td class="tableData">${input.complaint}</td>
-				</tr>
-				<tr>
-					<td class="headerTableData"><h3>Time:</h3></td>
-					<td class="tableData">${input.date}</td>
-				</tr>
-			</table>
+		<div style="max-width: max-content;">
+			<h2 style="text-align: center;">Someone submitted a complaint!</h2>
+			<p style="text-align: center;">Review the complaint and select the appropriate action.</p>
+	
+			<div id="complaintContainer">
+				<table>
+					<tr>
+						<td class="headerTableData"><h3>Name:</h3></td>
+						<td class="tableData">${input.name}</td>
+					</tr>
+					<tr>
+						<td class="headerTableData"><h3>Complaint:</h3></td>
+						<td class="tableData">${input.complaint}</td>
+					</tr>
+					<tr>
+						<td class="headerTableData"><h3>Time:</h3></td>
+						<td class="tableData">${input.date}</td>
+					</tr>
+				</table>
+			</div>
+	
+			<a id="approveButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.approveButtonURL}`>Approve complaint</a>
+			<a id="rejectButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.rejectButtonURL}`>Reject complaint</a>
 		</div>
-
-		<a id="approveButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.approveButtonURL}`>Approve complaint</a>
-		<a id="rejectButton" class="button" style="text-align: center; color: rgb(218, 218, 218);" href=`${input.rejectButtonURL}`>Reject complaint</a>
 	</body>
 </html>

@@ -135,18 +135,51 @@ darkOverlay.addEventListener('click', () => {
 	});
 });
 
+$('#resetPswdLink').addEventListener('click', () => {
+	showDarkOverlayForPopup();
+	$('#resetPswdPopup').style.display = 'block';
+});
+
 registerXButtons();
 function registerXButtons() {
 	$$('.xButton').forEach(xButton => {
-		xButton.addEventListener('click', function() {
-			darkOverlay.style.display = 'none';
-			this.parentElement.style.display = 'none';
-			document.documentElement.style.overflow = ''; // add scrolling back in after popup disables it
-		});
+		if (!xButton.hasAttribute('registered')) {
+			xButton.setAttribute('registered', '');
+			xButton.addEventListener('click', function() {
+				darkOverlay.style.display = 'none';
+				this.parentElement.style.display = 'none';
+				document.documentElement.style.overflow = ''; // add scrolling back in after popup disables it
+			});
+		}
 	});
 }
 
-$('#signupRequestBtn').addEventListener('click', () => {
+function showGenericPopup(title, content) {
+	const el = document.createElement('span');
+	el.textContent = content;
+	content = el.textContent;
+	let asterisks = 0;
+	for (let i = 0; i < content.length; i++) {
+		if (content.charAt(i) === '*') {
+			asterisks++;
+			const tag = (asterisks % 2 === 0 ? '</b>' : '<b>');
+			content = content.slice(0, i) + tag + content.slice(i + 1, content.length);
+			i += (tag.length - 1);
+		}
+	}
+	content = content.replaceAll('\n', '<br>');
+	$$('.xButton').forEach(xButton => xButton.click());
+	showDarkOverlayForPopup();
+	$('#genericPopup').style.display = 'block';
+	$('#genericPopup > [name=title]').textContent = title;
+	$('#genericPopup > [name=content]').innerHTML = content;
+}
+
+function clearAllInputFields(selector) {
+	document.querySelectorAll(`${selector} input`).forEach((e) => e.value = '');
+}
+
+$('#signupRequestBtn').addEventListener('click', function() {
 	const username = $('#signupUsernameField').value,
 	      password = $('#signupPasswordField').value,
 	      passwordAgain = $('#signupPasswordField2').value,
@@ -161,6 +194,8 @@ $('#signupRequestBtn').addEventListener('click', () => {
 		return;
 	}
 
+	this.setAttribute('disabled', '');
+
 	const options = {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
@@ -170,15 +205,57 @@ $('#signupRequestBtn').addEventListener('click', () => {
 			message: message
 		})
 	};
+
 	sendHttpRequest('POST', '/signup', options, { load: (http) => {
+		this.removeAttribute('disabled');
 		switch (http.status) {
 			case 201:
-				displayToast(`Your account request was created. ${email ? 'You will recieve an email when your account is activated.' : ''}`, {type: 'alert', timeout: 8000});
-				const signupPopup = $('#signupPopup');
-				signupPopup.querySelector('.xButton').click();
-				signupPopup.querySelectorAll('input').forEach((e) => {
-					e.value = '';
-				});
+				showGenericPopup(
+					'Account Request',
+					`Your account request for *${username}* was created.\n\n${email ? `You will receive an email at *${email}* when your account is activated.` : `You didn't add an email, so just check back later I guess.`}`
+				);
+				clearAllInputFields('#signupPopup');
+				break;
+			case 400:
+			case 409:
+			case 429:
+				displayToast(http.responseText);
+				break;
+			case 500:
+			case 502:
+				displayToast('Server error. Try again later.');
+				break;
+			default:
+				displayToast('Something went wrong. Status code: ' + http.status);
+		}
+	}});
+});
+
+$('#resetPswdBtn').addEventListener('click', function() {
+	console.log('PRESSED');
+	const usernameOrEmail = $('#resetPswdField').value.trim();
+	if (!usernameOrEmail) return displayToast('Must enter a username or email.');
+
+	this.setAttribute('disabled', '');
+
+	const options = {
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ usernameOrEmail: usernameOrEmail })
+	};
+	sendHttpRequest('POST', '/reset-password', options, { load: (http) => {
+		this.removeAttribute('disabled', '');
+		switch (http.status) {
+			case 200:
+				const isEmail = JSON.parse(http.responseText).isEmail;
+				const content = isEmail 
+				                ? `If *${usernameOrEmail}* is associated with an account`
+				                : `If there is an account named *${usernameOrEmail}*`;
+
+				showGenericPopup(
+					'Reset Password',
+					`${content}, you'll receive an email shortly.\n\nCheck your junk folder!`
+				);
+				clearAllInputFields('#resetPswdPopup');
 				break;
 			case 400:
 			case 409:
@@ -543,7 +620,7 @@ function setUpMainPage() {
 
 		// Remove red outline on invite name field 
 		var recentInviteAttempt = false; // This variable exists so we don't change the DOM for every key we type. 
-		                           // It is set to true when the Copy Link button is clicked
+		                                 // It is set to true when the Copy Link button is clicked
 		$('#inviteNameField').addEventListener('input', function() {
 			if (recentInviteAttempt) {
 				recentInviteAttempt = false;
@@ -738,6 +815,9 @@ document.addEventListener('DOMContentLoaded', (e) => {
 				break;
 			case 'server':
 				displayToast(`Your session expired and could not be refreshed. Please try signing in again.`, options);
+				break;
+			case 'resetpassword':
+				displayToast('Your password was reset. Try signing in.', options);
 				break;
 		}
 		showLoginForm();

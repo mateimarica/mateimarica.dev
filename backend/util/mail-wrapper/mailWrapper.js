@@ -23,7 +23,7 @@ function sendToAdmin(subject, contents) {
 	send(ADMIN_RECIPIENT, subject, contents);
 }
 
-function send(recipient, subject, contents) {
+function send(recipient, subject, contents, callback=null) {
 	if (!recipient || !subject || !contents || !EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME) {
 		return false;
 	}
@@ -36,11 +36,8 @@ function send(recipient, subject, contents) {
 	};
 
 	TRANSPORTER.sendMail(email, (err, info) => {
-		if (err) {
-			console.error(err);
-		} else {
-			console.log('Email sent: ' + info.response);
-		}
+		if (callback) callback(err, info);
+		if (err) console.error(err);
 	});
 }
 

@@ -1,6 +1,5 @@
 import { sendHttpRequest } from './req-manager.mjs';
 import { dynamicTextArea, sleep, getRelativeTime, getUtcOffsetTime } from './util.mjs';
-import { displayToast } from './toasts.mjs';
 
 const $ = document.querySelector.bind(document);
 const notesArea = $('#notesArea'), notesDate = $('#notesDate'), notesCharCount = $('#notesCharCount'), notesStatus = $('#notesStatus');
@@ -8,7 +7,7 @@ notesArea.onanimationend = () => notesArea.classList.remove('syncedNotesArea');
 const nonEditInputEvent = new Event('input');
 const loadingAnimation = ['/', '—', '\\', '|'];
 const MAX_FAILED_RETRIES = 5;
-let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, failedRetries = 0, currentPoll = null, lastDataId = null;
+let notesMaxLength, lastEditTime, saving = false, saveSuccessful = true, pollerId, unsavedChanges = false, currentPoll = null, lastDataId = null;
 dynamicTextArea.call(notesArea);
 
 async function notesStatusSavingAnimation() {
@@ -101,9 +100,8 @@ async function updateNotes(callback=null) {
 		error: async () => {
 			saveSuccessful = false;
 			saving = false;
-			failedRetries++;
 			console.error(`Couldn't save your notes! Trying again in 3 seconds...`);
-			await sleep(1000);
+			await sleep(3000);
 			updateNotes();
 		}
 	});
@@ -138,7 +136,7 @@ async function pollNotes() {
 		currentPoll = null;
 	}
 
-	sendHttpRequest('POST', '/notes/poll', options, getNotesCallback(true));
+	sendHttpRequest('POST', '/poll', options, getNotesCallback(true));
 }
 
 function getNotesCallback(isPoll=false) {
@@ -149,7 +147,6 @@ function getNotesCallback(isPoll=false) {
 		load: async (http) => {
 			switch (http.status) {
 				case 200:
-					failedRetries = 0;
 					notesStatusSyncingAnimation(true);
 					const notes = JSON.parse(http.responseText);
 					notesArea.value = notes.notes;
@@ -193,9 +190,8 @@ function getNotesCallback(isPoll=false) {
 		error: async (e) => {
 			if (isPoll && !navigator.onLine) return; // wait for online event instead
 
-			failedRetries++;
-			console.error('Failed to sync notes. Trying again in 3 second...');
-			await sleep(1000);
+			console.error('Failed to sync notes. Trying again in 3 seconds...');
+			await sleep(3000);
 			isPoll ? pollNotes() : getNotes();
 		}
 	};
@@ -204,7 +200,6 @@ function getNotesCallback(isPoll=false) {
 // recalculate textarea height upon window resize
 window.addEventListener('resize', () => notesArea.dispatchEvent(nonEditInputEvent));
 window.addEventListener('online', () => {
-	failedRetries = 0;
 	if (unsavedChanges) {
 		updateNotes(() => pollNotes()); // update, then poll because
 	} else {

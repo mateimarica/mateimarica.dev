@@ -21,7 +21,6 @@ body {
 	margin: 0;
 	width: 100vw;
 	font-family: var(--defaultFont);
-	background: linear-gradient(110deg, var(--mainBackgroundColor), var(--secondaryBackgroundColor));
 	background-size: 100vw;
 	color: lightgray;
 	text-align: center;
@@ -36,10 +35,6 @@ body {
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
 	box-sizing: border-box;
-}
-
-.firstSectionCard {
-	margin-top: 65px;
 }
 
 .centerCard {
@@ -61,47 +56,6 @@ body {
 	.sectionCard {
 		width: 95%;
 	}
-}
-
-.centeredHeader {
-	margin-top: 0;
-	text-align: center;
-	cursor: default;
-}
-
-#submitBtn {
-	font-size: 40px;
-	width: 60px;
-	height: 60px;
-	padding: 0;
-	
-}
-
-button {
-	font-weight: bold;
-	color: lightgrey;
-	background-color: #060a0c;
-	border: 2px solid #24272b;
-	transition: 0.2s ease;
-	padding: 10px;
-	font-size: 20px;
-	margin: 0;
-	text-align: center;
-	vertical-align: top;
-	border-radius: var(--defaultBorderRadius);
-}
-
-
-button:hover {
-	color: whitesmoke;
-	border: 2px solid lightslategray;
-	transition: 0.2s ease;
-	background-color: #0a0c0f;
-}
-
-button:active {
-	background-color: #12171d;
-	border: 2px solid lightslategray;
 }
 
 a {

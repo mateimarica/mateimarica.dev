@@ -167,7 +167,7 @@ function getAccessTokenCookieOptions(maxAge=ACCESS_TOKEN_VALIDITY_MILLI) {
 	};
 }
 
-// null maxAge means it wont get set
+/** null maxAge means it wont get set */
 function getRefreshTokenCookieOptions(maxAge=REFRESH_TOKEN_VALIDITY_MILLI) {
 	return {
 		...maxAge !== null && {maxAge: maxAge},
@@ -192,8 +192,8 @@ async function getSessionData(accessToken) {
 	return accessTokenData;
 }
 
-function getTokenFromReq(req, cookieName, headerName) {
-	return (req.signedCookies && req.signedCookies[cookieName]) || req.header(headerName);
+function getTokenFromReq(req, cookieName, headerName=null) {
+	return (req.signedCookies && req.signedCookies[cookieName]) || (headerName && req.header(headerName));
 }
 
-module.exports = { authInspector, createSession, ROLE, invalidateRefreshToken, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, createInviteSession, getInviteAccessToken, getSessionData, validateAccessToken, getTokenFromReq }
+module.exports = { authInspector, createSession, ROLE, invalidateRefreshToken, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, createInviteSession, getInviteAccessToken, getSessionData, validateAccessToken, getTokenFromReq, redisClient }

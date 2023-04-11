@@ -1,8 +1,8 @@
 const express = require('express'),
       router = express.Router(),
       { authInspector, ROLE } = require('../authManager'),
-      { createPoll, syncUserPollers } = require('../pollManager'),
-	  { pool } = require('../files'),
+      { syncUserPollers } = require('../pollManager'),
+      { pool } = require('../files'),
       { nanoid } = require('nanoid');
 
 let textMaxLength = 16200; // most probably the max length
@@ -60,8 +60,6 @@ router.get('/', authInspector(ROLE.USER), (req, res) => {
 		}
 	});
 });
-
-router.post('/poll', authInspector(ROLE.USER), (req, res) => createPoll(req, res));
 
 // Pre-assign this query since this endpoint will be called often. Is this faster than just assigning it each time in the callback? Maybe slightly
 const updateSql = `UPDATE notes SET text=?, lastEdit=CURRENT_TIMESTAMP() WHERE username=?`;

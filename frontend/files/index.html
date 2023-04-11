@@ -45,7 +45,7 @@
 						<a href="https://github.com/mateimarica/mateimarica.dev#file-storage">What's this?</a>
 					</span>
 				</div>
-				<h1 class="centeredHeader">File Storage</h1>
+				<h1 class="centeredText">File Storage</h1>
 				<div class="fieldForm">
 					<input class="formField alignedField credField" id="usernameField" type="text" placeholder="Username" value ="" spellcheck=false maxlength=50 autocomplete="off" autofocus tabindex=1>
 					<div class="noWrapContainer">
@@ -57,7 +57,7 @@
 					<input type="checkbox" id="stayLoggedInCheckbox" ><label class="checkboxLabel" for="stayLoggedInCheckbox" tabindex=3>Remember me</label>
 				</div>
 
-				<a id="signupLink">Request access</a>
+				<a id="signupLink" class="linkButton">Request access</a><span class="unselectable separator">&emsp;|&emsp;</span><a id="resetPswdLink" class="linkButton">Reset password</a>
 			</div>
 
 
@@ -71,11 +71,31 @@
 					<input class="formField centeredField credField" id="signupPasswordField2" type="password" placeholder="Password Again" spellcheck=false maxlength=200 autocomplete="off" tabindex=7>
 					<input class="formField centeredField credField" id="signupEmailField" type="text" placeholder="Email (optional)" spellcheck=false maxlength=255 autocomplete="off" tabindex=8>
 					<textarea class="formField centeredField credField" id="signupMsgField" type="text" placeholder="Message (optional)" spellcheck=false maxlength=200 autocomplete="off" tabindex=9></textarea>
-					<button id="signupRequestBtn" tabindex=10>Send Request</button>
+					<button id="signupRequestBtn" class="popupBtn" tabindex=10>Send Request</button>
 				</div>
 			</div>
+
+			<div id="resetPswdPopup" class="sectionCard popup">
+				<button class="xButton">&times;</button>
+				<h2>Reset Password</h2>
 			
+				<div class="fieldForm">
+					<span class="centeredText corset">Enter your username or email below and I'll send you instructions to reset your password.</span>
+					<br>
+					<input class="formField centeredField credField" id="resetPswdField" type="text" placeholder="Username or email" spellcheck=false autocomplete="off" tabindex=11>
+					<br>
+					<button id="resetPswdBtn" class="popupBtn" tabindex=12>Reset password</button>
+				</div>
+			</div>
 		</div>
+
+		<div id="genericPopup" class="sectionCard popup">
+			<button class="xButton">&times;</button>
+			<h2 name="title">Reset Password</h2>
+			<span name="content" class="centeredText corset"></span>
+			<br>
+		</div>
+
 		<div id="darkOverlay"></div>
 		<div id="notification" class="notification"><span></span></div>
 		<script type="module" src="/scripts/main.mjs"></script>

@@ -1,7 +1,7 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
-      { authInspector, ROLE } = require('../authManager'),
+      { authInspector, ROLE, createInviteSession, getInviteAccessToken } = require('../authManager'),
       enoughSpace = require('../sizeVerifier').enoughSpace,
       { pool, COMPONENTS_DIR } = require('../files'),
       escape = require('escape-html'),
@@ -28,7 +28,7 @@ router.post('/', authInspector(ROLE.USER), async (req, res) => {
 		const id = nanoid(7);
 		const validitySeconds = Math.floor(validity * 3600);
 
-		if (!await authManager.createInviteSession(req.headers['Username'], id, validitySeconds, maxUploadSize)) // Turns hours to seconds
+		if (!await createInviteSession(req.headers['Username'], id, validitySeconds, maxUploadSize)) // Turns hours to seconds
 			return res.sendStatus(502);
 	
 		const sql = `INSERT INTO invites (id, inviteeName, message, expirationDate, maxUploadSize, inviter) ` +
@@ -58,7 +58,7 @@ router.get('/', async (req, res) => {
 
 	if (!id) return res.sendStatus(400);
 
-	const inviteAccessToken = await authManager.getInviteAccessToken(id);
+	const inviteAccessToken = await getInviteAccessToken(id);
 	if (!inviteAccessToken) return res.sendStatus(404);
 
 	const sql = `SELECT id, inviteeName, message, expirationDate, maxUploadSize FROM invites WHERE BINARY id=?`,

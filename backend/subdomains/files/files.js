@@ -49,3 +49,5 @@ router.use('/delete', require('./routes/delete'));
 router.use('/invite', require('./routes/invite'));
 router.use('/signup', require('./routes/signup'));
 router.use('/notes', require('./routes/notes'));
+router.use('/reset-password', require('./routes/reset-password'));
+router.use('/poll', require('./routes/poll'));
