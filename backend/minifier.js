@@ -1,3 +1,5 @@
+'use strict';
+
 const minify = require('@node-minify/core'),
       csso = require('@node-minify/csso'),
       html_minifier = require('@node-minify/html-minifier'),

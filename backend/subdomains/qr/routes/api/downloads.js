@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express'),
       router = express.Router(),
       rateLimit = require('express-rate-limit'),
@@ -59,9 +61,9 @@ function checkReleases() {
 		});
 
 		res.on('end', () => {
-			release = JSON.parse(body)[0]; // The array has length of 1
+			const release = JSON.parse(body)[0]; // The array has length of 1
 			downloadInfo.version = release.tag_name
-			assets = release.assets;
+			const assets = release.assets;
 			let osExtsRemaining = Object.assign({}, OS_EXTS);
 			for (let i = 0; i < assets.length; i++) {
 				for (let os in osExtsRemaining) {

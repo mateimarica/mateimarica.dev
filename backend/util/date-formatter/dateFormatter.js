@@ -1,3 +1,5 @@
+'use strict';
+
 /** Converts a date into a string with the format "dd-mm-yyyy at hh:mm GMTtz"
  * @param  {Date} date The first number
  * @return {String} A formatted string representation of the date.

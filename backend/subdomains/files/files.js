@@ -1,9 +1,10 @@
+'use strict';
+
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
       fs = require('fs'),
       poolManager = require('pool-manager'),
-      authManager = require('./authManager')
       rateLimit = require('express-rate-limit'),
       cookieParser = require('cookie-parser');
 

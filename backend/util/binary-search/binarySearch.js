@@ -1,3 +1,5 @@
+'use strict';
+
 function isValueInArray(value, arr) {
 	let startIndex  = 0,
 		stopIndex   = arr.length - 1,

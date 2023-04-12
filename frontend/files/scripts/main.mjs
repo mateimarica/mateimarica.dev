@@ -1,3 +1,5 @@
+'use strict';
+
 import { sendHttpRequest, setAccessToken, setRefreshToken, setInviteAccessToken, setLoggedIn, isInviteSession, logout} from './req-manager.mjs';
 import { dynamicTextArea, sleep, getRelativeTime, getUtcOffsetTime, getFormattedSize } from './util.mjs';
 import { displayToast } from './toasts.mjs';
@@ -232,8 +234,7 @@ $('#signupRequestBtn').addEventListener('click', function() {
 });
 
 $('#resetPswdBtn').addEventListener('click', function() {
-	console.log('PRESSED');
-	const usernameOrEmail = $('#resetPswdField').value.trim();
+	const usernameOrEmail = $('#resetPswdEmailField').value.trim();
 	if (!usernameOrEmail) return displayToast('Must enter a username or email.');
 
 	this.setAttribute('disabled', '');

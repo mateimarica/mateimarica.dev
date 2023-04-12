@@ -1,3 +1,5 @@
+'use strict';
+
 import { displayToast } from './toasts.mjs';
 
 let accessToken = null,

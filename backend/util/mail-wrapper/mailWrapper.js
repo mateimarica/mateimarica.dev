@@ -1,3 +1,5 @@
+'use strict';
+
 const nodemailer = require('nodemailer');
 
 const EMAIL_SERVICE = process.env.EMAIL_SERVICE,

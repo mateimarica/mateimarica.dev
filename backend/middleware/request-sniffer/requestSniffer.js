@@ -1,3 +1,5 @@
+'use strict';
+
 const poolManager = require('pool-manager'),
       isValueInArray = require('binary-search');
 

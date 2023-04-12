@@ -1,3 +1,5 @@
+'use strict';
+
 import { sendHttpRequest } from './req-manager.mjs';
 import { dynamicTextArea, sleep, getRelativeTime, getUtcOffsetTime } from './util.mjs';
 

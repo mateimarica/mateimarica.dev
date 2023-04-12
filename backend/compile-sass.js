@@ -1,3 +1,5 @@
+'use strict';
+
 const sass = require('sass'),
       glob = require('glob'),
       fs = require('fs'),

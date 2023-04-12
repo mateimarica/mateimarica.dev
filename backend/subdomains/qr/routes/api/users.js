@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express'),
       router = express.Router(),
       crypto = require('crypto'),
@@ -11,7 +13,8 @@ const REGISTER_RATE_LIMITER = rateLimit({
 	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.QR_USERS_REGISTER_LIMITER_MAX_REQUESTS,
 	message: "You already made an account recently. Wait a few minutes.",
-	headers: false
+	headers: false,
+	skipFailedRequests: true
 });
 
 router.post('/register', REGISTER_RATE_LIMITER, (req, res) => {

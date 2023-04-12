@@ -1,3 +1,5 @@
+'use strict';
+
 const password = process.env.SEARCHICTON_PASSWORD;
 
 function authInspector(req, res, next) {

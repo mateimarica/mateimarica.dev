@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express'),
       router = express.Router(),
       rateLimit = require("express-rate-limit"),
@@ -20,7 +22,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let vote = req.body.params.vote,
-	    questionId = req.body.params.questionId
+	    questionId = req.body.params.questionId,
 	    answerId = req.body.params.answerId;
 
 	// vote must be int, vote must be between -1 and 1, must have questionId or answerId (but not both),

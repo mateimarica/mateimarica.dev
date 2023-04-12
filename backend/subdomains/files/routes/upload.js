@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
@@ -5,7 +7,8 @@ const express = require('express'),
       fs = require('fs'),
       { authInspector, ROLE } = require('../authManager'),
       sizeVerifier = require('../sizeVerifier').sizeVerifier,
-	  { pool, UPLOAD_DIR } = require('../files');
+      rateLimit = require("express-rate-limit"),
+      { pool, UPLOAD_DIR } = require('../files');
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {

@@ -1,3 +1,5 @@
+'use strict';
+
 const poolManager = require('pool-manager');
 
 const FILES_MAX_STORAGE_BYTES = process.env.FILES_MAX_STORAGE_GBS * 1000000000;

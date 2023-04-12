@@ -1,3 +1,5 @@
+'use strict';
+
 const bodyStyle = document.body.style;
 
 async function spinBackground() {

@@ -1,3 +1,5 @@
+'use strict';
+
 import { sleep } from './util.mjs';
 
 const $ = document.querySelector.bind(document),

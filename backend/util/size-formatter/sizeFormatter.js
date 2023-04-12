@@ -1,3 +1,5 @@
+'use strict';
+
 const KILOBYTE = 1000,
       MEGABYTE = 1000000,
       GIGABYTE = 1000000000;

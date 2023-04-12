@@ -1,3 +1,5 @@
+'use strict';
+
 const dynamicTextArea = async function() {
 	let y = window.scrollY; // record last scroll position
 	this.style.height = "";

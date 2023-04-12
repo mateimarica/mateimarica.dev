@@ -1,3 +1,5 @@
+'use strict';
+
 import { sendHttpRequest } from './req-manager.mjs';
 import { displayToast } from './toasts.mjs';
 
