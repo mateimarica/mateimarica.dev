@@ -3,7 +3,6 @@
 const express = require('express'),
       router = express.Router(),
       path = require('path'),
-      mysql = require('mysql2'),
       rateLimit = require('express-rate-limit'),
       reqSniffer = require('request-sniffer'),
       downloads = require('./routes/api/downloads');	
@@ -46,15 +45,5 @@ router.use('/api/votes', require('./routes/api/votes'));
 router.use('/api/reports', require('./routes/api/reports'));
 router.use('/api/messages', require('./routes/api/messages'));
 router.use('/api/downloads', require('./routes/api/downloads').router);
-
-router.get('*', (req, res) => { // Send 404 page for any other page
-	res.status(404).sendFile(path.join(__dirname, files.COMPONENTS_DIR, '404.html'));
-	reqSniffer.recordSuspiciousIP(req);
-});
-
-router.use('*', (req, res) => {
-	res.sendStatus(404);
-	reqSniffer.recordSuspiciousIP(req);
-});
 
 module.exports = router;
