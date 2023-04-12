@@ -8,6 +8,7 @@ const express = require('express'),
       crypto = require('crypto'),
       { pool, COMPONENTS_DIR } = require('../files'),
       escape = require('escape-html'),
+      rateLimit = require("express-rate-limit"),
       emailValidator = require('email-validator'),
       mailWrapper = require('mail-wrapper'),
       { nanoid } = require('nanoid'),
@@ -15,10 +16,17 @@ const express = require('express'),
 
 require('@marko/compiler/register');
 
+const CREATE_RATE_LIMITER = rateLimit({
+	windowMs: process.env.FILES_RESET_PSWD_CREATE_TIME_WINDOW_MINS * 60 * 1000,
+	max: process.env.FILES_RESET_PSWD_CREATE_MAX_REQUESTS,
+	message: "You been doing that too much. What you doing, huh?",
+	headers: false
+});
+
 const RESET_PSWD_MAX_VALIDITY_SECS = Math.floor(process.env.FILES_RESET_PSWD_MAX_VALIDITY_MINS * 60);
 
 const resetPasswordEmailTemplate = require(path.join(COMPONENTS_DIR, 'email', 'reset_password_email')).default;
-router.post('/', async (req, res) => {
+router.post('/', CREATE_RATE_LIMITER, async (req, res) => {
 	const usernameOrEmail = req.body.usernameOrEmail;
 
 	if (!usernameOrEmail || typeof usernameOrEmail !== 'string')
