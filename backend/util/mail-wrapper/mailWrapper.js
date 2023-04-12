@@ -2,36 +2,47 @@
 
 const nodemailer = require('nodemailer');
 
-const EMAIL_SERVICE = process.env.EMAIL_SERVICE,
-      EMAIL_USERNAME = process.env.EMAIL_USERNAME,
-      EMAIL_PASSWORD = process.env.EMAIL_PASSWORD,
-      ADMIN_RECIPIENT = process.env.EMAIL_RECIPIENT;
+const CONFIG = {
+	host: process.env.EMAIL_HOST,
+	port: process.env.EMAIL_PORT,
+	senderAddress: process.env.EMAIL_SENDER_ADDRESS,
+	senderName: process.env.EMAIL_SENDER_NAME,
+	smtpUsername: process.env.EMAIL_SMTP_USERNAME,
+	smtpPassword: process.env.EMAIL_SMTP_PASSWORD,
+	adminRecipient: process.env.EMAIL_ADMIN_RECIPIENT
+};
 
-if (!EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME || !ADMIN_RECIPIENT) {
-	console.error('Not all email environment vars set. Emails likely will not work.');
+// Check that every value in config is truthy
+if (!Object.values(CONFIG).every(v => !!v)) {
+	throw Error('Not all email environment vars set.');
 }
 
 const TRANSPORTER = nodemailer.createTransport({
-	service: EMAIL_SERVICE,
-	port: 587,
-	secure: true, // use TLS
+	host: CONFIG.host,
+	port: CONFIG.port,
+	secure: false,
+	requireTLS: true, // use TLS
 	auth: {
-		user: EMAIL_USERNAME,
-		pass: EMAIL_PASSWORD
+		user: CONFIG.smtpUsername,
+		pass: CONFIG.smtpPassword
 	}
 });
 
 function sendToAdmin(subject, contents) {
-	send(ADMIN_RECIPIENT, subject, contents);
+	send(CONFIG.adminRecipient, subject, contents);
 }
 
 function send(recipient, subject, contents, callback=null) {
-	if (!recipient || !subject || !contents || !EMAIL_SERVICE || !EMAIL_USERNAME || !EMAIL_USERNAME) {
+	if (!recipient || !subject || !contents) {
+		if (callback) callback('Need all three to send email: recipient, subject, contents.', null);
 		return false;
 	}
 
 	const email = {
-		from: EMAIL_USERNAME,
+		from: {
+			name: CONFIG.senderName,
+			address: CONFIG.senderAddress
+		},
 		to: recipient,
 		subject: subject,
 		html: contents
