@@ -40,7 +40,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 		}
 
 		if (results && results.affectedRows === 1) {
-			const url = req.protocol + '://' + req.get('host') + '/share' + (!forceDownload ? '/dl' : '') + '?id=' + id;
+			const url = req.protocol + '://f.mateimarica.dev' + '/s' + (!forceDownload ? '/dl' : '') + '?id=' + id;
 			return res.status(201).send({url: url});
 		} else {
 			return res.sendStatus(409);

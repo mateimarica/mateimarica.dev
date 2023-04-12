@@ -44,14 +44,13 @@ router.post('/', authInspector(ROLE.USER), async (req, res) => {
 			}
 	
 			if (results && results.affectedRows === 1) {
-				const url = req.protocol + '://' + req.get('host') + '/?invite=' + id;
+				const url = req.protocol + '://f.mateimarica.dev/?invite=' + id;
 				return res.status(201).send({url: url});
 			} else {
 				return res.sendStatus(409);
 			}
 		});
 	});
-	
 });
 
 const inviteTemplate = require(path.join(COMPONENTS_DIR, 'invite')).default;

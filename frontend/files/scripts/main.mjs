@@ -45,9 +45,7 @@ const passwordField = $('#passwordField'),
 
 [usernameField, passwordField].forEach(field => {
 	field.addEventListener('keydown', (e) => {
-		if (e.code === 'Enter') {
-			submitBtn.click();
-		}
+		if (e.code === 'Enter') submitBtn.click();
 	});
 });
 
@@ -214,7 +212,7 @@ $('#signupRequestBtn').addEventListener('click', function() {
 			case 201:
 				showGenericPopup(
 					'Account Request',
-					`Your account request for *${username}* was created.\n\n${email ? `You will receive an email at *${email}* when your account is activated.` : `You didn't add an email, so just check back later I guess.`}`
+					`Your account request for *${username}* was created.\n\n${email ? `You will receive an email at *${email}* when your account is activated.` : `You didn't add an email, so just check back later.`}`
 				);
 				clearAllInputFields('#signupPopup');
 				break;
@@ -233,8 +231,15 @@ $('#signupRequestBtn').addEventListener('click', function() {
 	}});
 });
 
-$('#resetPswdBtn').addEventListener('click', function() {
-	const usernameOrEmail = $('#resetPswdEmailField').value.trim();
+const resetPswdEmailField = $('#resetPswdEmailField'),
+      resetPswdBtn = $('#resetPswdBtn');
+
+resetPswdEmailField.addEventListener('keydown', (e) => {
+	if (e.code === 'Enter') resetPswdBtn.click();
+});
+
+resetPswdBtn.addEventListener('click', function() {
+	const usernameOrEmail = resetPswdEmailField.value.trim();
 	if (!usernameOrEmail) return displayToast('Must enter a username or email.');
 
 	this.setAttribute('disabled', '');

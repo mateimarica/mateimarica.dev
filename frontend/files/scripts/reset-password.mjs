@@ -8,9 +8,16 @@ const $ = document.querySelector.bind(document),
       $$ = document.querySelectorAll.bind(document);
 
 const resetPswdField = $('#resetPswdField'),
-      resetPswdAgainField = $('#resetPswdAgainField');
+      resetPswdAgainField = $('#resetPswdAgainField'),
+      resetPswdBtn = $('#resetPswdBtn');
 
-$('#resetPswdBtn').addEventListener('click', () => {
+[resetPswdField, resetPswdAgainField].forEach((field) => {
+	field.addEventListener('keydown', (e) => {
+		if (e.code === 'Enter') resetPswdBtn.click();
+	});
+});
+
+resetPswdBtn.addEventListener('click', () => {
 	const password = resetPswdField.value,
 	      passwordAgain = resetPswdAgainField.value;
 
