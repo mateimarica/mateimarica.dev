@@ -1,10 +1,18 @@
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
 			body {
 				text-align: center;
 				font-family: Verdana, Geneva, Tahoma, sans-serif;
-				max-width: 800px;
+				max-width: max-content;
+			}
+
+			@media screen and (max-width: 550px) {
+				body {
+					margin-left: auto;
+					margin-right: auto;
+				}
 			}
 		
 			h3 {
@@ -13,7 +21,8 @@
 			}
 
 			#container {
-				width: 95%;
+				min-width: 95%;
+				width: max-content;
 				margin-left: auto;
 				margin-right: auto;
 				margin-bottom: 10px;

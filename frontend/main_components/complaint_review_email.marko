@@ -1,10 +1,18 @@
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
 			body {
 				text-align: center;
 				font-family: Verdana, Geneva, Tahoma, sans-serif;
-				max-width: 800px;
+				max-width: max-content;
+			}
+
+			@media screen and (max-width: 550px) {
+				body {
+					margin-left: auto;
+					margin-right: auto;
+				}
 			}
 		
 			h3 {
@@ -70,32 +78,29 @@
 				background-color:rgb(105, 0, 26);
 			}
 		</style>
-		<link rel="icon" type="image/ico" href="/favicon.ico">
 	</head>
 	<body>
-		<div style="max-width: max-content;">
-			<h2 style="text-align: center;">Someone submitted a complaint!</h2>
-			<p style="text-align: center;">Review the complaint and select the appropriate action.</p>
-	
-			<div id="complaintContainer">
-				<table>
-					<tr>
-						<td class="headerTableData"><h3>Name:</h3></td>
-						<td class="tableData">${input.name}</td>
-					</tr>
-					<tr>
-						<td class="headerTableData"><h3>Complaint:</h3></td>
-						<td class="tableData">${input.complaint}</td>
-					</tr>
-					<tr>
-						<td class="headerTableData"><h3>Time:</h3></td>
-						<td class="tableData">${input.date}</td>
-					</tr>
-				</table>
-			</div>
-	
-			<a id="approveButton" class="button" href=`${input.approveButtonURL}`>Approve complaint</a>
-			<a id="rejectButton" class="button" href=`${input.rejectButtonURL}`>Reject complaint</a>
+		<h2 style="text-align: center;">Someone submitted a complaint!</h2>
+		<p style="text-align: center;">Review the complaint and select the appropriate action.</p>
+
+		<div id="complaintContainer">
+			<table>
+				<tr>
+					<td class="headerTableData"><h3>Name:</h3></td>
+					<td class="tableData">${input.name}</td>
+				</tr>
+				<tr>
+					<td class="headerTableData"><h3>Complaint:</h3></td>
+					<td class="tableData">${input.complaint}</td>
+				</tr>
+				<tr>
+					<td class="headerTableData"><h3>Time:</h3></td>
+					<td class="tableData">${input.date}</td>
+				</tr>
+			</table>
 		</div>
+
+		<a id="approveButton" class="button" href=`${input.approveButtonURL}`>Approve complaint</a>
+		<a id="rejectButton" class="button" href=`${input.rejectButtonURL}`>Reject complaint</a>
 	</body>
 </html>
