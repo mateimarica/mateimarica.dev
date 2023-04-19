@@ -1,0 +1,33 @@
+:root {
+	--trackColor: #131416;
+	--thumbColor: #3a3f44;
+	--thumbHoverColor: #555;
+	--barWidth: 15px;
+}
+
+/* CHROMIUM */
+::-webkit-scrollbar {
+	width: var(--barWidth);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--thumbColor);
+
+	&:hover {
+		background: var(--thumbHoverColor);
+	}
+}
+
+::-webkit-scrollbar-track {
+	background: var(--trackColor);
+}
+
+/* FIREFOX */
+html {
+    scrollbar-width: var(--barWidth);
+	scrollbar-color: var(--thumbColor) var(--trackColor); /* thumb, track */
+	// Seems firefox has no way to set the hover color for the scrollbar on hover.
+	// It just gets lighter automatically.
+}
+
+ 
