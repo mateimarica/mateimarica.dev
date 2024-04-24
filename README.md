@@ -14,6 +14,9 @@ My website - just some stuff I have fun with.
 
 Work-in-progress app for simple file storage/sharing. Located at [files.mateimarica.dev](https://files.mateimarica.dev) but access is only granted on request.
 
-The key feature is the ability to set a download limit and validity period for a shared file.
+Key features:
+- The ability to set a download limit and validity period for a shared file.
+- The ability to create a file-request link with a validity period and file size limit.
+- A notes interface that will sync on multiple devices as you type.
 
 ![](https://raw.githubusercontent.com/mateimarica/public/c7fef7a31ee1614708525d2d1f9b0b5ac56c4716/mateimarica.dev/files_mateimarica_dev.png)
