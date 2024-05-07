@@ -289,7 +289,7 @@ body {
 #complaintForm {
 	width: 45%;
 	min-width: 260px;
-	border: 2px solid lightgray;
+	border: 2px solid #393939;
 	border-radius: var(--defaultBorderRadius);
 	margin: 15px auto auto; /* Puts form to the middle */
 	overflow: hidden;
