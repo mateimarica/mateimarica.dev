@@ -8,6 +8,7 @@
 		<link rel="stylesheet" type="text/css" href="/styles/main.css">
 		<link rel="stylesheet" type="text/css" href="/styles/navbar.css">
 		<link rel="stylesheet" type="text/css" href="/styles/scrollbar.css">
+		<link rel="stylesheet" type="text/css" href="/styles/hint.css">
 		<link rel="icon" type="image/ico" href="/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
@@ -72,13 +73,20 @@
 
 		<div class="sectionCard" id="complaintsCard">
 			<div>
-				<h1 class="centeredHeader">Things others have said about me:</h1>
+				<h1 class="centeredHeader" style="display: inline;">Things others have said about me: </h1>
+				<div id="whats-this-hint" class="hint info-circle">
+					<span class="hint-text">?</span>
+					<span class="hint-popup">
+						<span>This section is meant to be comedic, please don't take it too seriously!</span>
+					</span>
+				</div>
+				<br>
+				<br>
 				<div id="complaintsShowcase">
 					<ul id="complaintsList">
 						<li class="complaintsListItem"><span class="complaintsListItemText">Looks like there's nothing here. Hmm...</span></li>
 					</ul>
 				</div>
-				
 			</div>
 
 			<div>
