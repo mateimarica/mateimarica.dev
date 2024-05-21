@@ -1,0 +1,151 @@
+:root {
+	--mainBackgroundColor: #06080a;
+	--secondaryBackgroundColor: #15222e;
+	--sectionCardColor: #11161b;
+	--textFieldmainBackgroundColor: #0b0e11;
+
+	--oddFilesBackgroundColor: #132638;
+	--oddFilesBackgroundColorHSL: hsl(209, 49%, 15%);
+	--evenFilesBackgroundColor: #0c1a27;
+	--evenFilesBackgroundColorHSL: hsl(209, 53%, 10%);
+
+	--selectedInputColor: #102335;
+	--inputColor: #060a0c;
+
+	--defaultFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--descriptionFont: 'Franklin Gothic Medium', Arial, Helvetica, sans-serif;
+	--defaultBorderRadius: 8px;
+}
+
+
+.infoDisplay {
+	position: relative;
+	margin-top: 20px;
+	font-family: monospace;
+}
+
+.infoDisplayHeader {
+	display: flex;
+	align-items: center; /* Center vertically */
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	border: 2px solid #34383e;
+	border-top-left-radius: var(--defaultBorderRadius);
+	border-top-right-radius: var(--defaultBorderRadius);
+	box-sizing: border-box;
+	height: 30px;
+	background-color: #08121b;
+	text-align: left;
+	padding: 0 20px;
+}
+
+.infoDisplayTitle {
+	color: rgb(180, 180, 180);
+	font-size: 16px;
+	font-weight: bold;	margin-left: auto;
+	margin-right: auto;
+}
+
+
+
+.infoDisplayStatus {
+	width: max-content;
+	float: right;
+	font-size: 14px;
+	color: rgb(136, 136, 136);	margin-left: auto;
+	margin-right: auto;
+}
+
+.infoDisplayTextArea {
+	background-color: var(--evenFilesBackgroundColor);
+	color: lightgray;
+	font-size: 15px;
+	resize: none;
+	width: 100%;
+	padding: 50px 20px 25px; /* top left&right bottom */
+	min-height: 50px;
+	box-sizing: border-box;
+	border: 2px solid #34383e;
+	border-radius: var(--defaultBorderRadius);
+	overflow: hidden;
+	tab-size: 4;
+}
+
+.infoDisplayTitleContainer {
+	display: block;
+	width: 100%;
+	text-align: left;
+} 
+
+.infoDisplayStatusContainer {
+	display: block;
+	width: 50%;
+	text-align: right;
+}
+
+.infoDisplayTitle, .infoDisplayStatus {
+	user-select: none;
+}
+
+#mainInfoDisplay {
+    min-width: 670px;
+}
+
+.headerTableData {
+    text-align: right;
+    padding: 5px;
+    vertical-align: top;
+    margin-left: 0;
+    font-weight: bold;
+    color: rgb(150 , 150, 150);
+}
+
+.tableData {
+    padding: 5px;
+    padding-left: 15px;
+    text-align: left;
+    white-space: normal;
+    color: white;
+}
+
+.tableDataSubtext {
+    font-size: 12px;
+    color: lightgray;
+}
+
+@media screen and (max-width:1450px) {
+
+    #mainInfoDisplay {
+        min-width: 0;
+    }
+
+    .infoDisplayTable tr > * {
+        display: block;
+    }
+
+    .infoDisplayTextArea {
+        font-size: 12px;
+        padding: 32px 15px 10px;
+    }
+
+    .tableDataSubtext {
+        font-size: 11px;
+        display: block;
+    }
+
+    .tableData {
+        padding: 0;
+        padding-left: 15px;
+    }
+
+    /* Add padding only between rows */
+    .infoDisplayTable tr:not(:last-child) .tableData {
+        padding-bottom: 10px;
+    }
+    
+    .headerTableData {
+        text-align: left;
+    }
+}

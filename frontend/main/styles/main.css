@@ -37,7 +37,7 @@ body {
 
 .sectionCard {
 	width: 70%;
-	max-width: 900px;
+	max-width: 1200px;
 	margin-left: auto; /* this means the margins are the same, so it gets pushed to the middle */
 	margin-right: auto;
 	margin-bottom: 20px;
@@ -47,12 +47,17 @@ body {
 	box-sizing: border-box;
 }
 
+#bodyCard {
+	max-width: 1500px;
+	width: 75%;
+}
+
 #complaintsCard {
 	max-width: none;
 }
 
 /* Mobile viewing optimization */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1450px) {
 	.sectionCard {
 		width: 90%;
 		padding: 32px 24px 32px; /* top, left&right, bottom */
@@ -98,12 +103,11 @@ body {
 #aboutMeSection {
 	align-items: center; /* Center vertically */
 	display: flex;
+	gap: 90px;
 }
 
 #aboutMeSection ul {
 	list-style: none;
-	margin-left: 5%;
-	margin-bottom: 3%;
 	padding: 0;
 }
 
@@ -114,25 +118,34 @@ body {
 }
 
 #heyHeader {
-	font-size: 48px;
+	font-size: 38px;
 	text-align: center;
+	display: inline-block;
 }
 
 #mateiPic {
-	margin-left: 0;
+	margin-left: 15px;
 	margin-right: 0;
-	width: 40%;
-	max-width: 400px;
-	min-width: 225px;
+	width: 50px;
 	border-radius: 50%; /* makes pic circular */
 	background-color: var(--mainBackgroundColor);
 	height: 100%; /* this is to ensure that the pic's 1:1 ratio isn't changed */
+	vertical-align: text-bottom;
+
+}
+
+#shortIntro {
+	max-width: 50%;
 }
 
 @media screen and (max-width: 900px) {
 	#aboutMeSection {
 		display: block;
 		text-align: center;
+	}
+
+	#shortIntro {
+		max-width: 100%;
 	}
 }
 
@@ -215,6 +228,16 @@ body {
 		width: 100%;
 		min-width: 50px;
 	}
+}
+
+#infoDisplay {
+	border: 2px solid lightgray;
+	border-radius: var(--defaultBorderRadius);
+	list-style: none;
+	padding-left: 0;
+	margin: 0;
+	background-color: var(--oddComplaintsBackgroundColor);
+	font-family: monospace;
 }
 
 #complaintsList {

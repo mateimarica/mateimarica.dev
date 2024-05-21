@@ -9,6 +9,8 @@
 		<link rel="stylesheet" type="text/css" href="/styles/navbar.css">
 		<link rel="stylesheet" type="text/css" href="/styles/scrollbar.css">
 		<link rel="stylesheet" type="text/css" href="/styles/hint.css">
+		<link rel="stylesheet" type="text/css" href="/styles/infodisplay.css">
+		<link rel="stylesheet" type="text/css" href="https://files.mateimarica.dev/styles/main.css">
 		<link rel="icon" type="image/ico" href="/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
@@ -46,17 +48,48 @@
 
 		<div class="sectionCard" id="bodyCard">
 			<div id="aboutMeSection">
-				<img id="mateiPic" src="/images/matei.png" alt="My mug">
-				<ul>
+				<ul id="shortIntro">
 					<h1 id="heyHeader">Hey!</h1>
-					<li>I'm Matei, a 4th-year Computer Science undergrad at 
-						<div class="tooltip" id="UNBtooltip">UNB
-							<span>University of New Brunswick</span>
-						</div>.
-					</li>
+					<li>I'm Matei, an avid software developer. I love challenging problems and I'm passionate about creating applications that are easy to use.</li>
 					<br>
-					<li>Welcome to my website.</li>
+					<li>Welcome to my website!</li>
 				</ul>
+
+				
+
+				<div id="mainInfoDisplay" class="infoDisplay">
+					<div class="infoDisplayHeader">
+						<span class="infoDisplayTitleContainer">
+							<span class="infoDisplayTitle">Subject Info</span>
+						</span>
+					</div>
+					<div class="infoDisplayTextArea">
+						<table class="infoDisplayTable">
+							<tr>
+								<td class="headerTableData">Name:</td>
+								<td class="tableData">Matei Marica</td>
+							</tr>
+							<tr>
+								<td class="headerTableData">Education:</td>
+								<td class="tableData" title="Bachelor of Computer Science - University of New Brunswick 2019-2024">BCS - UNB 2019-24</td>
+							</tr>
+							<tr>
+								<td class="headerTableData">Experience:</td>
+								<td class="tableData">Amazon - SDE Intern <span class="tableDataSubtext">(2023)</span><br>Introhive - Associate Software Eng. <span class="tableDataSubtext">(2021, 2022)</span><br>CRC Canada - CS Intern Telecomm. R&D  <span class="tableDataSubtext">(2021)</span></td>
+							</tr>
+							<tr>
+								<td class="headerTableData">Skills:</td>
+								<td class="tableData">Full-stack Web Dev <span class="tableDataSubtext">(Ruby on Rails, Express, React, jQuery, Bootstrap)</span><br>Application Development <span class="tableDataSubtext">(Android, JavaFX, WinUI)</span><br>Cloud Services <span class="tableDataSubtext">(AWS, GCP, Oracle Cloud)</span></td>
+							</tr>
+							<tr>
+								<td class="headerTableData">Contact:</td>
+								<td class="tableData"><a class="linkButton" id="emailField" style="margin: 0; font-size: inherit;">Click to view</a></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				
 			</div>
 
 			<div class="divider"></div>
@@ -73,8 +106,8 @@
 
 		<div class="sectionCard" id="complaintsCard">
 			<div>
-				<h1 class="centeredHeader" style="display: inline;">Things others have said about me: </h1>
-				<div id="whats-this-hint" class="hint info-circle">
+				<h1 class="centeredHeader" style="display: inline; vertical-align: sub;">Things others have said about me: </h1>
+				<div class="hint info-circle">
 					<span class="hint-text">?</span>
 					<span class="hint-popup">
 						<span>This section is meant to be comedic, please don't take it too seriously!</span>
@@ -84,18 +117,25 @@
 				<br>
 				<div id="complaintsShowcase">
 					<ul id="complaintsList">
-						<li class="complaintsListItem"><span class="complaintsListItemText">Looks like there's nothing here. Hmm...</span></li>
+						<li class="complaintsListItem"><span class="complaintsListItemText">This section has been decommissioned as of 21/05/2024.</span></li>
 					</ul>
 				</div>
 			</div>
 
+			<br>
+			<br>
+
 			<div>
-				<h1 class="centeredHeader" id="complaintFormHeader">Got a complaint?</h1>
-				<span class="complaintFormDesc">Have I wronged you?</span>
-				<span class="complaintFormDesc">Let me know!</span>
+				<h1 class="centeredHeader" id="complaintFormHeader" style="display: inline; vertical-align: sub;">Feedback Form </h1>
+				<div class="hint info-circle">
+					<span class="hint-text">?</span>
+					<span class="hint-popup">
+						<span>Feedback submitted here will be sent directly to my personal email.</span>
+					</span>
+				</div>
 				<div id="complaintForm">
-					<input class="formField" id="nameField" placeholder="Name (Optional)" spellcheck=false maxlength=20> 
-					<textarea class="formField" id="complaintField" placeholder="Complaint" spellcheck=false maxlength=400></textarea>
+					<input class="formField" id="nameField" placeholder="Name (optional)" spellcheck=false maxlength=20> 
+					<textarea class="formField" id="complaintField" placeholder="Feedback" spellcheck=false maxlength=400></textarea>
 					<label id="messageBox" class="hiddenMessageBox"></label>
 					<button id="formSubmit" type="button">Submit</button>
 				</div>

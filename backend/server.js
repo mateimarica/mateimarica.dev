@@ -8,7 +8,7 @@ const express = require('express'),
       rateLimit = require("express-rate-limit"),
       helmet = require("helmet"),
       morganLogger = require('morgan'),
-      reqSniffer = require('request-sniffer'),
+      // reqSniffer = require('request-sniffer'),
       invalidJsonHandler = require('invalid-json-handler'),
       qrequest = require('./subdomains/qr/qr'),
       files = require('./subdomains/files/files'),
@@ -18,7 +18,7 @@ const express = require('express'),
       url = require('url'),
       mailWrapper = require('mail-wrapper');
 
-reqSniffer.initializeIpCache();
+//reqSniffer.initializeIpCache();
 mailWrapper.checkConnection();
 
 const STATIC_PAGE_RATE_LIMITER = rateLimit({
@@ -26,7 +26,7 @@ const STATIC_PAGE_RATE_LIMITER = rateLimit({
 	max: process.env.STATIC_LIMITER_MAX_REQUESTS * process.env.NUM_OF_STATIC_FILES, // Max num of requests per time window * the rough num of static files
 	message: "Too many requests, try again later.",
 	headers: false,
-	onLimitReached: (req) => reqSniffer.recordSuspiciousIP(req, 429, process.env.STATIC_LIMITER_MAX_REQUESTS * process.env.NUM_OF_STATIC_FILES)
+	// onLimitReached: (req) => reqSniffer.recordSuspiciousIP(req, 429, process.env.STATIC_LIMITER_MAX_REQUESTS * process.env.NUM_OF_STATIC_FILES)
 });
 
 const API_RATE_LIMITER = rateLimit({
@@ -52,7 +52,7 @@ const helmetFunc = helmet({
 			"img-src": [SELF_SRC, DOMAIN_SRC],
 			"script-src": [SELF_SRC],
 			"manifest-src": [SELF_SRC],
-			"style-src": [SELF_SRC, DOMAIN_SRC, "'unsafe-inline'"],
+			"style-src": [SELF_SRC, DOMAIN_SRC, SUBDOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC], // specifies which URLs can be loaded using APIs like XMLHttpRequest,
 			"media-src": [SELF_SRC], // allow stuff like mp3s and mp4s to be loaded in the browser
 			"frame-ancestors": [NONE_SRC]
@@ -81,7 +81,7 @@ app.use(express.json({limit: process.env.REQUEST_MAX_BODY_SIZE}));
 app.use(express.urlencoded({limit: process.env.REQUEST_MAX_BODY_SIZE, extended: true}));
 let accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 app.use(morganLogger('common', { stream: accessLogStream }));
-app.use(reqSniffer.requestSniffer);
+// app.use(reqSniffer.requestSniffer);
 app.use(invalidJsonHandler);
 app.use(subdomain('files', files.router));
 app.use(subdomain('f', (req, res, next) => {
@@ -109,12 +109,12 @@ app.use(express.static(path.join(__dirname, 'frontend_build/main')));
 
 app.get('*', (req, res) => { // Send 404 page for any other page
 	res.status(404).sendFile(path.join(__dirname, 'frontend_build/main_components/404.html'));
-	reqSniffer.recordSuspiciousIP(req);
+	// reqSniffer.recordSuspiciousIP(req);
 });
 
 app.use('*', (req, res) => {
 	res.sendStatus(404);
-	reqSniffer.recordSuspiciousIP(req);
+	// reqSniffer.recordSuspiciousIP(req);
 });
 
 const OPTIONS = {
