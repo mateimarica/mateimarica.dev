@@ -133,11 +133,10 @@ emailField.addEventListener("click", () => {
 	let a = 'mate';
 	let d = 'ail.com'
 
-	let email = a + b + c + d;
-
+	let emailChunks = [b, c, a, d];
+	let email = emailChunks[2] + emailChunks[0] + emailChunks[1] + emailChunks[3];
 	let element = emailField.parentElement;
 	emailField.remove();
 
 	simulateTyping(element, email);
-
 });
