@@ -91,7 +91,8 @@ app.use(subdomain('qr', qrequest));
 app.use(subdomain('searchicton', searchicton));
 app.use(STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 
-app.use('/resume', API_RATE_LIMITER, require('./routes/resume'));
+app.use('/resume', require('./routes/resume'));
+app.use('/activerecord_vs_rawsql_article', require('./routes/article'));
 app.use('/api/complaints', API_RATE_LIMITER, require('./routes/api/complaints'));
 app.use(['/about', '/contact'], API_RATE_LIMITER, require('./routes/WIP'));
 
