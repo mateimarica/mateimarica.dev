@@ -72,6 +72,18 @@ submitBtn.addEventListener('click', () => {
 
 	const persistentSession = $('#stayLoggedInCheckbox').checked; // boolean
 
+	login(username, password, persistentSession, () => {
+		// End the rotation animation at the end of an iteration so it doesn't jump
+		arrowIcon.onanimationiteration = () => {
+			arrowIcon.classList.remove('rotatingLogin');
+		};
+	});
+
+	passwordField.value = '';
+});
+
+// callback is called with boolean parameter. true if http status is 200, false otherwise
+function login(username, password, persistentSession, callback) {
 	const options = {
 		headers:  {
 			'Content-Type': 'application/json'
@@ -107,14 +119,9 @@ submitBtn.addEventListener('click', () => {
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
 
-		// End the rotation animation at the end of an iteration so it doesn't jump
-		arrowIcon.onanimationiteration = () => {
-			arrowIcon.classList.remove('rotatingLogin');
-		};
+		callback(http.status === 200);
 	}});
-
-	passwordField.value = '';
-});
+}
 
 const darkOverlay = $('#darkOverlay');
 
@@ -777,7 +784,7 @@ function setUpFilePicker(uploadFilesFunction) {
 	});
 }
 
-// Check for invite after DOM loads
+// Check for params after DOM loads
 document.addEventListener('DOMContentLoaded', (e) => {
 	const urlParams = new URLSearchParams(window.location.search);
 	const inviteCode = urlParams.get('invite');
@@ -827,6 +834,18 @@ document.addEventListener('DOMContentLoaded', (e) => {
 				break;
 		}
 		showLoginForm();
+		return;
+	}
+
+	const usernameParam = urlParams.get('u');
+	const passwordParam = urlParams.get('p');
+	if (usernameParam && passwordParam) {
+		window.history.pushState({}, '', window.location.origin); // remove query params
+		displayToast('Attempting autologin with URL parameters...', { type: 'alert', timeout: 4000 });
+		login(usernameParam, passwordParam, false, (wasLoginSuccessful) => {
+			if (!wasLoginSuccessful)
+				showLoginForm();
+		});
 		return;
 	}
 
