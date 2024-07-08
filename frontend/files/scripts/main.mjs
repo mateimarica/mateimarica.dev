@@ -72,7 +72,7 @@ submitBtn.addEventListener('click', () => {
 
 	const persistentSession = $('#stayLoggedInCheckbox').checked; // boolean
 
-	login(username, password, persistentSession, () => {
+	login(username, password, persistentSession, async () => {
 		// End the rotation animation at the end of an iteration so it doesn't jump
 		arrowIcon.onanimationiteration = () => {
 			arrowIcon.classList.remove('rotatingLogin');
@@ -83,6 +83,7 @@ submitBtn.addEventListener('click', () => {
 });
 
 // callback is called with boolean parameter. true if http status is 200, false otherwise
+// callback function should be async to prevent hangs
 function login(username, password, persistentSession, callback) {
 	const options = {
 		headers:  {
@@ -96,6 +97,8 @@ function login(username, password, persistentSession, callback) {
 	}
 
 	sendHttpRequest('POST', '/login', options, { load: (http) => {
+		callback(http.status === 200);
+
 		switch (http.status) {
 			case 200:
 				if (!persistentSession) {
@@ -118,8 +121,6 @@ function login(username, password, persistentSession, callback) {
 			default:
 				displayToast('Something went wrong. Status code: ' + http.status);
 		}
-
-		callback(http.status === 200);
 	}});
 }
 
@@ -841,8 +842,8 @@ document.addEventListener('DOMContentLoaded', (e) => {
 	const passwordParam = urlParams.get('p');
 	if (usernameParam && passwordParam) {
 		window.history.pushState({}, '', window.location.origin); // remove query params
-		displayToast('Attempting autologin with URL parameters...', { type: 'alert', timeout: 2000 });
-		login(usernameParam, passwordParam, true, (wasLoginSuccessful) => {
+		displayToast('Attempting autologin with URL parameters...', { type: 'alert', timeout: 1500 });
+		login(usernameParam, passwordParam, true, async (wasLoginSuccessful) => {
 			if (wasLoginSuccessful) {
 				displayToast('Autologin successful. Welcome!', { type: 'alert', timeout: 3000 });
 			} else {
