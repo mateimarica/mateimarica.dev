@@ -7,7 +7,8 @@
     "prod": "npm run build && node minifier && echo Project built! && cross-env NODE_ENV=production pm2 start server.js --name mateimarica.dev --log server.log --time --node-args=\"--max-http-header-size=4096\"",
     "staging": "cross-env NODE_ENV=production nodemon --exec \"npm run build && echo Project built! && node server\"",
     "dev": "cross-env NODE_ENV=development nodemon --exec \"npm run build && echo Project built! && node server\"",
-    "stop": "pm2 stop mateimarica.dev"
+    "stop": "pm2 stop mateimarica.dev",
+    "refresh": "npm run stop && git fetch --all && git pull && npm run prod"
   },
   "author": "Matei Marica",
   "license": "MIT",
