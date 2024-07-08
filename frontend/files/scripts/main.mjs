@@ -841,10 +841,13 @@ document.addEventListener('DOMContentLoaded', (e) => {
 	const passwordParam = urlParams.get('p');
 	if (usernameParam && passwordParam) {
 		window.history.pushState({}, '', window.location.origin); // remove query params
-		displayToast('Attempting autologin with URL parameters...', { type: 'alert', timeout: 4000 });
-		login(usernameParam, passwordParam, false, (wasLoginSuccessful) => {
-			if (!wasLoginSuccessful)
+		displayToast('Attempting autologin with URL parameters...', { type: 'alert', timeout: 2000 });
+		login(usernameParam, passwordParam, true, (wasLoginSuccessful) => {
+			if (wasLoginSuccessful) {
+				displayToast('Autologin successful. Welcome!', { type: 'alert', timeout: 3000 });
+			} else {
 				showLoginForm();
+			}
 		});
 		return;
 	}
