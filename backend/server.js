@@ -13,6 +13,7 @@ const express = require('express'),
       qrequest = require('./subdomains/qr/qr'),
       files = require('./subdomains/files/files'),
       searchicton = require('./subdomains/searchicton/searchicton'),
+      jquestrade = require('./subdomains/jquestrade/jquestrade'),
       subdomain = require('express-subdomain'),
       compression = require('compression'),
       url = require('url'),
@@ -89,6 +90,7 @@ app.use(subdomain('f', (req, res, next) => {
 }));
 app.use(subdomain('qr', qrequest));
 app.use(subdomain('searchicton', searchicton));
+app.use(subdomain('jquestrade', jquestrade));
 app.use(STATIC_PAGE_RATE_LIMITER); // Limit static page requests
 
 app.use('/resume', require('./routes/resume'));
