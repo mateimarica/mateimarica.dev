@@ -54,6 +54,7 @@ body {
 
 #complaintsCard {
 	max-width: none;
+	width: fit-content;
 }
 
 /* Mobile viewing optimization */
