@@ -51,7 +51,7 @@ const helmetFunc = helmet({
 			"base-uri": [NONE_SRC],
 			"upgrade-insecure-requests": [],
 			"img-src": [SELF_SRC, DOMAIN_SRC],
-			"script-src": [SELF_SRC],
+			"script-src": [SELF_SRC, SUBDOMAIN_SRC],
 			"manifest-src": [SELF_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, SUBDOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC], // specifies which URLs can be loaded using APIs like XMLHttpRequest,
@@ -63,7 +63,14 @@ const helmetFunc = helmet({
 	xssFilter: false,
 	ieNoOpen: false,
 	dnsPrefetchControl: false,
-	expectCt: false
+	expectCt: false,
+	frameguard: ''
+});
+
+// Allow getting scripts from files domain
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
 });
 
 // Add CSP header only if user requests HTML. This reduces data use by ~25%.

@@ -30,7 +30,8 @@ body {
 	margin: 0;
 	width: 100vw;
 	font-family: var(--defaultFont);
-	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
+	background: linear-gradient(120deg, var(--mainBackgroundColor) 47%, var(--secondaryBackgroundColor) 53%);
+	background-attachment: fixed;
 	background-size: 100vw;
 	margin-top: 78px;
 	color: whitesmoke;
@@ -284,13 +285,13 @@ button {
 	margin: 0;
 	text-align: center;
 	vertical-align: top;
+	cursor: pointer;
 	border-radius: var(--defaultBorderRadius);
 	&:not(:disabled) {
 		&:hover {
 			color: whitesmoke;
 			border: 2px solid lightslategray;
-			transition: 0.2s ease;
-			background-color: #0a0c0f;
+			background-color: #1c3d5c;
 		}
 
 		&:active {
@@ -665,14 +666,8 @@ input[type=checkbox]:disabled::before {
 	margin-right: auto;
 	margin-top: 25px;
 	transition: .05s linear;
+	border-color: lightslategray;
 	cursor: pointer;
-
-	&:hover {
-		background-color: var(--selectedInputColor);
-		&:not(:active) {
-			transform: scale(1.03);
-		}
-	}
 
 	&:focus {
 		background-color: var(--selectedInputColor);
@@ -773,47 +768,6 @@ a {
 		background-color: #111;
 		color: #666;
 		cursor: wait;
-	}
-}
-
-.notification {
-	transform: translate(-50%, -200%);
-	position: fixed;
-	padding: 25px;
-	width: 300px;
-	max-width: 85%; /* for super skinny displays like galaxy fold */
-	height: 75px;
-	border-radius: var(--defaultBorderRadius);
-	overflow: hidden;
-	z-index: 150;
-	background-color: var(--sectionCardColor);
-	left: 50%;
-	top: 20px;
-	border: 2px solid gray;
-	box-shadow: 0px 0px 20px 20px rgba(0,0,0, 0.4);
-	transition: transform .15s ease-out;
-	white-space: pre-line; /* wrap text when necessary and on linebreaks like \r\n */
-
-	& > span { /* The actual text of the notification */
-		font-size: 16px;
-		position: relative;
-		display: block;
-		top: 50%;
-		transform: translateY(-50%);
-		cursor: default; /* remove select cursor on text */
-	}
-
-	&.shown {
-		transform: translate(-50%, 0);	
-
-		&:hover {
-			transform: translate(-50%, 0) scale(1.02);
-		}
-	}
-
-	&.error {
-		background-color: #320000;
-		border-color: #4e0000;
 	}
 }
 

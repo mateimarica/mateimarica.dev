@@ -10,7 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="/styles/scrollbar.css">
 		<link rel="stylesheet" type="text/css" href="/styles/hint.css">
 		<link rel="stylesheet" type="text/css" href="/styles/infodisplay.css">
-		<link rel="stylesheet" type="text/css" href="https://files.mateimarica.dev/styles/main.css">
+		<link rel="stylesheet" type="text/css" href="https://files.mateimarica.dev/styles/notification.css">
 		<link rel="icon" type="image/ico" href="/icons/favicon.ico">
 		<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
@@ -38,12 +38,8 @@
 			</a>
 		</nav>
 
-		<div class="sectionCard titleCard" id="titleCard">
-			<div id="title">
-				<h1 class="horizontalAngledText">MATEI&emsp;&nbsp;</h1>
-				<h1 class="verticalAngledText">&emsp;&ensp;MARICA&ensp;</h1>
-				<h1 class="horizontalAngledText">&emsp;&ensp;.DEV&emsp;&ensp;</h1>
-			</div>
+		<div id="title">
+			<span id="titleTextMatei" class="titleText">matei</span><span id="titleTextMaricaDev" class="titleText">marica.dev</span>
 		</div>
 
 		<div class="sectionCard" id="bodyCard">
@@ -106,7 +102,7 @@
 
 		<div class="sectionCard" id="complaintsCard">
 			<div>
-				<h1 class="centeredHeader" id="complaintFormHeader" style="display: inline; vertical-align: sub;">Feedback Form </h1>
+				<h1 class="centeredHeader" id="complaintFormHeader" style="display: inline; vertical-align: sub; font-size: 30px; margin-bottom:">Feedback Form </h1>
 				<div class="hint info-circle">
 					<span class="hint-text">?</span>
 					<span class="hint-popup">
@@ -116,12 +112,12 @@
 				<div id="complaintForm">
 					<input class="formField" id="nameField" placeholder="Name (optional)" spellcheck=false maxlength=20> 
 					<textarea class="formField" id="complaintField" placeholder="Feedback" spellcheck=false maxlength=400></textarea>
-					<label id="messageBox" class="hiddenMessageBox"></label>
 					<button id="formSubmit" type="button">Submit</button>
 				</div>
 			</div>
 		</div>
 
-		<script src="/scripts/script.js"></script>
+		<div id="notification" class="notification"><span></span></div>
+		<script type="module" src="/scripts/script.mjs"></script>
 	</body>
 </html>

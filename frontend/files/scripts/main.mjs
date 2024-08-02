@@ -431,7 +431,7 @@ function setUpMainPage() {
 		if (files.length > 0)
 			filesList.innerHTML = ''; // Removes the default list item
 		else
-		 	filesList.innerHTML = `<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Hmm...</span></li>`;
+		 	filesList.innerHTML = `<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Try uploading a file.</span></li>`;
 
 		for (let i = 0; i < files.length; i++) {
 			const filesListItem = document.createElement('li');

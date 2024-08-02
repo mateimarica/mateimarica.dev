@@ -8,7 +8,7 @@ function getPool(databaseName) {
 	for (let i = 0; i < pools.length; i++) {
 		if (pools[i].databaseName === databaseName) {
 			return pools[i].pool; // Return existing pool
-		}	
+		}
 	}
 	return createPool(databaseName); // Create new pool
 }

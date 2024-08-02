@@ -1,5 +1,7 @@
 'use strict';
 
+import { displayToast } from 'https://files.mateimarica.dev/scripts/toasts.mjs';
+
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
@@ -51,7 +53,7 @@ $('#formSubmit').addEventListener("click", () => {
 	// If there's nothing in the complaintField, alert the user
 	// Or, if there are only spaces in the complaint. trim() would make a space-only string into '', which is falsy
 	if (complaint === '' || !complaint.trim()) {
-		setMessageBox('errorMessageBox', "\u26A0 Can't leave the feedback field blank!");
+		displayToast("Can't leave the feedback field blank!");
 		complaintField.classList.add('complaintFieldError');
 		return;
 	}
@@ -69,25 +71,18 @@ $('#formSubmit').addEventListener("click", () => {
 	sendHttpRequest(http, 'POST', '/api/complaints', () => {
 		switch (http.status) {
 			case 201:
-				setMessageBox('successMessageBox', "\u2714  Your feedback has been submitted.");
+				displayToast("Your feedback has been submitted.", { type: 'alert' });
 				nameField.value = ''; // Clear fields
 				complaintField.value = '';
 				break;
 			case 429:
-				setMessageBox('errorMessageBox', "\u2717 " + http.responseText);
+				displayToast(http.responseText);
 				break;
 			default:
-				setMessageBox('errorMessageBox', "\u2717  Something went wrong. Status code: " + http.status);
+				displayToast("Something went wrong. Status code: " + http.status);
 		}
 	}, newComplaint);
 });
-
-function setMessageBox(className, text) {
-	let messageBox = $('#messageBox');
-	messageBox.className = className;
-	messageBox.textContent = text;
-	window.scrollBy(0, 100); // Scroll 100px down so the submit button is still visible
-}
 
 function sendHttpRequest(http, method, suburl, callback=null, data=null) {
 	const url = `${window.location.protocol}//${window.location.host + suburl}`;

@@ -25,7 +25,8 @@ body {
 	margin: 0;
 	margin-top: 78px;
 	font-family: var(--defaultFont);
-	background: linear-gradient(110deg, var(--mainBackgroundColor) 50%, var(--secondaryBackgroundColor) 50%);
+	background: linear-gradient(120deg, var(--mainBackgroundColor) 47%, var(--secondaryBackgroundColor) 53%);
+	background-attachment: fixed;
 	color: whitesmoke;
 	text-align: center;
 }
@@ -45,16 +46,61 @@ body {
 	background-color: var(--sectionCardColor);
 	border-radius: var(--defaultBorderRadius);
 	box-sizing: border-box;
+	border: 2px var(--secondaryBackgroundColor) solid;
 }
 
 #bodyCard {
-	max-width: 1500px;
-	width: 75%;
+	animation: 12s ease 1s infinite forwards borderGlow, .5s ease .5s 1 forwards fadeIn;
+	opacity: 0;
+}
+
+@keyframes borderGlow {
+	0%, 10% {
+		border-color: var(--secondaryBackgroundColor);
+	}
+	50% {
+		border-color: #203c57;
+	}
+	90%, 100% {
+		border-color: var(--secondaryBackgroundColor);
+	}
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
 }
 
 #complaintsCard {
 	max-width: none;
 	width: fit-content;
+	opacity: 0;
+	animation: .5s ease .7s 1 forwards fadeIn;
+}
+
+.linkButton {
+	display: inline-block;
+	margin-top: 20px;
+	margin-bottom: 7px;
+	font-size: smaller;
+	cursor: pointer;
+}
+
+a {
+	color: #8ab4f8;
+    text-decoration: none;
+
+	&:hover, &:active {
+		text-decoration: underline;
+	}
+
+	&:active {
+		color: #6d8ec4;
+	}
 }
 
 /* Mobile viewing optimization */
@@ -65,36 +111,53 @@ body {
 	}
 }
 
-.titleCard {
-	width: 480px;
-	padding: 16px 0 1px 0;
-	width: 60%;
-	max-width: 500px;
-}
-
 #title {
 	font-size: 32px;
-	margin-top: 16px;
-	margin-bottom: 48px;
 	font-size: min(2.5vw, 24px);
 
 	/* min-width: 300px; If the width gets smaller than this, the title gets messed up */
 	filter: drop-shadow(16px 16px 16px var(--mainBackgroundColor));
+	margin-bottom: 30px;
 }
 
-.horizontalAngledText, .verticalAngledText {
+.titleText {
 	margin: 0;
 	display: inline-flex;
-	width: 100%;
 	justify-content: center;
+	transform-origin: center;
+	font-size: 50px;
+	font-weight: bold;
 }
 
-.horizontalAngledText {
-	transform: skew(60deg, -30deg) scaleY(.66667);
+#titleTextMatei {
+	animation: .5s cubic-bezier(.86,0,.07,1) .3s 1 forwards titleLeftTranslate;
+	transform: translateX(100%);
 }
 
-.verticalAngledText {
-	transform: skew(0deg, -30deg) scaleY(1.33333);
+#titleTextMaricaDev {
+	animation: .5s cubic-bezier(.86,-0.02,.15,.81) .3s 1 forwards titleRightTranslate;
+	transform: translateX(-25%);
+	opacity: 0;
+}
+
+@keyframes titleLeftTranslate {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(0px);
+	}
+}
+
+@keyframes titleRightTranslate {
+	0% {
+		transform: translateX(-25%);
+		opacity: 0;
+	}
+	100% {
+		transform: translateX(0px);
+		opacity: 1;
+	}
 }
 
 .centeredHeader {
@@ -124,17 +187,6 @@ body {
 	display: inline-block;
 }
 
-#mateiPic {
-	margin-left: 15px;
-	margin-right: 0;
-	width: 50px;
-	border-radius: 50%; /* makes pic circular */
-	background-color: var(--mainBackgroundColor);
-	height: 100%; /* this is to ensure that the pic's 1:1 ratio isn't changed */
-	vertical-align: text-bottom;
-
-}
-
 #shortIntro {
 	max-width: 50%;
 }
@@ -147,6 +199,10 @@ body {
 
 	#shortIntro {
 		max-width: 100%;
+	}
+
+	.titleText {
+		font-size: 275%;
 	}
 }
 
@@ -221,14 +277,6 @@ body {
 	width: 80%;
 	min-width: 288px;
 	overflow: hidden;
-}
-
-/* Mobile viewing optimization */
-@media screen and (max-width: 400px) {
-	#complaintsShowcase {
-		width: 100%;
-		min-width: 50px;
-	}
 }
 
 #infoDisplay {
@@ -313,8 +361,6 @@ body {
 #complaintForm {
 	width: 45%;
 	min-width: 260px;
-	border: 2px solid #393939;
-	border-radius: var(--defaultBorderRadius);
 	margin: 15px auto auto; /* Puts form to the middle */
 	overflow: hidden;
 	padding: 15px 14px 15px; /* top, left&right, bottom */
@@ -326,6 +372,11 @@ body {
 	#complaintForm {
 		min-width: 30px;
 		width: 100%;
+	}
+
+	#complaintsShowcase {
+		width: 100%;
+		min-width: 50px;
 	}
 }
 
@@ -346,39 +397,11 @@ body {
 	overflow: hidden; /* Prevents fields from leaving complaintField outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
 	margin: 0px auto 16px; /* top, left&right, bottom */
+	border-color: #9b9b9b;
 }
 
 .formField::placeholder {
 	font-weight: bolder;
-}
-
-#messageBox {
-	border-radius: var(--defaultBorderRadius);
-	font-size: 16px;
-	text-align: center;
-	color: whitesmoke;
-	padding: 3px;
-	margin-bottom: 20px;
-	margin-left: auto;
-	margin-right: auto;
-	width: 80%;
-	white-space: pre-line; /* wrap text when necessary and on linebreaks like \r\n */
-}
-
-.hiddenMessageBox {
-	display: none;
-}
-
-.successMessageBox {
-	border: 10px groove  rgb(0, 128, 28);
-	background-color: rgb(0, 53, 0);
-	display: block;
-}
-
-.errorMessageBox {
-	border: 10px groove  darkred;
-	background-color: rgb(43, 0, 0);
-	display: block;
 }
 
 #formSubmit {
@@ -387,17 +410,18 @@ body {
 	transition: 0.2s ease;
 	width: 40%;
 	max-width: 200px;
-	min-width: 150px;
+	min-width: 100px;
 	margin: auto;
 	text-align: center;
 	justify-content: center;
 	cursor: pointer;
+	background-color: #182735;
 }
 
 #formSubmit:hover {
 	color: whitesmoke;
 	transition: 0.2s ease;
-	background-color: #1f2831;
+	background-color: #264c72;
 }
 
 #formSubmit:mouse {
