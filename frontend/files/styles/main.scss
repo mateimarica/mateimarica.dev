@@ -184,15 +184,17 @@ body {
 }
 
 .icon {
-	transition: .2s ease;
-	filter: invert(75%);
+	transition: .1s ease;
 	cursor: pointer;
 	user-select: none;
+
+	&:hover:not(:active) {
+		transform: scale(1.2);
+	}
 }
 
-.icon:hover {
-	filter: invert(100%);
-	transform: scale(1.25);
+.downloadIcon, .shareIcon, .deleteIcon {
+	filter: invert(95%);
 }
 
 .downloadIcon {
@@ -209,10 +211,6 @@ body {
 
 .fieldForm {
 	text-align: left;
-}
-
-.complaintFieldError {
-	border: 2px solid darkred;
 }
 
 .formField {
@@ -281,7 +279,7 @@ button {
 	border: 2px solid #24272b;
 	transition: 0.2s ease;
 	padding: 10px;
-	font-size: 20px;
+	font-size: 17px;
 	margin: 0;
 	text-align: center;
 	vertical-align: top;
@@ -309,7 +307,7 @@ input, textarea {
 
 .arrowIcon {
 	content: url("../images/arrow-right.svg");
-	filter: invert(85%);
+	filter: invert(95%);
 	height: 100%; /* vertically center */
 	width: 30px;
 }
@@ -458,23 +456,29 @@ input, textarea {
 	animation: rotating 2s linear infinite;
 }
 
-.refreshIcon {
-	float: right;
+#refreshButton {
 	content: url("../images/refresh.svg");
 	filter: invert(95%);
 }
 
+#inviteButton {
+	content: url("../images/invite.svg");
+}
+
+.leftSideButton {
+	float: left;
+	margin-right: 10px;
+}
+
+.rightSideButton {
+	float: right;
+	margin-left: 10px;
+}
+
 #logoutButton {
-	max-width: 25px;
 	float: left;
 	position: absolute;
-	content: url("../images/arrow-right.svg");
-	filter: invert(95%);
-	transform: rotate(180deg);
-
-	&:hover:not(:active) {
-		transform: rotate(180deg) scale(1.25);
-	}
+	content: url("../images/logout.svg");
 }
 
 

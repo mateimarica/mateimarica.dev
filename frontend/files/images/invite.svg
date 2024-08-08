@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="32" height="20" viewBox="0 0 1600 1080" xml:space="preserve">
+<rect x="0" y="0" width="100%" height="100%" fill="transparent"></rect>
+<g transform="matrix(1 0 0 1 800 540)" id="bc97e9d5-8ded-4f4d-be98-d412452662d8"  >
+<rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-800" y="-540" rx="0" ry="0" width="1600" height="1080" />
+</g>
+<g transform="matrix(Infinity NaN NaN Infinity 0 0)" id="7d23ebe9-0463-4447-8bd3-d1c7270e555b"  >
+</g>
+<g transform="matrix(1.84 0 0 1.84 800 631.02)" id="0c20049f-f408-4557-9133-682126983277"  >
+<path style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(232,234,237); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  transform=" translate(-480, 420.77)" d="M 696.15 -180 L 696.15 -298.46 L 577.69 -298.46 L 577.69 -343.84999999999997 L 696.1500000000001 -343.84999999999997 L 696.1500000000001 -462.30999999999995 L 741.5400000000001 -462.30999999999995 L 741.5400000000001 -343.84999999999997 L 860 -343.84999999999997 L 860 -298.46 L 741.54 -298.46 L 741.54 -180 L 696.15 -180 Z M 439.61 -298.46 L 281.54 -298.46 Q 206.20000000000002 -298.46 153.10000000000002 -351.56 Q 100 -404.65 100 -479.98 Q 100 -555.3100000000001 153.1 -608.4200000000001 Q 206.2 -661.5400000000001 281.53999999999996 -661.5400000000001 L 439.60999999999996 -661.5400000000001 L 439.60999999999996 -616.1500000000001 L 281.54 -616.1500000000001 Q 224.74 -616.1500000000001 185.06 -576.5400000000001 Q 145.39 -536.9300000000001 145.39 -480.24000000000007 Q 145.39 -423.5400000000001 185.06 -383.69000000000005 Q 224.74 -343.85 281.54 -343.85 L 439.61 -343.85 L 439.61 -298.46000000000004 Z M 333.85 -457.31 L 333.85 -502.69 L 626.54 -502.69 L 626.54 -457.31 L 333.85 -457.31 Z M 860 -480 L 814.61 -480 Q 814.61 -536.46 774.94 -576.31 Q 735.2600000000001 -616.15 678.46 -616.15 L 520.39 -616.15 L 520.39 -661.54 L 678.46 -661.54 Q 753.8000000000001 -661.54 806.9000000000001 -608.4399999999999 Q 860 -555.34 860 -480 Z" stroke-linecap="round" />
+</g>
+</svg>

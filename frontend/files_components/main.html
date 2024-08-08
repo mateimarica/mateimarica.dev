@@ -28,7 +28,7 @@
 
 <div id="invitePopup" class="sectionCard popup">
 	<button class="xButton">&times;</button>
-	<h2>Create invite</h2>
+	<h2>Create an upload link</h2>
 
 	<input id="inviteNameField" class="formField" placeholder="Name" title="The invitee's name">
 	<textarea id="inviteMessageField" class="formField" placeholder="Message" title="An optional message"></textarea>
@@ -50,8 +50,9 @@
 </div>
 
 <div class="sectionCard">
-	<div id="logoutButton" class="icon" title="Sign out"></div>
-	<span id="refreshButton" class="icon refreshIcon" title="Refresh"></span>
+	<div id="logoutButton" class="icon leftSideButton" title="Sign out"></div>
+	<span id="refreshButton" class="icon rightSideButton" title="Refresh"></span>
+	<span id="inviteButton" class="icon rightSideButton" title="Create an upload link"></span>
 	<br>
 	<div id="storageBarContainer">
 		<label id="storageBarLabel">0 B used / 0 B total</label>
@@ -63,11 +64,6 @@
 		<input id="filePicker" type="file" multiple>
 		<label id="filePickerDropAreaLabel">Click or drag files here</label>
 	</label>
-
-	<div id="buttonDock">
-		<button id="inviteButton" class="niceButton" title="Invite someone to upload files">Invite</button>
-	</div>
-
 	<ul id="filesList">
 		<li class="filesListItem"><span class="filesListItemComponentLeft">Looks like there's nothing here. Try uploading a file.</span></li>
 	</ul>
