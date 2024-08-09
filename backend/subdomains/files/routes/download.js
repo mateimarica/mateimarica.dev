@@ -26,11 +26,11 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 				if (!fs.existsSync(downloadSessions[i].filePath))
 					return res.sendStatus(410);
 
-				res.download(downloadSessions[i].filePath);
+				res.download(downloadSessions[i].filePath, { dotfiles: 'allow' });
 				downloadSessions.splice(i, 1);
 				return;
 			} else {
-				return sendStatus(401);
+				return res.sendStatus(401);
 			}
 		}
 	}
