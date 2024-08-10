@@ -61,6 +61,9 @@ function getRelativeTime(oldDate, currentDate) {
 		let monthsPassed = Math.floor(MINUTES_PASSED / MINS_PER_MONTH);
 		return monthsPassed + (monthsPassed === 1 ? ' month ago' : ' months ago');
 	}
+
+	let yearsPassed = Math.floor(MINUTES_PASSED / MINS_PER_YEAR);
+	return yearsPassed + (yearsPassed === 1 ? ' year ago' : ' years ago');
 }
 
 function getUtcOffsetTime(date) {
