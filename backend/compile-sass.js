@@ -7,6 +7,11 @@ const sass = require('sass'),
 
 let fileCount = 0;
 
+function failProcess(msg) {
+	console.error('\n' + msg);
+	process.exit(1);
+}
+
 // Exit handler since fileWrites are async
 process.on('exit', function(options, exitCode) {
 	if (exitCode === 0) {
@@ -23,8 +28,14 @@ filepaths.forEach(filepath => {
 	const result = sass.compile(filepath);
 	const parsedPath = path.parse(filepath);
 	const outputPath = path.join(parsedPath.dir, parsedPath.name).toString() + '.css';
-	fs.writeFile(outputPath, result.css, (err) => {
-		if (err) failProcess(`Error writing compiled SASS at ${filepath}: ${err}\n`);
+	fs.writeFile(outputPath, result.css, (writeError) => {
+		if (writeError) failProcess(`Error writing compiled SASS at ${filepath}: ${writeError}\n`);
+
+		// Delete original SASS/SCSS file from frontend_build
+		fs.unlink(filepath, (unlinkError) => {
+			if (unlinkError) failProcess(`Error deleting original SASS at ${filepath}: ${unlinkError}\n`);
+		});
+
 		fileCount++;
 	});
 });
