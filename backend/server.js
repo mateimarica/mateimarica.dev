@@ -117,15 +117,7 @@ app.get('/icons/*', (req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'frontend_build/main')));
 
-app.get('*', (req, res) => { // Send 404 page for any other page
-	res.status(404).sendFile(path.join(__dirname, 'frontend_build/main_components/404.html'));
-	// reqSniffer.recordSuspiciousIP(req);
-});
-
-app.use('*', (req, res) => {
-	res.sendStatus(404);
-	// reqSniffer.recordSuspiciousIP(req);
-});
+app.use(require('not-found'));
 
 const OPTIONS = {
 	key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),

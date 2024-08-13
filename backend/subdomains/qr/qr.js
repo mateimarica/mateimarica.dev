@@ -45,5 +45,6 @@ router.use('/api/votes', require('./routes/api/votes'));
 router.use('/api/reports', require('./routes/api/reports'));
 router.use('/api/messages', require('./routes/api/messages'));
 router.use('/api/downloads', require('./routes/api/downloads').router);
+router.use(require('not-found'));
 
 module.exports = router;

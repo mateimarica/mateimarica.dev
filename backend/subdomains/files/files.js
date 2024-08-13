@@ -53,3 +53,4 @@ router.use('/delete', require('./routes/delete'));
 router.use('/invite', require('./routes/invite'));
 router.use('/signup', require('./routes/signup'));
 router.use('/reset-password', require('./routes/reset-password'));
+router.use(require('not-found'));

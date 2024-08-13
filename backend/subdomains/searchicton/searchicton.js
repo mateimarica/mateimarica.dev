@@ -102,4 +102,6 @@ router.delete('/landmarks', FAILED_AUTH_RATE_LIMITER, authInspector, (req, res) 
 	});
 });
 
+router.use(require('not-found'));
+
 module.exports = router;

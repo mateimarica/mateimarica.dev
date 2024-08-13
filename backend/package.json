@@ -41,6 +41,7 @@
     "mysql2": "^3.9.8",
     "nanoid": "3.3.4",
     "nodemailer": "^6.7.2",
+    "not-found": "file:util/not-found",
     "pm2": "^5.2.0",
     "pool-manager": "file:./util/pool-manager",
     "postcss": "^8.4.16",
