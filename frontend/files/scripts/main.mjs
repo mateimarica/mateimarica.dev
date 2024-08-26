@@ -422,7 +422,13 @@ function setUpMainPage() {
 		}
 
 		setTimeout(() => {
-			$('#storageBarUsed').style.width = usedSpacePercent + '%';
+			const storageBarUsed = $('#storageBarUsed');
+			storageBarUsed.style.width = usedSpacePercent + '%';
+			if (usedSpacePercent >= 90) {
+				storageBarUsed.classList.add('storageBarUsedNearFull');
+			} else {
+				storageBarUsed.classList.remove('storageBarUsedNearFull');
+			}
 	 	}, 10);
 
 		const filesList = $('#filesList');

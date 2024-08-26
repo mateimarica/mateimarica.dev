@@ -436,7 +436,11 @@ input, textarea {
 #storageBarUsed {
 	background: #2c78b6;
 	width: 0%;
-	transition: width 1s ease;
+	transition: background 1.5s ease, width 1s ease;
+}
+
+.storageBarUsedNearFull {
+	background: #9b1e1e !important;
 }
 
 .storageBar {
