@@ -176,13 +176,13 @@ a {
 }
 
 #aboutMeSection li {
-	font-size: 24px;
+	font-size: 20px;
 	font-family: var(--descriptionFont);
 	text-align: center;
 }
 
 #heyHeader {
-	font-size: 38px;
+	font-size: 36px;
 	text-align: center;
 	display: inline-block;
 }
@@ -363,7 +363,6 @@ a {
 	min-width: 260px;
 	margin: 15px auto auto; /* Puts form to the middle */
 	overflow: hidden;
-	padding: 15px 14px 15px; /* top, left&right, bottom */
 	box-sizing: border-box;
 }
 
