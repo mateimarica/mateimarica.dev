@@ -33,7 +33,7 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 		return res.sendStatus(400);
 
 	if (username.length < 2 || username.length > 15 || /^[a-z0-9]+$/i.test(username) === false || password.length < 6 || password.length > 200)
-		return res.status(401);
+		return res.sendStatus(401);
 
 	const persistent = // is session is persistent or not
 		req.body && req.body.persistentSession && typeof req.body.persistentSession === "boolean" 
