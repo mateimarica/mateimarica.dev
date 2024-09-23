@@ -527,10 +527,23 @@ input, textarea {
 	max-width: 95%;
 	min-height: fit-content;
 	display: none;
+
+	/* @keyframes duration | easing-function | delay | iteration-count | direction | name */
+	animation: 0.3s cubic-bezier(.37,.43,.07,1) 0s 1 forwards popupSlideDown;
+	transform: translate(-50%, -200%);
 }
 
 .popup > h2 {
 	margin-top: 0;
+}
+
+@keyframes popupSlideDown {
+	0% {
+		transform: translate(-50%, -200%);
+	}
+	100% {
+		transform: translate(-50%, -50%);
+	}
 }
 
 .corset { // used to add padding to the left & right of elements that are too fat
