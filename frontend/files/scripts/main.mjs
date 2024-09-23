@@ -528,15 +528,21 @@ function setUpMainPage() {
 								iframe.title = files[i].basename;
 								infoDisplayTextArea.replaceChildren(iframe);
 
-								iframe.addEventListener("load", function() {
-									const iframeBody = this.contentWindow.document.body;
+								const fixIframeStyling = (event) => {
+									const iframeBody = iframe.contentWindow.document.body;
 
 									const iframeText = iframeBody.querySelector('pre');
 									if (iframeText) iframeText.style.color = 'white';
 
 									const iframeImg = iframeBody.querySelector('img');
 									if (iframeImg) iframeImg.style.cssText = "position: absolute; inset: 0; margin: auto";
-								});
+								};
+
+								iframe.addEventListener('load', fixIframeStyling); // fix styling after load, in case the initial fix is triggered too early
+
+								await sleep(200); // delay to allow DOM to add iframe and start src load
+
+								fixIframeStyling(); // try to fix styling right away
 
 								break;
 							default:
