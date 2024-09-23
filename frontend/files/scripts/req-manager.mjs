@@ -31,7 +31,7 @@ function sendHttpRequest(method, url, options, callbacks={}) {
 			if (refreshToken) {
 				refreshOptions = {headers: {'Refresh-Token': refreshToken}};
 			}
-			
+
 			sendHttpRequest('POST', '/login/refresh', refreshOptions, { load: (http2) => {
 				switch (http2.status) {
 					case 200:
@@ -114,7 +114,7 @@ function setLoggedIn() { loggedIn = true; }
 
 function isInviteSession() { return !!inviteAccessToken }
 
-export { 
+export {
 	sendHttpRequest,
 	setAccessToken,
 	setRefreshToken,

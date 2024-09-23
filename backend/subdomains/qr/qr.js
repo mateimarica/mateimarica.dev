@@ -5,7 +5,7 @@ const express = require('express'),
       path = require('path'),
       rateLimit = require('express-rate-limit'),
       reqSniffer = require('request-sniffer'),
-      downloads = require('./routes/api/downloads');	
+      downloads = require('./routes/api/downloads');
 
 require('@marko/compiler/register');
 

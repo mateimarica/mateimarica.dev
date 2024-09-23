@@ -61,8 +61,8 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 
 	if (!recipient)
 		return res.status(400).send('Missing argument(s)');
-	
-	let sql = 
+
+	let sql =
 		`SELECT * FROM messages ` +
 		`WHERE ((recipient=? AND sender=?) OR (recipient=? AND sender=?)) ` +
 		`ORDER BY dateCreated ASC;`;

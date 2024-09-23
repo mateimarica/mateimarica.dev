@@ -30,7 +30,7 @@ async function notesStatusSavingAnimation() {
 async function notesStatusSyncingAnimation(syncSuccessful) {
 	const len = loadingAnimation.length;
 	const frameLength = 200 / len;
-	for (let i = 0; i < len; i++) { 
+	for (let i = 0; i < len; i++) {
 		notesStatus.textContent = loadingAnimation[i];
 		await sleep(frameLength);
 	}
@@ -186,7 +186,7 @@ function getNotesCallback(isPoll=false) {
 					notesStatusSyncingAnimation(false);
 					console.error(`Failed to sync notes. Status code: ` + http.status + `\nTrying again in 3 seconds.`);
 					await sleep(3000);
-					
+
 			}
 		},
 		error: async (e) => {

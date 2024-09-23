@@ -18,9 +18,9 @@ const REGISTER_RATE_LIMITER = rateLimit({
 });
 
 router.post('/register', REGISTER_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params) 
+	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-	
+
 	let username = req.body.params.username,
 	    password = req.body.params.password;
 
@@ -72,9 +72,9 @@ const LOGIN_RATE_LIMITER = rateLimit({
 });
 
 router.post('/login', LOGIN_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params) 
+	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-	
+
 	let username = req.body.params.username,
 	    password = req.body.params.password;
 
@@ -129,7 +129,7 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 			console.log(err);
 			return res.sendStatus(500);
 		}
-		
+
 		res.status(200).json(results.flat());
 	});
 });
@@ -181,7 +181,7 @@ function isAdmin(username, res, callback) {
 		}
 		if (results.flat()[0] === 1)
 			callback();
-		else 
+		else
 			res.sendStatus(403);
 	});
 }
@@ -203,10 +203,10 @@ function isAuthor(username, id, postType, res, callback) {
 			console.log(err);
 			return;
 		}
-		
+
 		if (results.flat()[0] === 1)
 			callback();
-		else 
+		else
 			res.sendStatus(403);
 	});
 }

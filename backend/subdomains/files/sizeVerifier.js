@@ -19,7 +19,7 @@ function sizeVerifier(req, res, next) {
 			console.log(err);
 			return sendStatus(502);
 		}
-		
+
 		const contentLength = Number(req.get('Content-Length'));
 
 		if (Number(results[0].usedSpaceSystem) + contentLength > FILES_MAX_STORAGE_BYTES) {
@@ -54,7 +54,7 @@ function enoughSpace(desiredSpaceBytes, username, res, callback) {
 			callback(false);
 			return;
 		}
-	
+
 		callback(true);
 	});
 }

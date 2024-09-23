@@ -48,16 +48,16 @@ let pauseSlides = false,
 
 // Set event listeners to stop/start the slideshow
 for(let i = 0; i < slides.length; i++) {
-	slides[i].addEventListener('mouseenter', async () => { 
+	slides[i].addEventListener('mouseenter', async () => {
 		pauseSlides = true;
 		pauseIcon.classList.add('fadeInQuick');
 		await sleep(QUICK_TRANSITION_DURATION);
 		pauseIcon.style.opacity = '1';
 		pauseIcon.classList.remove('fadeInQuick');
 	});
-	slides[i].addEventListener('mouseleave', async () => { 
-		pauseSlides = false; 
-		doSlideshow(currentSlide); 
+	slides[i].addEventListener('mouseleave', async () => {
+		pauseSlides = false;
+		doSlideshow(currentSlide);
 		pauseIcon.classList.add('fadeOutQuick');
 		await sleep(QUICK_TRANSITION_DURATION);
 		pauseIcon.style.opacity = '0';
@@ -75,7 +75,7 @@ async function doSlideshow(startIndex) {
 		while (true) {
 			for (let i = startIndex; i < slides.length; i++) {
 				startIndex = 0;
-		
+
 				next = (i+1 === slides.length ? 0 : i+1);
 
 				if (pauseSlides) {
@@ -83,7 +83,7 @@ async function doSlideshow(startIndex) {
 					isRunning = false;
 					return;
 				}
-				
+
 				await sleep(SLIDE_DURATION);
 
 				if (pauseSlides) {
@@ -91,10 +91,10 @@ async function doSlideshow(startIndex) {
 					isRunning = false;
 					return;
 				}
-			
+
 				slides[i].classList.add('fadeOut');
 				slides[next].classList.add('fadeIn');
-				
+
 				await sleep(TRANSITION_DURATION); // transition, time just under transition duration to prevent flashing
 
 				slides[i].style.opacity = '0';

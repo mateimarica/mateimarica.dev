@@ -39,7 +39,7 @@ const storage = multer.diskStorage({
 			console.log(`Failed to pre-save ${path.join(destinationDir, fullFileName)}: ${err}`);
 			throw err;
 		}
-		
+
 		cb(null, fullFileName);
 
 		// Register this listener to delete a file if it's aborted before it's done uploading
@@ -97,7 +97,7 @@ router.post('/', [UPLOAD_RATE_LIMITER, authInspector(ROLE.USER, ROLE.INVITEE), s
 		if (err) {
 			res.sendStatus(502);
 			console.log(err);
-			
+
 			// Delete the files that were just uploaded because the INSERT failed
 			for (let i = 0; i < FILES.length; i++) {
 				fs.unlink(FILES[i].path, (err) => {
@@ -107,7 +107,7 @@ router.post('/', [UPLOAD_RATE_LIMITER, authInspector(ROLE.USER, ROLE.INVITEE), s
 			return;
 		}
 
-		res.status(200).send(results); 
+		res.status(200).send(results);
 	});
 
 });

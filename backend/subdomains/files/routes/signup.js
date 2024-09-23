@@ -46,7 +46,7 @@ router.post('/', SIGNUP_RATE_LIMITER, (req, res) => {
 		return res.status(400).send('Password length must be between 6 and 200');
 
 	const email = req.body.email || null; // set email to null instead of undefined
-	if (email && !emailValidator.validate(email)) 
+	if (email && !emailValidator.validate(email))
 		return res.status(400).send('That email is invalid');
 
 	const message = req.body.message || null; // set email to null instead of undefined
@@ -146,7 +146,7 @@ router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 			var sql2 = `DELETE FROM users WHERE tempApprovalId=? AND active=FALSE`; // verbose to be safe
 			var params2 = [approvalId];
 		}
-	
+
 		pool.execute(sql2, params2, (err2, results2) => {
 			if (err2) {
 				console.log(err2);
@@ -154,7 +154,7 @@ router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 			} else if (results2.affectedRows === 0) {
 				return res.sendStatus(404);
 			}
-	
+
 			let header = '\u2714'; // Check-mark symbol
 			let message = (req.query.approved === '1' ? 'Approval' : 'Rejection') + " successful";
 
@@ -165,7 +165,7 @@ router.get('/review', SIGNUP_REVIEWAL_RATE_LIMITER, (req, res) => {
 
 			res.set('Content-Type', 'text/html');
 			res.status(200).send(approvalConfirmationHTML);
-	
+
 			if (approvedBool) {
 				var subject = 'Welcome to Files!';
 				var emailContents = accountApprovalEmailTemplate.renderToString({

@@ -29,13 +29,13 @@ async function displayToast(text, options={}) {
 	notification.parentNode.insertBefore(n, notification); // Insert new notification before the default one
 	await sleep(50); // Wait for DOM to update so incoming transition animates
 	n.classList.add('shown');
-	
+
 	let mouseHovering = false,
 	    mouseEnteredRecently = false,
 	    notificationExpired = false,
 	    notificationDeleted = false;
 
-	n.addEventListener('mouseenter', async () => { 
+	n.addEventListener('mouseenter', async () => {
 		mouseHovering = true
 		mouseEnteredRecently = true;
 		await sleep(notificationAfterHoverTimeout);
@@ -49,7 +49,7 @@ async function displayToast(text, options={}) {
 			clearToast(n);
 		}
 	});
-	
+
 	await sleep(options.timeout);
 	if (!mouseHovering) {
 		clearToast(n);

@@ -85,7 +85,7 @@ router.patch('/', authInspector(ROLE.USER), (req, res) => {
 			console.log(err);
 			return res.sendStatus(502);
 		}
-	
+
 		if (results && results.affectedRows === 1) {
 			res.status(204).send();
 			syncUserPollers(username, pollerId, { notes: text });

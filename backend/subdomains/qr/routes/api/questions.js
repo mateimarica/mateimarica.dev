@@ -31,7 +31,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 	 || !tag) {
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 	}
-	
+
 	let sql = `INSERT INTO questions (title, description, author, tag) VALUES (?, ?, ?, ?);`;
 	let params = [title, description, req.body.session.username, tag];
 	pool.execute(sql, params, (err, results) => {
@@ -41,7 +41,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 		}
 
 		res.sendStatus(201);
-		
+
 	});
 });
 
@@ -58,7 +58,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 
 	if (!users.isSessionValid(req.body.session, res)) return;
 
-	let sql = 
+	let sql =
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
 		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) AS currentUserVote, ` +
@@ -94,7 +94,7 @@ router.get('/list', LIST_RATE_LIMITER, (req, res) => {
 
 	if (!users.isSessionValid(req.body.session, res)) return;
 
-	let sql = 
+	let sql =
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
 		`COALESCE((SELECT vote FROM votes WHERE questionId=q.id AND voter=?), 0) AS currentUserVote, ` +
@@ -188,7 +188,7 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 		`ORDER BY q.isPinned DESC LIMIT 40;`;
 
 	params.unshift(req.body.session.username); // Add username to the beginning after params edited
-	
+
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			console.log(err);
@@ -199,7 +199,7 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 		for(let i = 0; i < results.length; i++) {
 			results[i].isPinned = !!results[i].isPinned;
 		}
-		
+
 		res.status(200).json(results);
 	});
 });
@@ -216,7 +216,7 @@ router.patch('/toggle-pin', TOGGLEPIN_RATE_LIMITER, (req, res) => {
 		return res.sendStatus(400);
 
 	if (!users.isSessionValid(req.body.session, res)) return;
-	
+
 	let id = req.body.params.id;
 
 	if (!id)
@@ -278,7 +278,7 @@ router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
 		}
 
 		sql += ` WHERE id=?;`
-		
+
 		pool.execute(sql, params, (err, results) => {
 			if (err) {
 				console.log(err);
@@ -356,7 +356,7 @@ router.patch('/mark-solved', MARKSOLVED_RATE_LIMITER, (req, res) => {
 			if (err) {
 				if(err.code === 'ER_NO_REFERENCED_ROW_2') // Foreign key constraint fails - there's no answer with that id
 					return res.sendStatus(404);
-				
+
 				console.log(err);
 				return res.sendStatus(500);
 			}

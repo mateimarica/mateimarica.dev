@@ -22,7 +22,7 @@ document.addEventListener('scroll', (e) => {
 
 	if (!ticking) {
 		ticking = true;
-	
+
 		window.requestAnimationFrame(() => {
 			setNavbarTransparency(lastKnownScrollPosition);
 			ticking = false;
@@ -261,7 +261,7 @@ resetPswdBtn.addEventListener('click', function() {
 		switch (http.status) {
 			case 200:
 				const isEmail = JSON.parse(http.responseText).isEmail;
-				const content = isEmail 
+				const content = isEmail
 				                ? `If *${usernameOrEmail}* is associated with an account`
 				                : `If there is an account named *${usernameOrEmail}*`;
 
@@ -350,7 +350,7 @@ function setUpMainPage() {
 		}
 
 		window.addEventListener('beforeunload', beforeUnloadFuncUpload);
-	
+
 		const afterUploadCleanupFunc = () => {
 			window.removeEventListener('beforeunload', beforeUnloadFuncUpload);
 			filePickerDropAreaLabel.textContent = formerFilePickerDropAreaLabelText;
@@ -360,7 +360,7 @@ function setUpMainPage() {
 			filePickerDropArea.style.background = '';
 		};
 
-		sendHttpRequest('POST', '/upload', options, { 
+		sendHttpRequest('POST', '/upload', options, {
 			load: (http) => {
 				afterUploadCleanupFunc();
 				switch (http.status) {
@@ -458,13 +458,13 @@ function setUpMainPage() {
 			size.classList.add('filesListItemTextComponent');
 			size.textContent = getFormattedSize(files[i].size);
 			size.title = files[i].size + ' B';
-			
+
 			let date = document.createElement('span');
 			date.classList.add('filesListItemTextComponent');
 			const d = new Date(files[i].uploadDate);
 			date.textContent = getRelativeTime(d, new Date());
 			date.title = getUtcOffsetTime(d);
-			
+
 			let deleteButton = document.createElement('span');
 			deleteButton.classList.add('icon', 'deleteIcon');
 			deleteButton.title = 'Delete';
@@ -518,13 +518,13 @@ function setUpMainPage() {
 							type: 'preview'
 						})
 					};
-	
+
 					sendHttpRequest('POST', '/download/request', options, { load: async (http) => {
 						switch (http.status) {
 							case 200:
 								const iframe = document.createElement('iframe');
 								iframe.src = '/download?key=' + http.getResponseHeader('Authorization') + '&forceDownload=false';
-								
+
 								iframe.title = files[i].basename;
 								infoDisplayTextArea.replaceChildren(iframe);
 
@@ -537,7 +537,7 @@ function setUpMainPage() {
 									const iframeImg = iframeBody.querySelector('img');
 									if (iframeImg) iframeImg.style.cssText = "position: absolute; inset: 0; margin: auto";
 								});
-								
+
 								break;
 							default:
 								displayToast('Something went wrong. Status code: ' + http.status);
@@ -549,29 +549,29 @@ function setUpMainPage() {
 				shareButton.classList.add('icon', 'shareIcon');
 				shareButton.title = 'Share';
 				shareButton.addEventListener('click', () => {
-					
+
 					// Selects the first selector by default
 					$('.shareDownloadLimitSelector').click();
 					$('.shareValidityPeriodSelector').click();
-	
+
 					['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
 						$$(fieldSelectorClass).forEach(fieldSelector => {
 							fieldSelector.value = '';
 						});
 					});
-	
+
 					$('#sharePopupFilename').textContent = files[i].baseName;
 					$('#sharePopupUploadDate').textContent = 'Uploaded ' + date.textContent;
 					$('#sharePopupSize').textContent = size.textContent;
-	
+
 					$('#sharePopup').style.display = 'block';
 					showDarkOverlayForPopup();
-	
+
 					$('#createShareLinkBtn').addEventListener('click', () => {
 						const limit = $('.shareActiveDownloadLimitSelector').value,
 						      validity = $('.shareActiveValidityPeriodSelector').value,
 						      forceDownload = $('#forceDownloadCheckbox').checked;
-	
+
 						const options = {
 							headers: {
 								'Content-Type': 'application/json'
@@ -583,7 +583,7 @@ function setUpMainPage() {
 								forceDownload: Boolean(forceDownload)
 							})
 						};
-			
+
 						sendHttpRequest('POST', '/share', options, { load: (http) => {
 							switch (http.status) {
 								case 201:
@@ -597,14 +597,14 @@ function setUpMainPage() {
 						}});
 					});
 				});
-	
-	
+
+
 				let downloadButton = document.createElement('span');
 				downloadButton.classList.add('icon', 'downloadIcon');
 				downloadButton.title = 'Download';
 				downloadButton.addEventListener('click', () => {
 					downloadButton.className = 'loadingIcon';
-	
+
 					const options = {
 						headers: {
 							'Content-Type': 'application/json'
@@ -614,14 +614,14 @@ function setUpMainPage() {
 							type: 'download'
 						})
 					};
-	
+
 					sendHttpRequest('POST', '/download/request', options, { load: async (http) => {
 						switch (http.status) {
 							case 200:
 								let a = document.createElement('a');
 								a.href = '/download?key=' + http.getResponseHeader('Authorization');
 								a.click();
-			
+
 								await sleep(1000);
 								downloadButton.className = '';
 								downloadButton.classList.add('icon', 'downloadIcon');
@@ -653,23 +653,23 @@ function setUpMainPage() {
 
 		[
 			{
-				selectorClass: '.shareDownloadLimitSelector', 
-				fieldSelectorClass: '.shareDownloadLimitField', 
-				activeSelectorClass: 'shareActiveDownloadLimitSelector' 
+				selectorClass: '.shareDownloadLimitSelector',
+				fieldSelectorClass: '.shareDownloadLimitField',
+				activeSelectorClass: 'shareActiveDownloadLimitSelector'
 			},
 			{
-				selectorClass: '.shareValidityPeriodSelector',  
-				fieldSelectorClass: '.shareValidityPeriodField', 
+				selectorClass: '.shareValidityPeriodSelector',
+				fieldSelectorClass: '.shareValidityPeriodField',
 				activeSelectorClass: 'shareActiveValidityPeriodSelector'
 			},
 			{
-				selectorClass: '.inviteValidityPeriodSelector',  
-				fieldSelectorClass: '.inviteValidityPeriodField', 
+				selectorClass: '.inviteValidityPeriodSelector',
+				fieldSelectorClass: '.inviteValidityPeriodField',
 				activeSelectorClass: 'inviteActiveValidityPeriodSelector'
 			},
 			{
-				selectorClass: '.inviteMaxUploadSizeSelector',  
-				fieldSelectorClass: '.inviteMaxUploadSizeField', 
+				selectorClass: '.inviteMaxUploadSizeSelector',
+				fieldSelectorClass: '.inviteMaxUploadSizeField',
 				activeSelectorClass: 'inviteActiveMaxUploadSizeSelector'
 			},
 		].forEach(selectorGroup => {
@@ -677,15 +677,15 @@ function setUpMainPage() {
 			for (let i = 0; i < selectors.length; i++) {
 				selectors[i].addEventListener('click', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
 			}
-		
+
 			let selectorFields = $$(selectorGroup.fieldSelectorClass);
 			for (let i = 0; i < selectorFields.length; i++) {
 				selectorFields[i].addEventListener('keydown', setRadioButtons(selectors, selectorGroup.activeSelectorClass));
 			}
 		});
 
-		// Remove red outline on invite name field 
-		var recentInviteAttempt = false; // This variable exists so we don't change the DOM for every key we type. 
+		// Remove red outline on invite name field
+		var recentInviteAttempt = false; // This variable exists so we don't change the DOM for every key we type.
 		                                 // It is set to true when the Copy Link button is clicked
 		$('#inviteNameField').addEventListener('input', function() {
 			if (recentInviteAttempt) {
@@ -707,16 +707,16 @@ function setUpMainPage() {
 			$('#inviteNameField').classList.remove('fieldError');
 			$('.inviteValidityPeriodSelector').click();
 			$('.inviteMaxUploadSizeSelector').click();
-		
+
 			['.downloadLimitField', '.validityPeriodField'].forEach(fieldSelectorClass => {
 				$$(fieldSelectorClass).forEach(fieldSelector => {
 					fieldSelector.value = '';
 				});
 			});
-		
+
 			$('#invitePopup').style.display = 'block';
 			showDarkOverlayForPopup();
-		
+
 			$('#createInviteLinkBtn').addEventListener('click', () => {
 				recentInviteAttempt = true;
 
@@ -724,7 +724,7 @@ function setUpMainPage() {
 					  message = $('#inviteMessageField').value,
 					  maxUploadSize = $('.inviteActiveMaxUploadSizeSelector').value,
 					  validity = $('.inviteActiveValidityPeriodSelector').value;
-	
+
 				if (name === '' || !name.trim()) {
 					$('#inviteNameField').classList.add('fieldError');
 					return;
@@ -741,7 +741,7 @@ function setUpMainPage() {
 						validity: Number(validity)
 					})
 				};
-	
+
 				sendHttpRequest('POST', '/invite', options, { load: (http) => {
 					switch (http.status) {
 						case 201:

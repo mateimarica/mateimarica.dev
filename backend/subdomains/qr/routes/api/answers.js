@@ -7,7 +7,7 @@ const express = require('express'),
       users = require('./users');
 
 const pool = poolManager.getPool(process.env.QR_DB_NAME);
-	
+
 const POST_RATE_LIMITER = rateLimit({
 	windowMs: process.env.QR_LIMITER_TIME_WINDOW_MINS * 60 * 1000,
 	max: process.env.QR_ANS_POST_LIMITER_MAX_REQUESTS,
@@ -24,7 +24,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 	let answer = req.body.params.answer,
 	    questionId = req.body.params.questionId;
 
-	if (!answer || answer.length < 1 || answer.length > 3500 
+	if (!answer || answer.length < 1 || answer.length > 3500
 	 || !questionId || questionId.length !== 36) {
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 	}
@@ -55,13 +55,13 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 		return res.sendStatus(400);
 
 	if (!users.isSessionValid(req.body.session, res)) return;
-	
+
 	let questionId = req.body.params.questionId;
 
 	if (!questionId)
 		return res.status(400).send('Missing argument(s)');
 
-	let sql = 
+	let sql =
 		`SELECT a.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE answerId=a.id), 0) AS votes, ` +
 		`COALESCE((SELECT vote FROM votes WHERE answerId=a.id AND voter=?), 0) AS currentUserVote ` +
@@ -96,9 +96,9 @@ router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
 	let answer = req.body.params.answer,
 	    id = req.body.params.id;
 
-	if (!answer || answer.length < 1 || answer.length > 3500 || !id) 
+	if (!answer || answer.length < 1 || answer.length > 3500 || !id)
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
-	
+
 	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
 		let sql = `UPDATE answers SET answer=? WHERE id=?;`;
 		let params = [answer, id];
@@ -131,7 +131,7 @@ router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 
 	if (!id)
 		return res.status(400).send('Missing argument');
-	
+
 	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
 		let sql = `DELETE FROM answers WHERE id=?;`;
 		let params = [id];

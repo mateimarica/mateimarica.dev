@@ -29,14 +29,14 @@ function authInspector(...permittedRoles) {
 		if (!accessToken && !inviteAccessToken) {
 			return res.status(444).send("Invalid access token");
 		}
-		
+
 		// inviteAccessToken takes priority over accessToken
 		const session = await validateAccessToken(inviteAccessToken ? inviteAccessToken : accessToken, permittedRoles);
 		if (!session) {
 			res.set('WWW-Authenticate', 'xBasic realm="files"');
 			return res.status(444).send("Invalid access token"); // New funky code to mean "access token invalid"
 		}
-		
+
 		req.headers['Role'] = session.role;
 		req.headers['Username'] = session.username;
 
@@ -46,7 +46,7 @@ function authInspector(...permittedRoles) {
 			// unused for now
 			//req.headers['ExpirationDate'] = session.invite.expirationDate;
 		}
-		
+
 		next();
 	}
 }
@@ -108,9 +108,9 @@ async function createInviteSession(username, inviteId, maxAgeSecs, maxUploadSize
 
 // Returns session if access token valid. False if access token invalid
 async function validateAccessToken(accessToken, permittedRoles) {
-	
+
 	const accessTokenDataJSON = await redisClient.get(`access:${accessToken}`);
-	
+
 	if (accessTokenDataJSON === null) {
 		return false;
 	}
@@ -119,7 +119,7 @@ async function validateAccessToken(accessToken, permittedRoles) {
 
 	if (accessTokenData.role === ROLE.ADMIN) { // If they admin, let em through
 		return accessTokenData;
-		
+
 	} else {
 		for (const permittedRole of permittedRoles) { // Otherwise, check if their role is permitted
 			if (accessTokenData.role === permittedRole) {
@@ -134,7 +134,7 @@ async function validateAccessToken(accessToken, permittedRoles) {
 /** Returns some user data if sucessfully invalidated, false if not. False means it doesn't exist or has expired. */
 async function invalidateRefreshToken(refreshToken) {
 	const refreshTokenDataJSON = await redisClient.get(`refresh:${refreshToken}`); // Get refresh token
-	
+
 	if (refreshTokenDataJSON === null) return false;
 
 	const refreshTokenData = JSON.parse(refreshTokenDataJSON);

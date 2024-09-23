@@ -28,7 +28,7 @@ const MILLI_PER_MIN = 60000,
 /** Example: Converts "2020-11-15T23:11:01.000Z" to "a year ago" */
 function getRelativeTime(oldDate, currentDate) {
 
-	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - oldDate)) / MILLI_PER_MIN); 
+	const MINUTES_PASSED = Math.floor((Math.abs(currentDate - oldDate)) / MILLI_PER_MIN);
 
 	if (MINUTES_PASSED === 0)
 		return 'just now';

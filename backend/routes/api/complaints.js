@@ -102,7 +102,7 @@ router.get('/approve', COMPLAINT_APPROVAL_RATE_LIMITER, (req, res) => {
 			header: header,
 			message: message
 		});
-	
+
 		res.set('Content-Type', 'text/html');
 		res.status(200).send(html);
 	});
@@ -114,7 +114,7 @@ async function sendComplaintForApproval(complaint, req) {
 		console.log(`Complaint couldn't be sent for approval. Info: complaint_str=${!!complaint} req_obj=${!!req}`);
 		return;
 	}
-	
+
 	const hostURL = `${req.protocol}://${req.get('host') + '/api/complaints/approve'}`;
 
 	const approveButtonURL = new URL(hostURL);

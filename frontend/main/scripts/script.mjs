@@ -23,7 +23,7 @@ document.addEventListener('scroll', (e) => {
 
 		window.requestAnimationFrame(() => {
 			setNavbarTransparency(lastKnownScrollPosition);
-			
+
 			ticking = false;
 		});
 	}
@@ -57,9 +57,9 @@ $('#formSubmit').addEventListener("click", () => {
 		complaintField.classList.add('complaintFieldError');
 		return;
 	}
-	
+
 	let nameField = complaintForm.querySelector('#nameField');
-	
+
 	// Create the new complaint object
 	const newComplaint = JSON.stringify({
 		name: nameField.value,

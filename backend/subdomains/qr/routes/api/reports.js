@@ -27,12 +27,12 @@ router.post('/', REPORTS_RATE_LIMITER, (req, res) => {
 	    answerId = req.body.params.answerId;
 
 	if (!type || type.length > 200
-		|| (!description && description !== '') || description.length > 3500 
+		|| (!description && description !== '') || description.length > 3500
 		|| (questionId ? answerId : !answerId) // XOR
-		|| !((questionId && questionId.length === 36) || (answerId && answerId.length === 36))) { 
+		|| !((questionId && questionId.length === 36) || (answerId && answerId.length === 36))) {
 		return res.status(400).send('Missing, out-of-bounds, or too many argument(s)');
 	}
-	
+
 	let sql, params;
 	if (questionId) {
 		sql = `INSERT INTO reports (type, description, questionId, reporter) VALUES (?, ?, ?, ?);`;

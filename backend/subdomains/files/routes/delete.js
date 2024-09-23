@@ -19,7 +19,7 @@ router.delete('/', authInspector(ROLE.INVITEE, ROLE.USER), (req, res) => {
 
 	// If role=USER or role=INVITEE and username doesn't match uploader
 	// or if role=INVITEE and file isn't invited
-	if (((role === ROLE.USER || role === ROLE.INVITEE) && req.headers['Username'] !== uploader) 
+	if (((role === ROLE.USER || role === ROLE.INVITEE) && req.headers['Username'] !== uploader)
 	  || (role === ROLE.INVITEE && !inviteId))
 		return res.status(403).send("Can't delete another user's file");
 

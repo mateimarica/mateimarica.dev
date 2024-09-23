@@ -305,7 +305,7 @@ a {
 
 	max-height: 800px; /* Just some random big number that it'll never get to */
 	opacity: 1;
-	
+
 	transition: opacity 1s ease, max-height 5s linear;
 	will-change: opacity, max-height;
 }
@@ -324,13 +324,13 @@ a {
 }
 
 .complaintsListItem:first-child {
-	border-top-left-radius: var(--defaultBorderRadius); 
-	border-top-right-radius: var(--defaultBorderRadius); 
+	border-top-left-radius: var(--defaultBorderRadius);
+	border-top-right-radius: var(--defaultBorderRadius);
 }
 
 .complaintsListItem:last-child {
-	border-bottom-left-radius: var(--defaultBorderRadius); 
-	border-bottom-right-radius: var(--defaultBorderRadius); 
+	border-bottom-left-radius: var(--defaultBorderRadius);
+	border-bottom-right-radius: var(--defaultBorderRadius);
 }
 
 .complaintsListItem > .complaintsListItemInfo {

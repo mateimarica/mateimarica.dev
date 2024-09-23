@@ -54,7 +54,7 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 	return res.sendStatus(400);
 });
 
-let downloadSessions = [];	
+let downloadSessions = [];
 
 const requestValidities = {
 	'download': 3000,
@@ -89,7 +89,7 @@ router.post('/request', authInspector(ROLE.USER), (req, res) => {
 	};
 
 	downloadSessions.push(downloadSession);
-	
+
 	res.set('Authorization', downloadSession.key);
 	res.sendStatus(200);
 });

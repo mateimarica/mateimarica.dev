@@ -8,7 +8,7 @@
 	left: 0; right: 0; /* This makes the navbar span across the whole page */
 	align-items: flex-start; /* Center vertically */
 	justify-content: center; /* Hugs the elements together in the center */
-	
+
 	padding: 5px 0 15px;
 	margin-left: auto;
 	margin-right: auto;
@@ -85,7 +85,7 @@
 	color: lightgray;
 	visibility: hidden;
 	opacity: 0;
-	transition: opacity 0.1s linear, visibility  0.1s  linear;	
+	transition: opacity 0.1s linear, visibility  0.1s  linear;
 }
 
 #navigationBar:not(:hover) .subdomain-text {

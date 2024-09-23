@@ -9,15 +9,15 @@ const express = require('express'),
 	  { nanoid } = require('nanoid');
 
 require('@marko/compiler/register');
-	  
+
 router.post('/', authInspector(ROLE.USER), (req, res) => {
 	const name = req.body.name,
 	      limit = req.body.limit,
 	      validity = req.body.validity, // validity is in hours
 	      forceDownload = req.body.forceDownload;
 
-	if (!name || 
-	    !limit || !Number.isInteger(limit) || limit <= 0 || limit > 9999 || 
+	if (!name ||
+	    !limit || !Number.isInteger(limit) || limit <= 0 || limit > 9999 ||
 	    !validity || isNaN(validity) || validity <= 0 || validity > 9999 ||
 	    typeof forceDownload !== 'boolean')
 		return res.sendStatus(400);
@@ -107,7 +107,7 @@ router.get('/dl', (req, res) => {
 				res.set('Content-Disposition', `filename="${results[0].baseName}"`);
 				res.status(200).sendFile(filePath);
 			}
-			
+
 			if (downloadsAvailable === 1) {
 				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);

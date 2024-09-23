@@ -105,7 +105,7 @@ body {
 	gap: 20px;
 	max-height: 800px; /* Just some random big number that it'll never get to */
 	opacity: 1;
-	
+
 	transition: opacity 1s ease, max-height 5s linear;
 	will-change: opacity, max-height;
 	display: flex;
@@ -127,7 +127,7 @@ body {
 
 .filesListItem:hover:not(.fileListItemNew) {
 	transition: background-color 0.2s ease;
-	background-color: #091520;	
+	background-color: #091520;
 	color: whitesmoke;
 }
 
@@ -140,13 +140,13 @@ body {
 }
 
 .filesListItem:first-child {
-	border-top-left-radius: var(--defaultBorderRadius); 
-	border-top-right-radius: var(--defaultBorderRadius); 
+	border-top-left-radius: var(--defaultBorderRadius);
+	border-top-right-radius: var(--defaultBorderRadius);
 }
 
 .filesListItem:last-child {
-	border-bottom-left-radius: var(--defaultBorderRadius); 
-	border-bottom-right-radius: var(--defaultBorderRadius); 
+	border-bottom-left-radius: var(--defaultBorderRadius);
+	border-bottom-right-radius: var(--defaultBorderRadius);
 }
 
 .fileListItemNew:nth-child(odd) {
@@ -181,10 +181,10 @@ body {
 .filesListItem > .filesListItemComponentLeft {
 	word-wrap: break-word; /* Don't want long words running off the page */
 	margin-right: auto;
-	
+
 	// Make them look clickable:
 	cursor: pointer;
-	
+
 	&:hover, &:active {
 		text-decoration: underline;
 		color: white;
@@ -235,7 +235,7 @@ body {
 	height: 20px;
 	padding: 16px;
 	border-radius: var(--defaultBorderRadius);
-	
+
 	overflow: hidden; /* Prevents fields from leaving complaintField outline */
 	box-sizing: border-box; /* Makes the width of the fields relative to the complaintField */
 	justify-content: center;
@@ -512,7 +512,7 @@ input, textarea {
 	}
 	to {
 		transform: rotate(360deg);
-	}	
+	}
 }
 
 .popup {
@@ -524,7 +524,7 @@ input, textarea {
 	top: 50%;
     transform: translate(-50%, -50%);
 	width: 400px;
-	max-width: 95%;	
+	max-width: 95%;
 	min-height: fit-content;
 	display: none;
 }
@@ -647,7 +647,7 @@ input[type=checkbox] {
 	outline: 0;
 	flex-grow: 0;
 }
-  
+
 /* Pseudo element for check styling */
 input[type=checkbox]::before {
 	content: "";

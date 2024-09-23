@@ -11,7 +11,7 @@ $('#createLandmarkForm').addEventListener('submit', e => {
 
 	const options = {
 		headers: {
-			'Content-Type': 'application/json', 
+			'Content-Type': 'application/json',
 			'Authorization': $('#createPasswordInput').value
 		},
 		body: JSON.stringify({
@@ -53,7 +53,7 @@ $('#deleteLandmarkForm').addEventListener('submit', e => {
 
 	const options = {
 		headers: {
-			'Content-Type': 'application/json', 
+			'Content-Type': 'application/json',
 			'Authorization': $('#deletePasswordInput').value
 		},
 		body: JSON.stringify({

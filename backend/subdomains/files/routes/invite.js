@@ -10,7 +10,7 @@ const express = require('express'),
       { nanoid } = require('nanoid');
 
 require('@marko/compiler/register');
-	  
+
 router.post('/', authInspector(ROLE.USER), async (req, res) => {
 	const invitee = req.body.name,
 	      message = req.body.message,
@@ -26,23 +26,23 @@ router.post('/', authInspector(ROLE.USER), async (req, res) => {
 
 	enoughSpace(maxUploadSize, req.headers['Username'], res, async (isEnoughSpace) => {
 		if (!isEnoughSpace) return;
-	
+
 		const id = nanoid(7);
 		const validitySeconds = Math.floor(validity * 3600);
 
 		if (!await createInviteSession(req.headers['Username'], id, validitySeconds, maxUploadSize)) // Turns hours to seconds
 			return res.sendStatus(502);
-	
+
 		const sql = `INSERT INTO invites (id, inviteeName, message, expirationDate, maxUploadSize, inviter) ` +
 					`VALUES (?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?)`,
 			  params = [id, invitee, message, validity * 60, maxUploadSize, req.headers['Username']];
-	
+
 		pool.execute(sql, params, (err, results) => {
 			if (err) {
 				console.log(err);
 				return res.sendStatus(502);
 			}
-	
+
 			if (results && results.affectedRows === 1) {
 				const url = req.protocol + '://f.mateimarica.dev/?invite=' + id;
 				return res.status(201).send({url: url});
@@ -70,8 +70,8 @@ router.get('/', async (req, res) => {
 			console.log(err);
 			return res.sendStatus(502);
 		}
-		
-		if (results && results.length === 1) {		
+
+		if (results && results.length === 1) {
 			res.set('Invite-Access-Token', inviteAccessToken);
 
 			const html = inviteTemplate.renderToString({
@@ -85,7 +85,7 @@ router.get('/', async (req, res) => {
 		}
 	});
 
-	
+
 });
 
 module.exports = router;

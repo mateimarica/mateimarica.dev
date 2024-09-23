@@ -35,7 +35,7 @@ const userPollers = {}; // all the USER requests waiting for a response
 
 /**
 Object storing polls created by non-logged-in users. The poll objects are laid flat in the root object.
-A pollerId must exist in this object prior to the client making a poll. This way, randos can't make polls 
+A pollerId must exist in this object prior to the client making a poll. This way, randos can't make polls
 @example
 {
 	"1234567": { // the key is the pollerId
@@ -53,7 +53,7 @@ A pollerId must exist in this object prior to the client making a poll. This way
 		res: Response,
 		timeCreated: Date
 	},
-	"49t34tg": null // valid but empty 
+	"49t34tg": null // valid but empty
 }
 */
 const anonPollers = {}; // all the USER requests waiting for a response
@@ -73,7 +73,7 @@ function createPoll(req, res) {
 
 	if (isUser) { // if user
 		// create object for user if not exist
-		if (!userPollers[username]) { 
+		if (!userPollers[username]) {
 			userPollers[username] = {};
 		// if pollerId entry already exists, return response if lastData exists
 		} else if (userPollers[username][pollerId]) {
@@ -84,7 +84,7 @@ function createPoll(req, res) {
 				delete userPollers[username][pollerId];
 				return;
 			}
-			
+
 		}
 
 		// insert this poll
@@ -108,7 +108,7 @@ function createPoll(req, res) {
 				return;
 			}
 		}
-		
+
 		// insert this poll
 		anonPollers[pollerId] = {
 			req: req,
@@ -118,7 +118,7 @@ function createPoll(req, res) {
 	}
 }
 
-/** Returns the updated notes to all the polling sessions for a specific user (but not the session that triggered the change) 
+/** Returns the updated notes to all the polling sessions for a specific user (but not the session that triggered the change)
 @param username The username of the user that edited a note
 @param pollerIdIn The 7-character poller ID passed in by the user
 @param data An object containing data to be sent to the other pollers
@@ -136,7 +136,7 @@ async function syncUserPollers(username, pollerIdIn, data) {
 		const pollerId = pollerIds[i];
 		if (pollerId === pollerIdIn) continue;
 		const session = sessions[pollerId];
-		
+
 		userPollers[username][pollerId].lastData = {...userPollers[username][pollerId].lastData, ...data}; // merge objects. if duplicate keys, 2nd obj keys overwrites 1st obj keys;
 		userPollers[username][pollerId].lastDataId = lastDataId;
 

@@ -40,7 +40,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 		sql = `INSERT INTO votes (vote, answerId, voter) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote=?;`;
 		params = [vote, answerId, req.body.session.username, vote];
 	}
-	
+
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			switch (err.code) {
@@ -65,7 +65,7 @@ const DELETE_RATE_LIMITER = rateLimit({
 router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-	    
+
 	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let questionId = req.body.params.questionId
@@ -75,13 +75,13 @@ router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 	 || !((questionId && questionId.length === 36) || (answerId && answerId.length === 36))) {
 		return res.status(400).send('Missing, invalid, out-of-bounds, or too many argument(s)');
 	}
-	
+
 	let sql = `DELETE FROM votes WHERE id=?;`,
 		params;
-	
-	if (questionId) 
+
+	if (questionId)
 		params = [questionId + req.body.session.username];
-	else 
+	else
 		params = [answerId + req.body.session.username];
 
 		pool.execute(sql, params, (err, results) => {

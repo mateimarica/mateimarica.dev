@@ -24,7 +24,7 @@ const TOKEN_REFRESHER_RATE_LIMITER = rateLimit({
 
 router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 	if (!req.body) return res.sendStatus(400);
-	
+
 	const username = req.body.username;
 	let password = req.body.password;
 	delete req.body.password;
@@ -36,7 +36,7 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 		return res.sendStatus(401);
 
 	const persistent = // is session is persistent or not
-		req.body && req.body.persistentSession && typeof req.body.persistentSession === "boolean" 
+		req.body && req.body.persistentSession && typeof req.body.persistentSession === "boolean"
 		? req.body.persistentSession
 		: false;
 
@@ -58,12 +58,12 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 					console.log(err);
 					return res.sendStatus(500);
 				}
-				
+
 				if (!isMatch) return res.sendStatus(401);
 
 				const tokens = await authManager.createSession(results[0].username, results[0].role, persistent);
 				if (tokens === null) return res.sendStatus(502);
-				
+
 				if (persistent) {
 					res.cookie('accessToken',  tokens.access,  authManager.getAccessTokenCookieOptions());
 					res.cookie('refreshToken', tokens.refresh, authManager.getRefreshTokenCookieOptions());
@@ -80,14 +80,14 @@ router.post('/', FAILED_LOGIN_RATE_LIMITER, (req, res) => {
 			password = null; // null the password so we can't accidently do something with it
 
 		} else {
-			res.sendStatus(401);	
+			res.sendStatus(401);
 		}
 	});
 });
 
 router.get('/access', FAILED_LOGIN_RATE_LIMITER, async (req, res) => {
 	const accessToken = authManager.getTokenFromReq(req, 'accessToken', 'Access-Token');
-	
+
 	if (accessToken && authManager.validateAccessToken(accessToken, authManager.ROLE.USER)) {
 		return res.status(200).sendFile(path.join(COMPONENTS_DIR, 'main.html'));
 	}
@@ -135,7 +135,7 @@ router.delete('/refresh', TOKEN_REFRESHER_RATE_LIMITER, async (req, res) => {
 		res.clearCookie('accessToken',  authManager.getAccessTokenCookieOptions(null));
 		res.clearCookie('refreshToken', authManager.getRefreshTokenCookieOptions(null));
 	} // If NOT persistent, the client will clear token vars
-	
+
 	res.sendStatus(204);
 });
 
