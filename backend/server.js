@@ -52,11 +52,12 @@ const helmetFunc = helmet({
 			"upgrade-insecure-requests": [],
 			"img-src": [SELF_SRC, DOMAIN_SRC],
 			"script-src": [SELF_SRC, SUBDOMAIN_SRC],
+			"frame-src": [SUBDOMAIN_SRC],
 			"manifest-src": [SELF_SRC],
 			"style-src": [SELF_SRC, DOMAIN_SRC, SUBDOMAIN_SRC, "'unsafe-inline'"],
 			"connect-src": [SELF_SRC], // specifies which URLs can be loaded using APIs like XMLHttpRequest,
 			"media-src": [SELF_SRC], // allow stuff like mp3s and mp4s to be loaded in the browser
-			"frame-ancestors": [NONE_SRC]
+			"frame-ancestors": [SUBDOMAIN_SRC]
 		}
 	},
 	// these headers are redundant or deprecated on modern browsers

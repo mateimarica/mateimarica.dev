@@ -7,6 +7,7 @@ const express = require('express'),
       { authInspector, ROLE } = require('../authManager'),
       crypto = require('crypto'),
       { UPLOAD_DIR } = require('../files'),
+      { isText } = require('istextorbinary'),
       rateLimit = require('express-rate-limit');
 
 const DOWNLOADS_RATE_LIMITER = rateLimit({
@@ -22,15 +23,30 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 	const currentDate = new Date();
 	for (let i = 0; i < downloadSessions.length; i++) {
 		if (req.query.key === downloadSessions[i].key) {
-			if (currentDate - downloadSessions[i].dateCreated < 3000) {
-				if (!fs.existsSync(downloadSessions[i].filePath))
+			const downloadSession = downloadSessions[i];
+
+			if (currentDate - downloadSession.dateCreated < downloadSession.validityPeriod) {
+				if (!fs.existsSync(downloadSession.filePath))
 					return res.sendStatus(410);
 
-				res.download(downloadSessions[i].filePath, { dotfiles: 'allow' });
-				downloadSessions.splice(i, 1);
+				if (downloadSession.type === 'download') {
+					res.download(downloadSession.filePath, { dotfiles: 'allow' });
+					downloadSessions.splice(i, 1); // downloads are a one-time link, so remove immediately
+				} else if (downloadSession.type === 'preview') {
+					if (downloadSession.isPreviewableFile) {
+						res.sendFile(downloadSession.filePath, { dotfiles: 'allow', headers: { "Content-Disposition": `inline; filename="${path.basename(downloadSession.filePath)}"`} } );
+					} else {
+						res.status(200).send("<pre>This file cannot be previewed.</pre>");
+					}
+				} else {
+					res.sendStatus(400);
+				}
+
 				return;
 			} else {
-				return res.sendStatus(401);
+				res.sendStatus(400);
+				downloadSessions.splice(i, 1);
+				return;
 			}
 		}
 	}
@@ -38,12 +54,20 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 	return res.sendStatus(400);
 });
 
-let downloadSessions = [];
+let downloadSessions = [];	
+
+const requestValidities = {
+	'download': 3000,
+	'preview': 3600000 // 1 hour
+};
+
+const renderableExts = ['.jpeg', '.jpg', '.png', '.webp', '.apng', '.pdf', '.bmp', '.ico']; // not including text files
 
 router.post('/request', authInspector(ROLE.USER), (req, res) => {
 	let baseName = req.body.baseName;
+	let type = req.body.type; // possible values: download, preview
 
-	if (!baseName)
+	if (!baseName || !type || !Object.keys(requestValidities).includes(type))
 		return res.sendStatus(400);
 
 	const filePath = path.join(UPLOAD_DIR, req.headers['Username'], baseName);
@@ -51,10 +75,17 @@ router.post('/request', authInspector(ROLE.USER), (req, res) => {
 	if (!fs.existsSync(filePath))
 		return res.sendStatus(404);
 
+	let isPreviewableFile = null;
+	if (type === 'preview')
+		isPreviewableFile = renderableExts.includes(path.extname(baseName)) || isText(null, fs.readFileSync(filePath));
+
 	const downloadSession = {
-		key: crypto.randomBytes(16).toString('hex'),
+		key: crypto.randomBytes(48).toString('hex'),
 		dateCreated: new Date(),
-		filePath: filePath
+		filePath: filePath,
+		type: type,
+		validityPeriod: requestValidities[type],
+		isPreviewableFile: isPreviewableFile
 	};
 
 	downloadSessions.push(downloadSession);

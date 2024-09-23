@@ -500,6 +500,51 @@ function setUpMainPage() {
 			filesListItem.append(filename, size, date, deleteButton);
 
 			if (!isInviteSession()) {
+				filename.addEventListener('click', () => {
+					const filePreviewDisplay = $('#filePreviewDisplay');
+					const infoDisplayTextArea = filePreviewDisplay.querySelector('.infoDisplayTextArea');
+					infoDisplayTextArea.replaceChildren(); // remove old iframe
+					filePreviewDisplay.querySelector('.infoDisplayTitle').textContent = filename.textContent;
+
+					filePreviewDisplay.style.display = 'block';
+					showDarkOverlayForPopup();
+
+					const options = {
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							baseName: files[i].baseName,
+							type: 'preview'
+						})
+					};
+	
+					sendHttpRequest('POST', '/download/request', options, { load: async (http) => {
+						switch (http.status) {
+							case 200:
+								const iframe = document.createElement('iframe');
+								iframe.src = '/download?key=' + http.getResponseHeader('Authorization') + '&forceDownload=false';
+								
+								iframe.title = files[i].basename;
+								infoDisplayTextArea.replaceChildren(iframe);
+
+								iframe.addEventListener("load", function() {
+									const iframeBody = this.contentWindow.document.body;
+
+									const iframeText = iframeBody.querySelector('pre');
+									if (iframeText) iframeText.style.color = 'white';
+
+									const iframeImg = iframeBody.querySelector('img');
+									if (iframeImg) iframeImg.style.cssText = "position: absolute; inset: 0; margin: auto";
+								});
+								
+								break;
+							default:
+								displayToast('Something went wrong. Status code: ' + http.status);
+						}
+					}});
+				});
+
 				let shareButton = document.createElement('span');
 				shareButton.classList.add('icon', 'shareIcon');
 				shareButton.title = 'Share';
@@ -565,7 +610,8 @@ function setUpMainPage() {
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify({
-							baseName: files[i].baseName
+							baseName: files[i].baseName,
+							type: 'download'
 						})
 					};
 	

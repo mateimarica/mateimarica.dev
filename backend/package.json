@@ -34,6 +34,7 @@
     "glob": "^8.1.0",
     "helmet": "^4.6.0",
     "invalid-json-handler": "file:./middleware/invalid-json-handler",
+    "istextorbinary": "^9.5.0",
     "mail-wrapper": "file:./util/mail-wrapper",
     "marko": "^5.25.1",
     "morgan": "^1.10.0",
