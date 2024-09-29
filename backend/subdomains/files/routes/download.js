@@ -61,7 +61,7 @@ const requestValidities = {
 	'preview': 3600000 // 1 hour
 };
 
-const renderableExts = ['.jpeg', '.jpg', '.png', '.webp', '.apng', '.pdf', '.bmp', '.ico']; // not including text files
+const renderableExts = ['.jpeg', '.jpg', '.png', '.webp', '.webm', '.mp3', '.mp4', '.m4a', '.apng', '.pdf', '.bmp', '.ico']; // not including text files
 
 router.post('/request', authInspector(ROLE.USER), (req, res) => {
 	let baseName = req.body.baseName;
