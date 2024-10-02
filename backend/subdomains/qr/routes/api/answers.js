@@ -15,11 +15,9 @@ const POST_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.post('/', POST_RATE_LIMITER, (req, res) => {
+router.post('/', POST_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let answer = req.body.params.answer,
 	    questionId = req.body.params.questionId;
@@ -31,7 +29,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 
 	let sql = `INSERT INTO answers (answer, questionId, author) VALUES (?, ?, ?);`;
 
-	let params = [answer, questionId, req.body.session.username];
+	let params = [answer, questionId, req.header("Username")];
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			console.log(err);
@@ -50,13 +48,8 @@ const GET_RATE_LIMITER = rateLimit({
 });
 
 // Get all answers for a question
-router.get('/', GET_RATE_LIMITER, (req, res) => {
-	if (!req.body)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let questionId = req.body.params.questionId;
+router.get('/', GET_RATE_LIMITER, users.authInspector, (req, res) => {
+	let questionId = req.query.questionId;
 
 	if (!questionId)
 		return res.status(400).send('Missing argument(s)');
@@ -68,7 +61,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 		`FROM answers AS a WHERE a.questionId=? ` +
 		`ORDER BY votes DESC LIMIT 35;`;
 
-	let params = [req.body.session.username, questionId];
+	let params = [req.header("Username"), questionId];
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
@@ -87,11 +80,9 @@ const PATCH_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
+router.patch('/', PATCH_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let answer = req.body.params.answer,
 	    id = req.body.params.id;
@@ -99,7 +90,7 @@ router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
 	if (!answer || answer.length < 1 || answer.length > 3500 || !id)
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 
-	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
+	users.isAuthor(req.header("Username"), id, users.postType.ANSWER, res, () => {
 		let sql = `UPDATE answers SET answer=? WHERE id=?;`;
 		let params = [answer, id];
 
@@ -121,18 +112,13 @@ const DELETE_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let id = req.body.params.id;
+router.delete('/', DELETE_RATE_LIMITER, users.authInspector, (req, res) => {
+	let id = req.query.id;
 
 	if (!id)
 		return res.status(400).send('Missing argument');
 
-	users.isAuthor(req.body.session.username, id, users.postType.ANSWER, res, () => {
+	users.isAuthor(req.header("Username"), id, users.postType.ANSWER, res, () => {
 		let sql = `DELETE FROM answers WHERE id=?;`;
 		let params = [id];
 

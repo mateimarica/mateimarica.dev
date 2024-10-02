@@ -15,11 +15,9 @@ const POST_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.post('/', POST_RATE_LIMITER, (req, res) => {
+router.post('/', POST_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let recipient = req.body.params.recipient,
 		message = req.body.params.message;
@@ -28,7 +26,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 
 	let sql = `INSERT INTO messages (sender, recipient, message) VALUES (?, ?, ?);`;
-	let params = [req.body.session.username, recipient, message];
+	let params = [req.header("Username"), recipient, message];
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
@@ -51,13 +49,8 @@ const GET_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.get('/', GET_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let recipient = req.body.params.recipient;
+router.get('/', GET_RATE_LIMITER, users.authInspector, (req, res) => {
+	let recipient = req.query.recipient;
 
 	if (!recipient)
 		return res.status(400).send('Missing argument(s)');
@@ -66,7 +59,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 		`SELECT * FROM messages ` +
 		`WHERE ((recipient=? AND sender=?) OR (recipient=? AND sender=?)) ` +
 		`ORDER BY dateCreated ASC;`;
-	let params = [req.body.session.username, recipient, recipient, req.body.session.username];
+	let params = [req.header("Username"), recipient, recipient, req.header("Username")];
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {

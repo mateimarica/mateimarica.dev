@@ -15,11 +15,9 @@ const REPORTS_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.post('/', REPORTS_RATE_LIMITER, (req, res) => {
+router.post('/', REPORTS_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let type = req.body.params.type,
 	    description = req.body.params.description,
@@ -36,10 +34,10 @@ router.post('/', REPORTS_RATE_LIMITER, (req, res) => {
 	let sql, params;
 	if (questionId) {
 		sql = `INSERT INTO reports (type, description, questionId, reporter) VALUES (?, ?, ?, ?);`;
-		params = [type, description, questionId, req.body.session.username];
+		params = [type, description, questionId, req.header("Username")];
 	} else {
 		sql = `INSERT INTO reports (type, description, answerId, reporter) VALUES (?, ?, ?, ?);`;
-		params = [type, description, answerId, req.body.session.username];
+		params = [type, description, answerId, req.header("Username")];
 	}
 
 	pool.execute(sql, params, (err, results) => {

@@ -16,11 +16,9 @@ const POST_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.post('/', POST_RATE_LIMITER, (req, res) => {
+router.post('/', POST_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let title = req.body.params.title,
 	    description = (req.body.params.description ? req.body.params.description : ''),
@@ -33,7 +31,7 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 	}
 
 	let sql = `INSERT INTO questions (title, description, author, tag) VALUES (?, ?, ?, ?);`;
-	let params = [title, description, req.body.session.username, tag];
+	let params = [title, description, req.header("Username"), tag];
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			console.log(err);
@@ -52,12 +50,7 @@ const GET_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.get('/', GET_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params || !req.body.params.id)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
+router.get('/', GET_RATE_LIMITER, users.authInspector, (req, res) => {
 	let sql =
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
@@ -65,7 +58,7 @@ router.get('/', GET_RATE_LIMITER, (req, res) => {
 		`COALESCE((SELECT COUNT(*) FROM answers WHERE questionId=q.id), 0) AS answerCount ` +
 		`FROM questions AS q WHERE q.id=? LIMIT 1;`;
 
-	let params = [req.body.session.username, req.body.params.id];
+	let params = [req.header("Username"), req.query.id];
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
@@ -88,12 +81,7 @@ const LIST_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.get('/list', LIST_RATE_LIMITER, (req, res) => {
-	if (!req.body)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
+router.get('/list', LIST_RATE_LIMITER, users.authInspector, (req, res) => {
 	let sql =
 		`SELECT q.*, ` +
 		`COALESCE((SELECT CONVERT(SUM(vote), SIGNED) FROM votes WHERE questionId=q.id), 0) AS votes, ` +
@@ -102,7 +90,7 @@ router.get('/list', LIST_RATE_LIMITER, (req, res) => {
 		`FROM questions AS q ` +
 		`ORDER BY q.isPinned DESC, votes DESC LIMIT 35;`
 
-	let params = [req.body.session.username];
+	let params = [req.header("Username")];
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
 			console.log(err);
@@ -164,15 +152,10 @@ const SEARCH_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let keywords = req.body.params.keywords,
-	    tag = req.body.params.tag,
-	    hasSolvedAnswer = req.body.params.hasSolvedAnswer;
+router.get('/search', SEARCH_RATE_LIMITER, users.authInspector, (req, res) => {
+	let keywords = req.query.keywords,
+	    tag = req.query.tag,
+	    hasSolvedAnswer = req.query.hasSolvedAnswer;
 
 	if (!keywords && !tag && !hasSolvedAnswer)
 		return res.status(400).send('Missing argument(s)');
@@ -187,7 +170,7 @@ router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
 		`${addKeywords(keywords, params)} AND ${addTag(tag, params)} AND ${addHasSolvedAnsConstraint(hasSolvedAnswer)} ` +
 		`ORDER BY q.isPinned DESC LIMIT 40;`;
 
-	params.unshift(req.body.session.username); // Add username to the beginning after params edited
+	params.unshift(req.header("Username")); // Add username to the beginning after params edited
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
@@ -211,18 +194,16 @@ const TOGGLEPIN_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.patch('/toggle-pin', TOGGLEPIN_RATE_LIMITER, (req, res) => {
+router.patch('/toggle-pin', TOGGLEPIN_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let id = req.body.params.id;
 
 	if (!id)
 		return res.status(400).send('Missing argument(s)');
 
-	users.isAdmin(req.body.session.username, res, () => {
+	users.isAdmin(req.header("Username"), res, () => {
 		let sql = `UPDATE questions SET isPinned = NOT isPinned WHERE id = ?;`;
 		let params = [id];
 
@@ -247,11 +228,9 @@ const PATCH_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
+router.patch('/', PATCH_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let id = req.body.params.id,
 	    description = req.body.params.description,
@@ -260,7 +239,7 @@ router.patch('/', PATCH_RATE_LIMITER, (req, res) => {
 	if (!id || (!description && !tag))
 		return res.status(400).send('Missing argument(s)');
 
-	users.isAuthor(req.body.session.username, id, users.postType.QUESTION, res, () => {
+	users.isAuthor(req.header("Username"), id, users.postType.QUESTION, res, () => {
 		let sql = `UPDATE questions SET`;
 		let params = [id];
 
@@ -300,18 +279,13 @@ const DELETE_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let id = req.body.params.id;
+router.delete('/', DELETE_RATE_LIMITER, users.authInspector, (req, res) => {
+	let id = req.query.id;
 
 	if (!id)
 		return res.status(400).send('Missing argument(s)');
 
-	users.isAuthor(req.body.session.username, id, users.postType.QUESTION, res, () => {
+	users.isAuthor(req.header("Username"), id, users.postType.QUESTION, res, () => {
 		let sql = `DELETE FROM questions WHERE id=?;`;
 		let params = [id];
 
@@ -336,11 +310,9 @@ const MARKSOLVED_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.patch('/mark-solved', MARKSOLVED_RATE_LIMITER, (req, res) => {
+router.patch('/mark-solved', MARKSOLVED_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let id = req.body.params.id,
 	    solvedAnswerId = req.body.params.solvedAnswerId;
@@ -348,7 +320,7 @@ router.patch('/mark-solved', MARKSOLVED_RATE_LIMITER, (req, res) => {
 	if (!id || (!solvedAnswerId && solvedAnswerId != null) || (solvedAnswerId && solvedAnswerId.length !== 36))
 		return res.status(400).send('Missing or out-of-bounds argument(s)');
 
-	users.isAuthor(req.body.session.username, id, users.postType.QUESTION, res, () => {
+	users.isAuthor(req.header("Username"), id, users.postType.QUESTION, res, () => {
 		let sql = `UPDATE questions SET solvedAnswerId=? WHERE id=?;`;
 		let params = [solvedAnswerId, id];
 

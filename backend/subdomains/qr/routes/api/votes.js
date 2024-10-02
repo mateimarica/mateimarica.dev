@@ -15,11 +15,9 @@ const POST_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.post('/', POST_RATE_LIMITER, (req, res) => {
+router.post('/', POST_RATE_LIMITER, users.authInspector, (req, res) => {
 	if (!req.body || !req.body.params)
 		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
 
 	let vote = req.body.params.vote,
 	    questionId = req.body.params.questionId,
@@ -35,10 +33,10 @@ router.post('/', POST_RATE_LIMITER, (req, res) => {
 	let sql, params;
 	if (questionId) {
 		sql = `INSERT INTO votes (vote, questionId, voter) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote=?;`;
-		params = [vote, questionId, req.body.session.username, vote];
+		params = [vote, questionId, req.header("Username"), vote];
 	} else {
 		sql = `INSERT INTO votes (vote, answerId, voter) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote=?;`;
-		params = [vote, answerId, req.body.session.username, vote];
+		params = [vote, answerId, req.header("Username"), vote];
 	}
 
 	pool.execute(sql, params, (err, results) => {
@@ -62,14 +60,9 @@ const DELETE_RATE_LIMITER = rateLimit({
 	headers: false
 });
 
-router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!users.isSessionValid(req.body.session, res)) return;
-
-	let questionId = req.body.params.questionId
-	    answerId = req.body.params.answerId;
+router.delete('/', DELETE_RATE_LIMITER, users.authInspector, (req, res) => {
+	let questionId = req.query.questionId
+	    answerId = req.query.answerId;
 
 	if ((questionId ? answerId : !answerId) // XOR
 	 || !((questionId && questionId.length === 36) || (answerId && answerId.length === 36))) {
@@ -80,9 +73,9 @@ router.delete('/', DELETE_RATE_LIMITER, (req, res) => {
 		params;
 
 	if (questionId)
-		params = [questionId + req.body.session.username];
+		params = [questionId + req.header("Username")];
 	else
-		params = [answerId + req.body.session.username];
+		params = [answerId + req.header("Username")];
 
 		pool.execute(sql, params, (err, results) => {
 		if (err) {

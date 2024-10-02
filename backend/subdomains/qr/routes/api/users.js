@@ -110,20 +110,15 @@ const SEARCH_RATE_LIMITER = rateLimit({
 });
 
 // search for multiple
-router.get('/search', SEARCH_RATE_LIMITER, (req, res) => {
-	if (!req.body || !req.body.params)
-		return res.sendStatus(400);
-
-	if (!isSessionValid(req.body.session, res)) return;
-
-	let username = req.body.params.username,
-	    maxResultCount = req.body.params.maxResultCount;
+router.get('/search', SEARCH_RATE_LIMITER, authInspector, (req, res) => {
+	let username = req.query.username,
+	    maxResultCount = parseInt(req.query.maxResultCount);
 
 	if (!username || !Number.isInteger(maxResultCount) || maxResultCount < 1 || maxResultCount > 15)
 		return res.status(400).send("Missing or out-of-bounds arguments");
 
 	let sql = `SELECT username FROM users WHERE username LIKE ? LIMIT ${maxResultCount};`;
-	let params = [req.body.params.username + '%'];
+	let params = [req.query.username + '%'];
 	pool.execute({sql: sql, rowsAsArray: true}, params, (err, results) => {
 		if (err) {
 			console.log(err);
@@ -157,6 +152,17 @@ function isSessionValid(session, res) {
 	res.sendStatus(401);
 	return false;
 }
+
+async function authInspector (req, res, next) {
+	const session = {
+		username: req.header("Username"),
+		sessionId: req.header("SessionId")
+	};
+
+	if (isSessionValid(session, res))
+		next();
+}
+
 
 function removeOldSessions(username) {
 	let currentDate = new Date();
@@ -215,4 +221,4 @@ router.get('*', (req, res) => {
 	res.sendStatus(404);
 });
 
-module.exports = { router, isSessionValid, isAdmin, isAuthor, postType };
+module.exports = { router, authInspector, isAdmin, isAuthor, postType };
