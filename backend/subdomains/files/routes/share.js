@@ -16,9 +16,10 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 	      validity = req.body.validity, // validity is in hours
 	      forceDownload = req.body.forceDownload;
 
+	// limit and validity using null check instead of ! because their values can be zero, and !0 is true
 	if (!name ||
-	    !limit || !Number.isInteger(limit) || limit <= 0 || limit > 9999 ||
-	    !validity || isNaN(validity) || validity <= 0 || validity > 9999 ||
+	    limit === null || !Number.isInteger(limit) || limit < 0 || limit > 9999 ||
+	    validity === null || isNaN(validity) || validity < 0 || validity > 9999 ||
 	    typeof forceDownload !== 'boolean')
 		return res.sendStatus(400);
 
@@ -31,7 +32,7 @@ router.post('/', authInspector(ROLE.USER), (req, res) => {
 
 	const sql = `INSERT INTO shares (id, baseName, expirationDate, maxDownloads, sharer, forceDownload) ` +
 	            `VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ? MINUTE), ?, ?, ?)`,
-	      params = [id, name, validity * 60, limit, req.headers['Username'], forceDownload];
+	      params = [id, name, validity * 60 || null, limit || null, req.headers['Username'], forceDownload]; // the "|| null" is for passing null if the value is zero
 
 	pool.execute(sql, params, (err, results) => {
 		if (err) {
@@ -81,9 +82,12 @@ router.get('/dl', (req, res) => {
 		if (results && results.length === 1) {
 			const currentDate = new Date(),
 			      expirationDate = new Date(results[0].expirationDate);
-
 			const downloadsAvailable = results[0].maxDownloads - results[0].downloads;
-			if (currentDate > expirationDate || downloadsAvailable < 1) {
+			const infiniteDownloads = (results[0].maxDownloads === null);
+			const noExpiration = (results[0].expirationDate === null);
+
+			// delete share if expired
+			if (!noExpiration && currentDate > expirationDate) {
 				res.sendStatus(404);
 				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
@@ -93,6 +97,7 @@ router.get('/dl', (req, res) => {
 
 			const filePath = path.join(UPLOAD_DIR, results[0].sharer, results[0].baseName);
 
+			// delete share if file doesn't exist
 			if (!fs.existsSync(filePath)) {
 				res.sendStatus(410);
 				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
@@ -101,6 +106,7 @@ router.get('/dl', (req, res) => {
 				return;
 			}
 
+			// set file to be send in response
 			if (results[0].forceDownload) {
 				res.status(200).download(filePath); // download() automatically sets Content-Disposition: attachment; filename=<name>
 			} else {
@@ -108,7 +114,8 @@ router.get('/dl', (req, res) => {
 				res.status(200).sendFile(filePath);
 			}
 
-			if (downloadsAvailable === 1) {
+			// delete share if this is the last download, otherwise increment
+			if (downloadsAvailable === 1 && !infiniteDownloads) {
 				pool.execute(`DELETE FROM shares WHERE BINARY id=?`, params, (err) => {
 					if (err) console.log(err);
 				});

@@ -148,6 +148,7 @@ $('#resetPswdLink').addEventListener('click', () => {
 	$('#resetPswdPopup').style.display = 'block';
 });
 
+const listenersToRemoveOnExit = [];
 registerXButtons();
 function registerXButtons() {
 	$$('.xButton').forEach(xButton => {
@@ -157,6 +158,12 @@ function registerXButtons() {
 				darkOverlay.style.display = 'none';
 				this.parentElement.style.display = 'none';
 				document.documentElement.style.overflow = ''; // add scrolling back in after popup disables it
+
+				// for preventing duplicate listeners
+				while(listenersToRemoveOnExit.length > 0) {
+					const listener = listenersToRemoveOnExit.pop();
+					listener.element.removeEventListener(listener.type, listener.eventHandler);
+				}
 			});
 		}
 	});
@@ -573,10 +580,20 @@ function setUpMainPage() {
 					$('#sharePopup').style.display = 'block';
 					showDarkOverlayForPopup();
 
-					$('#createShareLinkBtn').addEventListener('click', () => {
+					const createShareLinkBtn = $('#createShareLinkBtn');
+					function createShareLinkBtnClickHandler() {
 						const limit = $('.shareActiveDownloadLimitSelector').value,
 						      validity = $('.shareActiveValidityPeriodSelector').value,
 						      forceDownload = $('#forceDownloadCheckbox').checked;
+
+						if (limit == 0 || validity == 0) {
+							const warningMsg =
+							'Heads up!\n\n' +
+							(limit == 0 ? 'Limit is 0, meaning there will be no download limit.\n' : '') +
+							(validity == 0 ? 'Validity period is 0, meaning the link won\'t expire.\n' : '') +
+							'\nAre you sure you want to continue?';
+							if (!confirm(warningMsg)) return;
+						}
 
 						const options = {
 							headers: {
@@ -601,7 +618,9 @@ function setUpMainPage() {
 									displayToast('Something went wrong. Status code: ' + http.status);
 							}
 						}});
-					});
+					}
+					$('#createShareLinkBtn').addEventListener('click', createShareLinkBtnClickHandler);
+					listenersToRemoveOnExit.push({ element: createShareLinkBtn, type: 'click', eventHandler: createShareLinkBtnClickHandler });
 				});
 
 
