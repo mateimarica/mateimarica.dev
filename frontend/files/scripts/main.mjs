@@ -821,6 +821,16 @@ function setUpMainPage() {
 
 	document.addEventListener('keydown', (event) => shiftKeyDown = event.shiftKey);
 	document.addEventListener('keyup', (event) => shiftKeyDown = event.shiftKey);
+
+	// set up listener for removing iframe from file preview popup on xButton click
+	// this is to stop music and videos from playing in background after close
+	$('#filePreviewDisplay > .xButton').addEventListener('click', e => {
+		const iframe = $('#filePreviewDisplay .infoDisplayTextArea > iframe');
+
+		if (iframe !== null) {
+			iframe.remove();
+		}
+	});
 }
 
 function setUpFilePicker(uploadFilesFunction) {
