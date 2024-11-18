@@ -34,7 +34,10 @@ router.get('/', DOWNLOADS_RATE_LIMITER, (req, res) => {
 					downloadSessions.splice(i, 1); // downloads are a one-time link, so remove immediately
 				} else if (downloadSession.type === 'preview') {
 					if (downloadSession.isPreviewableFile) {
-						res.sendFile(downloadSession.filePath, { dotfiles: 'allow', headers: { "Content-Disposition": `inline; filename="${path.basename(downloadSession.filePath)}"`} } );
+						const headers = {
+							"Content-Disposition": `inline; filename="${encodeURIComponent(path.basename(downloadSession.filePath))}"`
+						};
+						res.sendFile(downloadSession.filePath, { dotfiles: 'allow', headers: headers });
 					} else {
 						res.status(200).send("<pre>This file cannot be previewed.</pre>");
 					}
